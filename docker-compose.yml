@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: todoapp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-todoapp}
+      POSTGRES_USER: ${DB_USER:-todoapp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-todoapp}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - todoapp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-todoapp} -d ${DB_NAME:-todoapp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: todoapp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - todoapp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: todoapp-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-todoapp}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-todoapp}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - todoapp-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # MinIO (S3-compatible Object Storage)
+  minio:
+    image: minio/minio:latest
+    container_name: todoapp-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-todoapp}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-todoapp123}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - todoapp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # MinIO Bucket Creator (runs once to create bucket)
+  minio-create-bucket:
+    image: minio/mc:latest
+    container_name: todoapp-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ACCESS_KEY:-todoapp} ${MINIO_SECRET_KEY:-todoapp123};
+      /usr/bin/mc mb myminio/${MINIO_BUCKET:-todoapp-files} --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/${MINIO_BUCKET:-todoapp-files};
+      exit 0;
+      "
+    networks:
+      - todoapp-network
+
+  # Backend Application (Spring Boot)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todoapp-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${APP_ENV:-dev}
+
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-todoapp}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-todoapp}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-todoapp}
+
+      # Redis
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+      # RabbitMQ
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-todoapp}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-todoapp}
+      SPRING_RABBITMQ_VIRTUAL_HOST: ${RABBITMQ_VHOST:-/}
+
+      # MinIO
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-todoapp}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-todoapp123}
+      MINIO_BUCKET: ${MINIO_BUCKET:-todoapp-files}
+
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-to-a-secure-256-bit-string}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+
+      # SMTP (Email)
+      SPRING_MAIL_HOST: ${SMTP_HOST:-smtp.example.com}
+      SPRING_MAIL_PORT: ${SMTP_PORT:-587}
+      SPRING_MAIL_USERNAME: ${SMTP_USER:-noreply@example.com}
+      SPRING_MAIL_PASSWORD: ${SMTP_PASSWORD:-}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
+
+      # Application
+      SERVER_PORT: ${APP_PORT:-8080}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+
+      # Feature Flags
+      FEATURE_FILE_UPLOAD_ENABLED: ${FEATURE_FILE_UPLOAD_ENABLED:-true}
+      FEATURE_NOTIFICATIONS_ENABLED: ${FEATURE_NOTIFICATIONS_ENABLED:-true}
+      FEATURE_TIME_TRACKING_ENABLED: ${FEATURE_TIME_TRACKING_ENABLED:-true}
+
+      # Security
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
+
+      # File Upload
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-25}
+      MAX_USER_STORAGE_GB: ${MAX_USER_STORAGE_GB:-1}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - ./backend/logs:/app/logs
+    networks:
+      - todoapp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Frontend Application (React + Vite)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: todoapp-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      VITE_API_BASE_URL: ${APP_FRONTEND_URL:-http://localhost:8080}/api/v1
+      VITE_WS_URL: ${APP_FRONTEND_URL:-http://localhost:8080}/ws
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - todoapp-network
+
+networks:
+  todoapp-network:
+    driver: bridge
+    name: todoapp-network
+
+volumes:
+  postgres-data:
+    driver: local
+    name: todoapp-postgres-data
+
+  redis-data:
+    driver: local
+    name: todoapp-redis-data
+
+  rabbitmq-data:
+    driver: local
+    name: todoapp-rabbitmq-data
+
+  minio-data:
+    driver: local
+    name: todoapp-minio-data
