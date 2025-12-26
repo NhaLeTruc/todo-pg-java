@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { MainLayout } from './components/layout/MainLayout';
+import { TasksPage } from './pages/TasksPage';
 
 export function App() {
   return (
@@ -20,6 +21,7 @@ export function App() {
               </div>
             }
           />
+          <Route path="/tasks" element={<TasksPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
