@@ -1,0 +1,96 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+
+  flyway:
+    enabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  mail:
+    host: localhost
+    port: 1025
+
+logging:
+  level:
+    root: WARN
+    com.todoapp: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    org.testcontainers: INFO
+
+management:
+  endpoints:
+    enabled-by-default: false
+
+server:
+  port: 0
+
+app:
+  jwt:
+    secret: test-secret-key-for-testing-only-minimum-256-bits-required
+    expiration-ms: 3600000
+    issuer: todo-app-test
+
+  cors:
+    allowed-origins: http://localhost:3000
+    allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+
+  minio:
+    endpoint: http://localhost:9000
+    access-key: testkey
+    secret-key: testsecret
+    bucket: test-bucket
+    region: us-east-1
+
+  features:
+    file-upload-enabled: true
+    notifications-enabled: true
+    time-tracking-enabled: true
+
+  security:
+    password:
+      min-length: 6
+      require-uppercase: false
+      require-lowercase: false
+      require-numbers: false
+      require-special-chars: false
+    rate-limit:
+      enabled: false
+
+  file-upload:
+    max-file-size-mb: 10
+    max-user-storage-gb: 1
+    allowed-file-types: pdf,jpg,jpeg,png,txt
+
+  email:
+    from-address: test@example.com
+    from-name: Test App
+
+  scheduler:
+    thread-pool-size: 2

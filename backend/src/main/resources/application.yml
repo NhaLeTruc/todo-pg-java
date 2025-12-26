@@ -1,0 +1,221 @@
+spring:
+  application:
+    name: todo-backend
+
+  # Externalized configuration via environment variables
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/todoapp}
+    username: ${SPRING_DATASOURCE_USERNAME:todoapp}
+    password: ${SPRING_DATASOURCE_PASSWORD:todoapp}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 20
+          order_inserts: true
+          order_updates: true
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+    show-sql: false
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+    table: flyway_schema_history
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+      database: ${SPRING_DATA_REDIS_DATABASE:0}
+      timeout: 60000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:todoapp}
+    password: ${SPRING_RABBITMQ_PASSWORD:todoapp}
+    virtual-host: ${SPRING_RABBITMQ_VIRTUAL_HOST:/}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        concurrency: 5
+        max-concurrency: 10
+        prefetch: 10
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+          multiplier: 2.0
+
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.example.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+          timeout: 5000
+          connection-timeout: 5000
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE_MB:25}MB
+      max-request-size: ${MAX_FILE_SIZE_MB:25}MB
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    time-zone: UTC
+
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+  http2:
+    enabled: true
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  show-actuator: false
+
+logging:
+  level:
+    root: INFO
+    com.todoapp: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.flywaydb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Application-specific properties
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-production-to-a-secure-256-bit-string}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+    issuer: todo-app
+
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+    allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
+
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:todoapp}
+    secret-key: ${MINIO_SECRET_KEY:todoapp123}
+    bucket: ${MINIO_BUCKET:todoapp-files}
+    region: ${MINIO_REGION:us-east-1}
+
+  features:
+    file-upload-enabled: ${FEATURE_FILE_UPLOAD_ENABLED:true}
+    notifications-enabled: ${FEATURE_NOTIFICATIONS_ENABLED:true}
+    time-tracking-enabled: ${FEATURE_TIME_TRACKING_ENABLED:true}
+
+  security:
+    password:
+      min-length: ${MIN_PASSWORD_LENGTH:8}
+      require-uppercase: ${REQUIRE_PASSWORD_UPPERCASE:true}
+      require-lowercase: ${REQUIRE_PASSWORD_LOWERCASE:true}
+      require-numbers: ${REQUIRE_PASSWORD_NUMBERS:true}
+      require-special-chars: ${REQUIRE_PASSWORD_SPECIAL_CHARS:false}
+    rate-limit:
+      enabled: ${RATE_LIMIT_ENABLED:true}
+      window-ms: ${RATE_LIMIT_WINDOW_MS:60000}
+      max-requests: ${RATE_LIMIT_MAX_REQUESTS:100}
+
+  file-upload:
+    max-file-size-mb: ${MAX_FILE_SIZE_MB:25}
+    max-user-storage-gb: ${MAX_USER_STORAGE_GB:1}
+    allowed-file-types: ${ALLOWED_FILE_TYPES:pdf,jpg,jpeg,png,gif,doc,docx,xls,xlsx,txt}
+
+  email:
+    from-address: ${SMTP_FROM_EMAIL:noreply@example.com}
+    from-name: ${SMTP_FROM_NAME:TODO App}
+
+  scheduler:
+    thread-pool-size: 5
+    due-date-check-cron: "0 */15 * * * *"
+    recurrence-check-cron: "0 0 * * * *"
