@@ -1,0 +1,195 @@
+# ==============================================================================
+# CREDENTIALS AND SECRETS - NEVER COMMIT THESE
+# ==============================================================================
+
+# Environment files with credentials
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+*.env
+
+# Credential files
+credentials.json
+secrets.yaml
+secrets.yml
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.jks
+
+# Configuration files with secrets
+application-secrets.yml
+application-secrets.yaml
+application-local.yml
+application-local.yaml
+
+# AWS credentials
+.aws/credentials
+.aws/config
+
+# Google Cloud credentials
+gcloud-credentials.json
+*-service-account.json
+
+# SSH keys
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# ==============================================================================
+# BUILD OUTPUTS
+# ==============================================================================
+
+# Java/Maven
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+*.class
+*.jar
+!backend/.mvn/wrapper/maven-wrapper.jar
+*.war
+*.ear
+
+# Node/NPM
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.npm
+frontend/.pnpm-store
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==============================================================================
+# IDE AND EDITOR FILES
+# ==============================================================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+nbdist/
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+
+# ==============================================================================
+# OPERATING SYSTEM FILES
+# ==============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+# ==============================================================================
+# DOCKER AND CONTAINERS
+# ==============================================================================
+
+# Docker volumes and data
+docker-data/
+postgres-data/
+minio-data/
+redis-data/
+
+# ==============================================================================
+# TESTING AND COVERAGE
+# ==============================================================================
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# JaCoCo
+jacoco.exec
+jacoco-report/
+
+# ==============================================================================
+# TEMPORARY FILES
+# ==============================================================================
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.cache
+
+# Lock files (keep package-lock.json and pom.xml.lock)
+# but ignore other locks
+*.lock
+!package-lock.json
+
+# ==============================================================================
+# PROJECT SPECIFIC
+# ==============================================================================
+
+# Uploaded files during development
+uploads/
+attachments/
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Documentation builds (keep source .md files)
+docs/build/
+site/
+
+# ==============================================================================
+# ALLOWED FILES (explicitly NOT ignored)
+# ==============================================================================
+
+# Configuration templates (examples with placeholder values)
+!.env.example
+!.env.sample
+!.env.template
+!credentials.example.json
+!secrets.example.yml
