@@ -266,7 +266,7 @@
 
 ---
 
-## Phase 8: User Story 6 - User Accounts and Authentication (Priority: P6) 🔄 BACKEND COMPLETE
+## Phase 8: User Story 6 - User Accounts and Authentication (Priority: P6) ✅ COMPLETE
 
 **Goal**: Multi-user support with secure registration, login, logout, and data isolation
 
@@ -293,17 +293,17 @@
 - [x] T135 [US6] Add POST /api/v1/auth/login endpoint to AuthController in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
 - [x] T136 [US6] Add POST /api/v1/auth/logout endpoint to AuthController in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
 - [x] T137 [US6] Update TaskService to enforce user ownership on all operations in backend/src/main/java/com/todoapp/application/service/TaskService.java (already enforced)
-- [ ] T138 [P] [US6] Create auth types (User, AuthState) in frontend/src/types/auth.ts
-- [ ] T139 [P] [US6] Create auth API service (register, login, logout) in frontend/src/services/authService.ts
-- [ ] T140 [P] [US6] Create AuthContext for global auth state in frontend/src/context/AuthContext.tsx
-- [ ] T141 [P] [US6] Create LoginForm component in frontend/src/components/auth/LoginForm.tsx
-- [ ] T142 [P] [US6] Create RegisterForm component in frontend/src/components/auth/RegisterForm.tsx
-- [ ] T143 [P] [US6] Create LoginPage in frontend/src/pages/LoginPage.tsx
-- [ ] T144 [P] [US6] Create RegisterPage in frontend/src/pages/RegisterPage.tsx
-- [ ] T145 [US6] Add protected route wrapper (PrivateRoute) in frontend/src/components/auth/PrivateRoute.tsx
-- [ ] T146 [US6] Update App.tsx with auth routing and PrivateRoute in frontend/src/App.tsx
-- [ ] T147 [US6] Add JWT token storage and auto-login in frontend/src/services/authService.ts
-- [ ] T148 [US6] Update Axios interceptor to include JWT token in headers in frontend/src/services/api.ts
+- [x] T138 [P] [US6] Create auth types (User, AuthState) in frontend/src/types/auth.ts
+- [x] T139 [P] [US6] Create auth API service (register, login, logout) in frontend/src/services/authService.ts
+- [x] T140 [P] [US6] Create AuthContext for global auth state in frontend/src/context/AuthContext.tsx
+- [x] T141 [P] [US6] Create LoginForm component in frontend/src/components/auth/LoginForm.tsx
+- [x] T142 [P] [US6] Create RegisterForm component in frontend/src/components/auth/RegisterForm.tsx
+- [x] T143 [P] [US6] Create LoginPage in frontend/src/pages/LoginPage.tsx
+- [x] T144 [P] [US6] Create RegisterPage in frontend/src/pages/RegisterPage.tsx
+- [x] T145 [US6] Add protected route wrapper (PrivateRoute) in frontend/src/components/auth/PrivateRoute.tsx
+- [x] T146 [US6] Update App.tsx with auth routing and PrivateRoute in frontend/src/App.tsx
+- [x] T147 [US6] Add JWT token storage and auto-login in frontend/src/services/authService.ts
+- [x] T148 [US6] Update Axios interceptor to include JWT token in headers in frontend/src/services/api.ts
 
 ### Integration Tests for User Story 6 ✅
 

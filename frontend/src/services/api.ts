@@ -14,7 +14,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('todo_app_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -39,8 +39,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('user');
+      localStorage.removeItem('todo_app_token');
+      localStorage.removeItem('todo_app_user');
 
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';

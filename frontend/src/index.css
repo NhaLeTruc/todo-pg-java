@@ -116,6 +116,58 @@
   .badge-gray {
     @apply badge bg-gray-100 text-gray-800;
   }
+
+  .auth-page {
+    @apply flex min-h-screen items-center justify-center bg-gray-100 px-4 py-12 sm:px-6 lg:px-8;
+  }
+
+  .auth-container {
+    @apply w-full max-w-md;
+  }
+
+  .auth-form {
+    @apply card space-y-6;
+  }
+
+  .auth-form h2 {
+    @apply text-center text-2xl font-bold text-gray-900;
+  }
+
+  .auth-form .form-group {
+    @apply space-y-1;
+  }
+
+  .auth-form .form-group label {
+    @apply label;
+  }
+
+  .auth-form .form-group input {
+    @apply input;
+  }
+
+  .auth-form .form-group small {
+    @apply text-xs text-gray-500;
+  }
+
+  .auth-form button[type='submit'] {
+    @apply btn-primary w-full;
+  }
+
+  .auth-form .error-message {
+    @apply rounded-lg bg-danger-50 p-3 text-sm text-danger-700;
+  }
+
+  .auth-form .auth-link {
+    @apply text-center text-sm text-gray-600;
+  }
+
+  .auth-form .auth-link a {
+    @apply font-medium text-primary-600 hover:text-primary-500;
+  }
+
+  .loading-container {
+    @apply flex h-screen items-center justify-center;
+  }
 }
 
 @layer utilities {
