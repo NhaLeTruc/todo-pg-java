@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X, ListTree } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { CommentForm } from '@/components/comments/CommentForm';
@@ -10,6 +10,10 @@ import { CommentList } from '@/components/comments/CommentList';
 import { commentService } from '@/services/commentService';
 import { Comment } from '@/types/comment';
 import { Task } from '@/types/task';
+
+import { AddSubtaskButton } from './AddSubtaskButton';
+import { SubtaskList } from './SubtaskList';
+import { SubtaskProgressBar } from './SubtaskProgressBar';
 
 interface TaskDetailModalProps {
   task: Task;
@@ -165,6 +169,26 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             >
               <X className="h-6 w-6" />
             </button>
+          </div>
+
+          {/* Subtasks Section */}
+          <div className="border-b border-gray-200 p-6">
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <ListTree className="h-5 w-5 text-gray-500" />
+                  <h3 className="text-lg font-medium text-gray-900">Subtasks</h3>
+                </div>
+              </div>
+
+              <SubtaskProgressBar task={task} className="mb-4" />
+
+              <SubtaskList parentTaskId={task.id} />
+
+              <div className="mt-4">
+                <AddSubtaskButton parentTask={task} />
+              </div>
+            </div>
           </div>
 
           {/* Comments Section */}

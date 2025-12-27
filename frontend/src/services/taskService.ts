@@ -102,4 +102,31 @@ export const taskService = {
     });
     return response.data;
   },
+
+  async getSubtasks(parentTaskId: number): Promise<Task[]> {
+    const response = await api.get<Task[]>(`/tasks/${parentTaskId}/subtasks`, {
+      headers: {
+        [USER_ID_HEADER]: DEFAULT_USER_ID,
+      },
+    });
+    return response.data;
+  },
+
+  async createSubtask(parentTaskId: number, data: TaskCreateRequest): Promise<Task> {
+    const response = await api.post<Task>(`/tasks/${parentTaskId}/subtasks`, data, {
+      headers: {
+        [USER_ID_HEADER]: DEFAULT_USER_ID,
+      },
+    });
+    return response.data;
+  },
+
+  async taskHasSubtasks(taskId: number): Promise<boolean> {
+    const response = await api.get<boolean>(`/tasks/${taskId}/has-subtasks`, {
+      headers: {
+        [USER_ID_HEADER]: DEFAULT_USER_ID,
+      },
+    });
+    return response.data;
+  },
 };

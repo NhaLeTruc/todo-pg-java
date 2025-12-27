@@ -25,6 +25,7 @@ export function TasksPage() {
   const [sortDirection] = useState<'asc' | 'desc'>('desc');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+  const [taskToDeleteHasSubtasks, setTaskToDeleteHasSubtasks] = useState(false);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
 
   const {
@@ -124,14 +125,25 @@ export function TasksPage() {
     updateMutation.mutate({ id, data });
   };
 
-  const handleDeleteTask = (id: number) => {
-    setDeletingTaskId(id);
+  const handleDeleteTask = async (id: number) => {
+    try {
+      const hasSubtasks = await taskService.taskHasSubtasks(id);
+      setTaskToDeleteHasSubtasks(hasSubtasks);
+      setDeletingTaskId(id);
+    } catch (error) {
+      toast.error('Failed to check task status');
+    }
   };
 
   const confirmDelete = () => {
     if (deletingTaskId) {
       deleteMutation.mutate(deletingTaskId);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeletingTaskId(null);
+    setTaskToDeleteHasSubtasks(false);
   };
 
   const handleSearchChange = (value: string) => {
@@ -299,11 +311,15 @@ export function TasksPage() {
       <ConfirmDialog
         isOpen={deletingTaskId !== null}
         title="Delete Task"
-        message="Are you sure you want to delete this task? This action cannot be undone."
+        message={
+          taskToDeleteHasSubtasks
+            ? "This task has subtasks. Deleting it will also delete all its subtasks. This action cannot be undone."
+            : "Are you sure you want to delete this task? This action cannot be undone."
+        }
         confirmLabel="Delete"
         cancelLabel="Cancel"
         onConfirm={confirmDelete}
-        onCancel={() => setDeletingTaskId(null)}
+        onCancel={handleCancelDelete}
         isDestructive
       />
     </div>

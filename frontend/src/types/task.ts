@@ -19,6 +19,7 @@ export interface Task {
   isOverdue: boolean;
   parentTaskId: number | null;
   depth: number;
+  subtaskProgress: number;
   createdAt: string;
   updatedAt: string;
 }
