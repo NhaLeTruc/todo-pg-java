@@ -2,6 +2,7 @@ package com.todoapp.application.dto;
 
 import com.todoapp.domain.model.Priority;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,10 @@ public class TaskResponseDTO {
   private Long categoryId;
 
   private String categoryName;
+
+  private String categoryColor;
+
+  private List<TagDTO> tags;
 
   private Integer estimatedDurationMinutes;
 

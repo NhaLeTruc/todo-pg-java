@@ -1,11 +1,14 @@
 package com.todoapp.application.mapper;
 
+import com.todoapp.application.dto.TagDTO;
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,6 +46,21 @@ public class TaskMapper {
     if (task.getCategory() != null) {
       dto.setCategoryId(task.getCategory().getId());
       dto.setCategoryName(task.getCategory().getName());
+      dto.setCategoryColor(task.getCategory().getColor());
+    }
+
+    if (task.getTags() != null && !task.getTags().isEmpty()) {
+      dto.setTags(
+          task.getTags().stream()
+              .map(
+                  tag -> {
+                    TagDTO tagDTO = new TagDTO();
+                    tagDTO.setId(tag.getId());
+                    tagDTO.setName(tag.getName());
+                    tagDTO.setColor(tag.getColor());
+                    return tagDTO;
+                  })
+              .collect(Collectors.toList()));
     }
 
     if (task.getParentTask() != null) {

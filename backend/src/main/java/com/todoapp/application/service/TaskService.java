@@ -4,12 +4,18 @@ import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
+import com.todoapp.domain.model.Category;
+import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.CategoryRepository;
+import com.todoapp.domain.repository.TagRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.Collections;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,12 +30,20 @@ public class TaskService {
 
   private final TaskRepository taskRepository;
   private final UserRepository userRepository;
+  private final CategoryRepository categoryRepository;
+  private final TagRepository tagRepository;
   private final TaskMapper taskMapper;
 
   public TaskService(
-      TaskRepository taskRepository, UserRepository userRepository, TaskMapper taskMapper) {
+      TaskRepository taskRepository,
+      UserRepository userRepository,
+      CategoryRepository categoryRepository,
+      TagRepository tagRepository,
+      TaskMapper taskMapper) {
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
+    this.categoryRepository = categoryRepository;
+    this.tagRepository = tagRepository;
     this.taskMapper = taskMapper;
   }
 
@@ -46,6 +60,28 @@ public class TaskService {
             .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
     Task task = taskMapper.toEntity(createDTO, user);
+
+    // Handle category assignment
+    if (createDTO.getCategoryId() != null) {
+      Category category =
+          categoryRepository
+              .findByIdAndUserId(createDTO.getCategoryId(), userId)
+              .orElseThrow(
+                  () ->
+                      new ResourceNotFoundException(
+                          "Category not found with ID: " + createDTO.getCategoryId()));
+      task.setCategory(category);
+    }
+
+    // Handle tag assignments
+    if (createDTO.getTagIds() != null && !createDTO.getTagIds().isEmpty()) {
+      List<Tag> tags = tagRepository.findByIdInAndUserId(createDTO.getTagIds(), userId);
+      if (tags.size() != createDTO.getTagIds().size()) {
+        throw new ResourceNotFoundException("One or more tags not found");
+      }
+      task.setTags(tags);
+    }
+
     Task savedTask = taskRepository.save(task);
 
     logger.info("Task created with ID: {} for user ID: {}", savedTask.getId(), userId);
@@ -160,9 +196,26 @@ public class TaskService {
     }
 
     if (updateDTO.getCategoryId() != null) {
-      // Category validation would go here
-      // For now, we'll just set it as null since we don't have full category support
-      task.setCategory(null);
+      Category category =
+          categoryRepository
+              .findByIdAndUserId(updateDTO.getCategoryId(), userId)
+              .orElseThrow(
+                  () ->
+                      new ResourceNotFoundException(
+                          "Category not found with ID: " + updateDTO.getCategoryId()));
+      task.setCategory(category);
+    }
+
+    if (updateDTO.getTagIds() != null) {
+      if (updateDTO.getTagIds().isEmpty()) {
+        task.setTags(Collections.emptyList());
+      } else {
+        List<Tag> tags = tagRepository.findByIdInAndUserId(updateDTO.getTagIds(), userId);
+        if (tags.size() != updateDTO.getTagIds().size()) {
+          throw new ResourceNotFoundException("One or more tags not found");
+        }
+        task.setTags(tags);
+      }
     }
 
     if (updateDTO.getEstimatedDurationMinutes() != null) {
