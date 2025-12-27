@@ -143,4 +143,52 @@ public class TaskController {
     long count = taskService.getTaskCount(userId, completed);
     return ResponseEntity.ok(count);
   }
+
+  @PatchMapping("/{id}/complete")
+  @Operation(summary = "Mark task as complete", description = "Marks a task as completed")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Task marked as complete",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TaskResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Task not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<TaskResponseDTO> completeTask(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Marking task ID: {} as complete for user ID: {}", id, userId);
+    TaskResponseDTO task = taskService.toggleCompletion(id, userId);
+    return ResponseEntity.ok(task);
+  }
+
+  @PatchMapping("/{id}/uncomplete")
+  @Operation(summary = "Mark task as incomplete", description = "Marks a task as incomplete")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Task marked as incomplete",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TaskResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Task not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<TaskResponseDTO> uncompleteTask(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Marking task ID: {} as incomplete for user ID: {}", id, userId);
+    TaskResponseDTO task = taskService.toggleCompletion(id, userId);
+    return ResponseEntity.ok(task);
+  }
 }

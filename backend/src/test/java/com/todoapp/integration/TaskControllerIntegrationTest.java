@@ -2,6 +2,7 @@ package com.todoapp.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -267,5 +268,113 @@ public class TaskControllerIntegrationTest {
                 .param("completed", "false"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").value(1));
+  }
+
+  @Test
+  public void shouldMarkTaskAsComplete() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task to complete");
+    task.setPriority(Priority.MEDIUM);
+    task.setIsCompleted(false);
+    task = taskRepository.save(task);
+
+    mockMvc
+        .perform(
+            patch("/api/v1/tasks/" + task.getId() + "/complete")
+                .header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(task.getId()))
+        .andExpect(jsonPath("$.isCompleted").value(true))
+        .andExpect(jsonPath("$.completedAt").exists());
+
+    Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+    assertThat(updatedTask.getIsCompleted()).isTrue();
+    assertThat(updatedTask.getCompletedAt()).isNotNull();
+  }
+
+  @Test
+  public void shouldMarkTaskAsIncomplete() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Completed task");
+    task.setPriority(Priority.HIGH);
+    task.setIsCompleted(true);
+    task.setCompletedAt(LocalDateTime.now());
+    task = taskRepository.save(task);
+
+    mockMvc
+        .perform(
+            patch("/api/v1/tasks/" + task.getId() + "/uncomplete")
+                .header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(task.getId()))
+        .andExpect(jsonPath("$.isCompleted").value(false))
+        .andExpect(jsonPath("$.completedAt").doesNotExist());
+
+    Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+    assertThat(updatedTask.getIsCompleted()).isFalse();
+    assertThat(updatedTask.getCompletedAt()).isNull();
+  }
+
+  @Test
+  public void shouldToggleTaskCompletionMultipleTimes() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Toggle test task");
+    task.setPriority(Priority.LOW);
+    task = taskRepository.save(task);
+
+    Long taskId = task.getId();
+
+    mockMvc
+        .perform(patch("/api/v1/tasks/" + taskId + "/complete").header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.isCompleted").value(true));
+
+    mockMvc
+        .perform(
+            patch("/api/v1/tasks/" + taskId + "/uncomplete").header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.isCompleted").value(false));
+
+    mockMvc
+        .perform(patch("/api/v1/tasks/" + taskId + "/complete").header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.isCompleted").value(true));
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenCompletingNonExistentTask() throws Exception {
+    mockMvc
+        .perform(patch("/api/v1/tasks/99999/complete").header("X-User-Id", testUser.getId()))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenUncompletingNonExistentTask() throws Exception {
+    mockMvc
+        .perform(patch("/api/v1/tasks/99999/uncomplete").header("X-User-Id", testUser.getId()))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldNotAllowCompletingOtherUsersTask() throws Exception {
+    User otherUser = new User();
+    otherUser.setEmail("other@example.com");
+    otherUser.setPasswordHash("$2a$10$dummyhash2");
+    otherUser.setIsActive(true);
+    otherUser = userRepository.save(otherUser);
+
+    Task task = new Task();
+    task.setUser(otherUser);
+    task.setDescription("Other user's task");
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    mockMvc
+        .perform(patch("/api/v1/tasks/" + task.getId() + "/complete")
+            .header("X-User-Id", testUser.getId()))
+        .andExpect(status().isNotFound());
   }
 }

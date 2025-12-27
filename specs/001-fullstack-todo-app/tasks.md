@@ -136,34 +136,34 @@
 
 ---
 
-## Phase 4: User Story 2 - Mark Tasks Complete (Priority: P2)
+## Phase 4: User Story 2 - Mark Tasks Complete (Priority: P2) ✅ COMPLETED
 
 **Goal**: Users can toggle task completion status
 
 **Independent Test**: Create tasks, mark complete/incomplete, verify visual indicators and persistence
 
-### Tests for User Story 2 (TDD - Write FIRST) ⚠️
+### Tests for User Story 2 (TDD - Write FIRST) ✅
 
-- [ ] T068 [P] [US2] Write unit test for Task.markComplete() and Task.markIncomplete() in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
-- [ ] T069 [P] [US2] Write unit test for TaskService.toggleCompletion() in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
+- [x] T068 [P] [US2] Write unit test for Task.markComplete() and Task.markIncomplete() in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
+- [x] T069 [P] [US2] Write unit test for TaskService.toggleCompletion() in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
 
-### Implementation for User Story 2
+### Implementation for User Story 2 ✅
 
-- [ ] T070 [P] [US2] Add markComplete() and markIncomplete() methods to Task entity in backend/src/main/java/com/todoapp/domain/model/Task.java
-- [ ] T071 [US2] Implement TaskService.toggleCompletion() method in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T072 [US2] Add PATCH /api/v1/tasks/{id}/complete endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T073 [US2] Add PATCH /api/v1/tasks/{id}/uncomplete endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T074 [P] [US2] Add toggleComplete() to task API service in frontend/src/services/taskService.ts
-- [ ] T075 [US2] Add checkbox/toggle UI to TaskItem component in frontend/src/components/tasks/TaskItem.tsx
-- [ ] T076 [US2] Add visual styling for completed tasks (strikethrough) in frontend/src/components/tasks/TaskItem.tsx
-- [ ] T077 [US2] Add optimistic updates with TanStack Query mutations in frontend/src/components/tasks/TaskItem.tsx
+- [x] T070 [P] [US2] Add markComplete() and markIncomplete() methods to Task entity in backend/src/main/java/com/todoapp/domain/model/Task.java
+- [x] T071 [US2] Implement TaskService.toggleCompletion() method in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [x] T072 [US2] Add PATCH /api/v1/tasks/{id}/complete endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [x] T073 [US2] Add PATCH /api/v1/tasks/{id}/uncomplete endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [x] T074 [P] [US2] Add toggleComplete() to task API service in frontend/src/services/taskService.ts
+- [x] T075 [US2] Add checkbox/toggle UI to TaskItem component in frontend/src/components/tasks/TaskItem.tsx
+- [x] T076 [US2] Add visual styling for completed tasks (strikethrough) in frontend/src/components/tasks/TaskItem.tsx
+- [x] T077 [US2] Add optimistic updates with TanStack Query mutations in frontend/src/components/tasks/TaskItem.tsx
 
-### Integration Tests for User Story 2
+### Integration Tests for User Story 2 ✅
 
-- [ ] T078 [P] [US2] Write integration test for PATCH /api/v1/tasks/{id}/complete in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
-- [ ] T079 [P] [US2] Write frontend test for task completion toggle in frontend/tests/unit/TaskItem.test.tsx
+- [x] T078 [P] [US2] Write integration test for PATCH /api/v1/tasks/{id}/complete in backend/src/test/java/com/todoapp/integration/TaskControllerIntegrationTest.java
+- [x] T079 [P] [US2] Write frontend test for task completion toggle in frontend/src/components/tasks/__tests__/TaskItem.test.tsx
 
-**Checkpoint**: Users can now create tasks AND toggle completion status independently
+**Checkpoint**: ✅ User Story 2 is fully functional and tested independently
 
 ---
 

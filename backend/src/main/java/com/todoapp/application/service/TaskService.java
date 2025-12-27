@@ -109,4 +109,28 @@ public class TaskService {
     }
     return taskRepository.findByUserId(userId, Pageable.unpaged()).getTotalElements();
   }
+
+  public TaskResponseDTO toggleCompletion(Long taskId, Long userId) {
+    logger.debug("Toggling completion for task ID: {} by user ID: {}", taskId, userId);
+
+    Task task =
+        taskRepository
+            .findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+    if (!task.getUser().getId().equals(userId)) {
+      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+    }
+
+    if (task.getIsCompleted()) {
+      task.markIncomplete();
+      logger.info("Task ID: {} marked as incomplete", taskId);
+    } else {
+      task.markComplete();
+      logger.info("Task ID: {} marked as complete", taskId);
+    }
+
+    Task savedTask = taskRepository.save(task);
+    return taskMapper.toResponseDTO(savedTask);
+  }
 }

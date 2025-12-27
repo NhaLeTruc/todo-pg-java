@@ -123,4 +123,64 @@ class TaskTest {
       assertEquals(priority, task.getPriority());
     }
   }
+
+  @Test
+  @DisplayName("Should mark task as complete")
+  void shouldMarkTaskAsComplete() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Test task");
+    task.setIsCompleted(false);
+
+    task.markComplete();
+
+    assertTrue(task.getIsCompleted());
+    assertNotNull(task.getCompletedAt());
+  }
+
+  @Test
+  @DisplayName("Should mark task as incomplete")
+  void shouldMarkTaskAsIncomplete() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Test task");
+    task.setIsCompleted(true);
+    task.setCompletedAt(LocalDateTime.now());
+
+    task.markIncomplete();
+
+    assertFalse(task.getIsCompleted());
+    assertNull(task.getCompletedAt());
+  }
+
+  @Test
+  @DisplayName("Should allow marking already completed task as complete")
+  void shouldAllowMarkingAlreadyCompletedTaskAsComplete() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Test task");
+    task.setIsCompleted(true);
+    task.setCompletedAt(LocalDateTime.now());
+
+    LocalDateTime firstCompletedAt = task.getCompletedAt();
+
+    task.markComplete();
+
+    assertTrue(task.getIsCompleted());
+    assertNotNull(task.getCompletedAt());
+  }
+
+  @Test
+  @DisplayName("Should allow marking already incomplete task as incomplete")
+  void shouldAllowMarkingAlreadyIncompleteTaskAsIncomplete() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Test task");
+    task.setIsCompleted(false);
+
+    task.markIncomplete();
+
+    assertFalse(task.getIsCompleted());
+    assertNull(task.getCompletedAt());
+  }
 }

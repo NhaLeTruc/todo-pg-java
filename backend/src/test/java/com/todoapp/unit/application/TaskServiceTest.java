@@ -177,4 +177,62 @@ class TaskServiceTest {
     assertNotNull(result);
     verify(taskRepository).findByUserId(1L, customPageable);
   }
+
+  @Test
+  @DisplayName("Should toggle task completion from incomplete to complete")
+  void shouldToggleTaskCompletionFromIncompleteToComplete() {
+    testTask.setIsCompleted(false);
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+    when(taskMapper.toResponseDTO(testTask)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.toggleCompletion(1L, 1L);
+
+    assertNotNull(result);
+    verify(taskRepository).findById(1L);
+    verify(taskRepository).save(testTask);
+    verify(taskMapper).toResponseDTO(testTask);
+  }
+
+  @Test
+  @DisplayName("Should toggle task completion from complete to incomplete")
+  void shouldToggleTaskCompletionFromCompleteToIncomplete() {
+    testTask.setIsCompleted(true);
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+    when(taskMapper.toResponseDTO(testTask)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.toggleCompletion(1L, 1L);
+
+    assertNotNull(result);
+    verify(taskRepository).findById(1L);
+    verify(taskRepository).save(testTask);
+    verify(taskMapper).toResponseDTO(testTask);
+  }
+
+  @Test
+  @DisplayName("Should throw exception when toggling non-existent task")
+  void shouldThrowExceptionWhenTogglingNonExistentTask() {
+    when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+
+    assertThrows(
+        RuntimeException.class, () -> taskService.toggleCompletion(999L, 1L), "Task not found");
+
+    verify(taskRepository).findById(999L);
+    verify(taskRepository, never()).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should throw exception when toggling task owned by different user")
+  void shouldThrowExceptionWhenTogglingTaskOwnedByDifferentUser() {
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+
+    assertThrows(
+        RuntimeException.class,
+        () -> taskService.toggleCompletion(1L, 999L),
+        "User not authorized to modify task");
+
+    verify(taskRepository).findById(1L);
+    verify(taskRepository, never()).save(any(Task.class));
+  }
 }
