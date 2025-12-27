@@ -369,31 +369,31 @@
 
 ### Tests for User Story 8 (TDD - Write FIRST) ⚠️
 
-- [ ] T179 [P] [US8] Write unit test for Comment content validation in backend/src/test/java/com/todoapp/unit/domain/CommentTest.java
-- [ ] T180 [P] [US8] Write unit test for CommentService.addComment() in backend/src/test/java/com/todoapp/unit/application/CommentServiceTest.java
-- [ ] T181 [P] [US8] Write unit test for CommentService.updateComment() with isEdited flag in backend/src/test/java/com/todoapp/unit/application/CommentServiceTest.java
+- [X] T179 [P] [US8] Write unit test for Comment content validation in backend/src/test/java/com/todoapp/unit/domain/CommentTest.java
+- [X] T180 [P] [US8] Write unit test for CommentService.addComment() in backend/src/test/java/com/todoapp/unit/application/CommentServiceTest.java
+- [X] T181 [P] [US8] Write unit test for CommentService.updateComment() with isEdited flag in backend/src/test/java/com/todoapp/unit/application/CommentServiceTest.java
 
 ### Implementation for User Story 8
 
-- [ ] T182 [P] [US8] Create Comment entity in backend/src/main/java/com/todoapp/domain/model/Comment.java
-- [ ] T183 [P] [US8] Create CommentRepository in backend/src/main/java/com/todoapp/domain/repository/CommentRepository.java
-- [ ] T184 [P] [US8] Create CommentDTO in backend/src/main/java/com/todoapp/application/dto/CommentDTO.java
-- [ ] T185 [US8] Implement CommentService with CRUD and authorization checks in backend/src/main/java/com/todoapp/application/service/CommentService.java
-- [ ] T186 [US8] Create CommentController with GET/POST /api/v1/tasks/{taskId}/comments in backend/src/main/java/com/todoapp/presentation/rest/CommentController.java
-- [ ] T187 [US8] Add PUT /api/v1/comments/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/CommentController.java
-- [ ] T188 [US8] Add DELETE /api/v1/comments/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/CommentController.java
-- [ ] T189 [P] [US8] Create Comment type in frontend/src/types/comment.ts
-- [ ] T190 [P] [US8] Create comment API service in frontend/src/services/commentService.ts
-- [ ] T191 [P] [US8] Create CommentList component in frontend/src/components/comments/CommentList.tsx
-- [ ] T192 [P] [US8] Create CommentItem component with edit/delete in frontend/src/components/comments/CommentItem.tsx
-- [ ] T193 [P] [US8] Create CommentForm component in frontend/src/components/comments/CommentForm.tsx
-- [ ] T194 [US8] Create TaskDetailModal with comments section in frontend/src/components/tasks/TaskDetailModal.tsx
-- [ ] T195 [US8] Integrate TaskDetailModal in TaskItem (click to expand) in frontend/src/components/tasks/TaskItem.tsx
+- [X] T182 [P] [US8] Create Comment entity in backend/src/main/java/com/todoapp/domain/model/Comment.java
+- [X] T183 [P] [US8] Create CommentRepository in backend/src/main/java/com/todoapp/domain/repository/CommentRepository.java
+- [X] T184 [P] [US8] Create CommentDTO in backend/src/main/java/com/todoapp/application/dto/CommentDTO.java
+- [X] T185 [US8] Implement CommentService with CRUD and authorization checks in backend/src/main/java/com/todoapp/application/service/CommentService.java
+- [X] T186 [US8] Create CommentController with GET/POST /api/v1/tasks/{taskId}/comments in backend/src/main/java/com/todoapp/presentation/rest/CommentController.java
+- [X] T187 [US8] Add PUT /api/v1/comments/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/CommentController.java
+- [X] T188 [US8] Add DELETE /api/v1/comments/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/CommentController.java
+- [X] T189 [P] [US8] Create Comment type in frontend/src/types/comment.ts
+- [X] T190 [P] [US8] Create comment API service in frontend/src/services/commentService.ts
+- [X] T191 [P] [US8] Create CommentList component in frontend/src/components/comments/CommentList.tsx
+- [X] T192 [P] [US8] Create CommentItem component with edit/delete in frontend/src/components/comments/CommentItem.tsx
+- [X] T193 [P] [US8] Create CommentForm component in frontend/src/components/comments/CommentForm.tsx
+- [X] T194 [US8] Create TaskDetailModal with comments section in frontend/src/components/tasks/TaskDetailModal.tsx
+- [X] T195 [US8] Integrate TaskDetailModal in TaskItem (click to expand) in frontend/src/components/tasks/TaskItem.tsx
 
 ### Integration Tests for User Story 8
 
-- [ ] T196 [P] [US8] Write integration test for comment CRUD in backend/src/test/java/com/todoapp/integration/api/CommentApiTest.java
-- [ ] T197 [P] [US8] Write integration test for comment authorization in backend/src/test/java/com/todoapp/integration/api/CommentApiTest.java
+- [X] T196 [P] [US8] Write integration test for comment CRUD in backend/src/test/java/com/todoapp/integration/api/CommentApiTest.java
+- [X] T197 [P] [US8] Write integration test for comment authorization in backend/src/test/java/com/todoapp/integration/api/CommentApiTest.java
 
 **Checkpoint**: Rich task context with comments enabled
 
