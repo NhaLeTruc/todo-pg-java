@@ -12,6 +12,8 @@ export interface GetTasksParams {
   sortDirection?: 'asc' | 'desc';
   search?: string;
   completed?: boolean;
+  categoryId?: number;
+  tagIds?: number[];
 }
 
 export const taskService = {
@@ -23,6 +25,8 @@ export const taskService = {
       sortDirection = 'desc',
       search,
       completed,
+      categoryId,
+      tagIds,
     } = params;
 
     const response = await api.get<PaginatedResponse<Task>>('/tasks', {
@@ -33,6 +37,8 @@ export const taskService = {
         sortDirection,
         search,
         completed,
+        categoryId,
+        tagIds,
       },
       headers: {
         [USER_ID_HEADER]: DEFAULT_USER_ID,

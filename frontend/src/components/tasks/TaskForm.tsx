@@ -4,7 +4,9 @@ import { Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { DatePicker } from '@/components/shared/DatePicker';
+import { CategorySelector } from '@/components/tasks/CategorySelector';
 import { PrioritySelector } from '@/components/tasks/PrioritySelector';
+import { TagSelector } from '@/components/tasks/TagSelector';
 import { Priority, TaskCreateRequest } from '@/types/task';
 
 interface TaskFormProps {
@@ -19,6 +21,8 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('MEDIUM');
   const [dueDate, setDueDate] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [tagIds, setTagIds] = useState<number[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
 
@@ -70,11 +74,15 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
         description: description.trim(),
         priority,
         dueDate,
+        categoryId,
+        tagIds,
       });
 
       setDescription('');
       setPriority('MEDIUM');
       setDueDate(null);
+      setCategoryId(null);
+      setTagIds([]);
       setValidationError(null);
       setTouched(false);
     } catch (error) {
@@ -125,6 +133,16 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
             placeholder="Select due date"
           />
         </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <CategorySelector value={categoryId} onChange={setCategoryId} />
+        </div>
+      </div>
+
+      <div>
+        <TagSelector value={tagIds} onChange={setTagIds} />
       </div>
 
       {showError && (

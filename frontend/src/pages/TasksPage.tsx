@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { CategorySelector } from '@/components/tasks/CategorySelector';
+import { TagSelector } from '@/components/tasks/TagSelector';
 import { TaskEditModal } from '@/components/tasks/TaskEditModal';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
@@ -16,6 +18,8 @@ export function TasksPage() {
   const [size] = useState(20);
   const [search, setSearch] = useState<string>('');
   const [completedFilter, setCompletedFilter] = useState<boolean | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
+  const [tagFilter, setTagFilter] = useState<number[]>([]);
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortDirection] = useState<'asc' | 'desc'>('desc');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -26,13 +30,25 @@ export function TasksPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['tasks', page, size, search, completedFilter, sortBy, sortDirection],
+    queryKey: [
+      'tasks',
+      page,
+      size,
+      search,
+      completedFilter,
+      categoryFilter,
+      tagFilter,
+      sortBy,
+      sortDirection,
+    ],
     queryFn: () =>
       taskService.getTasks({
         page,
         size,
         search: search || undefined,
         completed: completedFilter,
+        categoryId: categoryFilter || undefined,
+        tagIds: tagFilter.length > 0 ? tagFilter : undefined,
         sortBy,
         sortDirection,
       }),
@@ -137,6 +153,16 @@ export function TasksPage() {
     setPage(0);
   };
 
+  const handleCategoryFilterChange = (categoryId: number | null) => {
+    setCategoryFilter(categoryId);
+    setPage(0);
+  };
+
+  const handleTagFilterChange = (tagIds: number[]) => {
+    setTagFilter(tagIds);
+    setPage(0);
+  };
+
   if (error) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -190,6 +216,17 @@ export function TasksPage() {
             <option value="priority">Sort by Priority</option>
             <option value="dueDate">Sort by Due Date</option>
           </select>
+        </div>
+      </div>
+
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+        <div className="flex-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">Filter by Category</label>
+          <CategorySelector value={categoryFilter} onChange={handleCategoryFilterChange} />
+        </div>
+        <div className="flex-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">Filter by Tags</label>
+          <TagSelector value={tagFilter} onChange={handleTagFilterChange} />
         </div>
       </div>
 

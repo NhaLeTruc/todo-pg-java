@@ -140,6 +140,30 @@ public class TaskService {
     return tasks.map(taskMapper::toResponseDTO);
   }
 
+  public Page<TaskResponseDTO> getTasksWithFilters(
+      Long userId, Long categoryId, List<Long> tagIds, Pageable pageable) {
+    logger.debug(
+        "Fetching tasks for user ID: {} with filters - categoryId: {}, tagIds: {}",
+        userId,
+        categoryId,
+        tagIds);
+
+    Page<Task> tasks;
+
+    if (categoryId != null && tagIds != null && !tagIds.isEmpty()) {
+      tasks = taskRepository.findByUserIdWithFilters(userId, categoryId, tagIds, pageable);
+    } else if (categoryId != null) {
+      tasks = taskRepository.findByUserIdAndCategoryId(userId, categoryId, pageable);
+    } else if (tagIds != null && !tagIds.isEmpty()) {
+      tasks = taskRepository.findByUserIdAndTagIdsIn(userId, tagIds, pageable);
+    } else {
+      tasks = taskRepository.findByUserId(userId, pageable);
+    }
+
+    logger.debug("Filter returned {} tasks", tasks.getTotalElements());
+    return tasks.map(taskMapper::toResponseDTO);
+  }
+
   public long getTaskCount(Long userId, Boolean isCompleted) {
     if (isCompleted != null) {
       return taskRepository.countByUserIdAndIsCompleted(userId, isCompleted);

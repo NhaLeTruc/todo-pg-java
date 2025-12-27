@@ -17,10 +17,13 @@ import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.domain.model.Priority;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.CategoryRepository;
+import com.todoapp.domain.repository.TagRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.UserRepository;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -44,11 +47,17 @@ public class TaskControllerIntegrationTest {
 
   @Autowired private UserRepository userRepository;
 
+  @Autowired private CategoryRepository categoryRepository;
+
+  @Autowired private TagRepository tagRepository;
+
   private User testUser;
 
   @BeforeEach
   public void setUp() {
     taskRepository.deleteAll();
+    categoryRepository.deleteAll();
+    tagRepository.deleteAll();
     userRepository.deleteAll();
 
     testUser = new User();
@@ -1076,5 +1085,150 @@ public class TaskControllerIntegrationTest {
 
     // Verify task still exists
     assertThat(taskRepository.findById(user1Task.getId())).isPresent();
+  }
+
+  @Test
+  @DisplayName("Should filter tasks by category")
+  public void shouldFilterTasksByCategory() throws Exception {
+    // Create categories
+    com.todoapp.domain.model.Category workCategory = new com.todoapp.domain.model.Category();
+    workCategory.setName("Work");
+    workCategory.setUser(testUser);
+    workCategory = categoryRepository.save(workCategory);
+
+    com.todoapp.domain.model.Category personalCategory =
+        new com.todoapp.domain.model.Category();
+    personalCategory.setName("Personal");
+    personalCategory.setUser(testUser);
+    personalCategory = categoryRepository.save(personalCategory);
+
+    // Create tasks with categories
+    Task task1 = new Task();
+    task1.setDescription("Work task");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.MEDIUM);
+    task1.setCategory(workCategory);
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Personal task");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.LOW);
+    task2.setCategory(personalCategory);
+    taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setDescription("Uncategorized task");
+    task3.setUser(testUser);
+    task3.setPriority(Priority.HIGH);
+    taskRepository.save(task3);
+
+    // Filter by work category
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("categoryId", workCategory.getId().toString()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content.length()").value(1))
+        .andExpect(jsonPath("$.content[0].description").value("Work task"))
+        .andExpect(jsonPath("$.content[0].categoryId").value(workCategory.getId()));
+  }
+
+  @Test
+  @DisplayName("Should filter tasks by tags")
+  public void shouldFilterTasksByTags() throws Exception {
+    // Create tags
+    com.todoapp.domain.model.Tag urgentTag = new com.todoapp.domain.model.Tag();
+    urgentTag.setName("urgent");
+    urgentTag.setUser(testUser);
+    urgentTag = tagRepository.save(urgentTag);
+
+    com.todoapp.domain.model.Tag importantTag = new com.todoapp.domain.model.Tag();
+    importantTag.setName("important");
+    importantTag.setUser(testUser);
+    importantTag = tagRepository.save(importantTag);
+
+    // Create tasks with tags
+    Task task1 = new Task();
+    task1.setDescription("Urgent task");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.HIGH);
+    task1.getTags().add(urgentTag);
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Important task");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.MEDIUM);
+    task2.getTags().add(importantTag);
+    taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setDescription("Urgent and important task");
+    task3.setUser(testUser);
+    task3.setPriority(Priority.HIGH);
+    task3.getTags().add(urgentTag);
+    task3.getTags().add(importantTag);
+    taskRepository.save(task3);
+
+    // Filter by urgent tag
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("tagIds", urgentTag.getId().toString()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content.length()").value(2));
+  }
+
+  @Test
+  @DisplayName("Should filter tasks by both category and tags")
+  public void shouldFilterTasksByCategoryAndTags() throws Exception {
+    // Create category
+    com.todoapp.domain.model.Category workCategory = new com.todoapp.domain.model.Category();
+    workCategory.setName("Work");
+    workCategory.setUser(testUser);
+    workCategory = categoryRepository.save(workCategory);
+
+    // Create tag
+    com.todoapp.domain.model.Tag urgentTag = new com.todoapp.domain.model.Tag();
+    urgentTag.setName("urgent");
+    urgentTag.setUser(testUser);
+    urgentTag = tagRepository.save(urgentTag);
+
+    // Create tasks
+    Task task1 = new Task();
+    task1.setDescription("Urgent work task");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.HIGH);
+    task1.setCategory(workCategory);
+    task1.getTags().add(urgentTag);
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Non-urgent work task");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.MEDIUM);
+    task2.setCategory(workCategory);
+    taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setDescription("Urgent personal task");
+    task3.setUser(testUser);
+    task3.setPriority(Priority.HIGH);
+    task3.getTags().add(urgentTag);
+    taskRepository.save(task3);
+
+    // Filter by work category AND urgent tag
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("categoryId", workCategory.getId().toString())
+                .param("tagIds", urgentTag.getId().toString()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content.length()").value(1))
+        .andExpect(jsonPath("$.content[0].description").value("Urgent work task"));
   }
 }

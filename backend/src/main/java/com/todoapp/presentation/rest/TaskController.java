@@ -82,14 +82,22 @@ public class TaskController {
           String search,
       @Parameter(description = "Filter by completion status")
           @RequestParam(required = false)
-          Boolean completed) {
+          Boolean completed,
+      @Parameter(description = "Filter by category ID")
+          @RequestParam(required = false)
+          Long categoryId,
+      @Parameter(description = "Filter by tag IDs (comma-separated)")
+          @RequestParam(required = false)
+          java.util.List<Long> tagIds) {
     logger.info(
-        "Fetching tasks for user ID: {} (page: {}, size: {}, search: {}, completed: {})",
+        "Fetching tasks for user ID: {} (page: {}, size: {}, search: {}, completed: {}, categoryId: {}, tagIds: {})",
         userId,
         page,
         size,
         search,
-        completed);
+        completed,
+        categoryId,
+        tagIds);
 
     Sort sort =
         Sort.by(
@@ -99,6 +107,8 @@ public class TaskController {
     Page<TaskResponseDTO> tasks;
     if (search != null || completed != null) {
       tasks = taskService.searchTasks(userId, search, completed, pageable);
+    } else if (categoryId != null || (tagIds != null && !tagIds.isEmpty())) {
+      tasks = taskService.getTasksWithFilters(userId, categoryId, tagIds, pageable);
     } else {
       tasks = taskService.getUserTasks(userId, pageable);
     }

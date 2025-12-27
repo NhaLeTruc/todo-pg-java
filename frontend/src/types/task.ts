@@ -1,3 +1,5 @@
+import { Tag } from './tag';
+
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface Task {
@@ -10,6 +12,8 @@ export interface Task {
   position: number;
   categoryId: number | null;
   categoryName: string | null;
+  categoryColor: string | null;
+  tags: Tag[];
   estimatedDurationMinutes: number | null;
   actualDurationMinutes: number | null;
   isOverdue: boolean;
@@ -24,6 +28,7 @@ export interface TaskCreateRequest {
   priority?: Priority;
   dueDate?: string | null;
   categoryId?: number | null;
+  tagIds?: number[];
   estimatedDurationMinutes?: number | null;
 }
 
@@ -32,6 +37,7 @@ export interface TaskUpdateRequest {
   priority?: Priority;
   dueDate?: string | null;
   categoryId?: number | null;
+  tagIds?: number[];
   estimatedDurationMinutes?: number | null;
 }
 

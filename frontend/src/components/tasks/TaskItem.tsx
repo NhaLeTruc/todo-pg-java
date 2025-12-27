@@ -79,7 +79,31 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit }: TaskItemP
             </span>
           )}
 
-          {task.categoryName && <span className="badge-primary">{task.categoryName}</span>}
+          {task.categoryName && (
+            <span
+              className="badge-primary"
+              style={
+                task.categoryColor
+                  ? { backgroundColor: task.categoryColor, borderColor: task.categoryColor }
+                  : undefined
+              }
+            >
+              {task.categoryName}
+            </span>
+          )}
+
+          {task.tags &&
+            task.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="badge-secondary"
+                style={
+                  tag.color ? { backgroundColor: tag.color, borderColor: tag.color } : undefined
+                }
+              >
+                {tag.name}
+              </span>
+            ))}
 
           <span className="text-gray-400">
             Created {format(new Date(task.createdAt), 'MMM d, yyyy')}

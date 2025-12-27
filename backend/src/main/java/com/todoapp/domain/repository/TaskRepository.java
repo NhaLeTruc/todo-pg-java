@@ -31,4 +31,21 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
       Pageable pageable);
 
   long countByUserIdAndIsCompleted(Long userId, Boolean isCompleted);
+
+  Page<Task> findByUserIdAndCategoryId(Long userId, Long categoryId, Pageable pageable);
+
+  @Query(
+      "SELECT DISTINCT t FROM Task t JOIN t.tags tag WHERE t.user.id = :userId AND tag.id IN :tagIds")
+  Page<Task> findByUserIdAndTagIdsIn(
+      @Param("userId") Long userId, @Param("tagIds") java.util.List<Long> tagIds, Pageable pageable);
+
+  @Query(
+      "SELECT DISTINCT t FROM Task t LEFT JOIN t.tags tag WHERE t.user.id = :userId "
+          + "AND (:categoryId IS NULL OR t.category.id = :categoryId) "
+          + "AND (:tagIds IS NULL OR tag.id IN :tagIds)")
+  Page<Task> findByUserIdWithFilters(
+      @Param("userId") Long userId,
+      @Param("categoryId") Long categoryId,
+      @Param("tagIds") java.util.List<Long> tagIds,
+      Pageable pageable);
 }
