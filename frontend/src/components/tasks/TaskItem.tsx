@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Check, Circle, Pencil, Trash2 } from 'lucide-react';
+import { Check, Circle, MessageSquare, Pencil, Trash2 } from 'lucide-react';
 
 import { Task } from '@/types/task';
 import { cn } from '@/utils/cn';
@@ -9,6 +9,7 @@ interface TaskItemProps {
   onToggleComplete: (id: number, isCompleted: boolean) => void;
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
+  onViewDetails?: (task: Task) => void;
 }
 
 const priorityBadges = {
@@ -17,9 +18,15 @@ const priorityBadges = {
   HIGH: 'badge-danger',
 };
 
-export function TaskItem({ task, onToggleComplete, onDelete, onEdit }: TaskItemProps) {
+export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetails }: TaskItemProps) {
   const handleToggle = () => {
     onToggleComplete(task.id, !task.isCompleted);
+  };
+
+  const handleViewDetails = () => {
+    if (onViewDetails) {
+      onViewDetails(task);
+    }
   };
 
   return (
@@ -44,9 +51,10 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit }: TaskItemP
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <p
+            onClick={handleViewDetails}
             className={cn(
-              'text-sm font-medium text-gray-900',
-              task.isCompleted && 'text-gray-500 line-through'
+              'text-sm font-medium text-gray-900 cursor-pointer hover:text-blue-600 transition-colors',
+              task.isCompleted && 'text-gray-500 line-through hover:text-gray-600'
             )}
           >
             {task.description}
@@ -108,6 +116,17 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit }: TaskItemP
           <span className="text-gray-400">
             Created {format(new Date(task.createdAt), 'MMM d, yyyy')}
           </span>
+
+          {onViewDetails && (
+            <button
+              onClick={handleViewDetails}
+              className="flex items-center gap-1 text-gray-400 hover:text-blue-600 transition-colors"
+              aria-label="View comments"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span className="text-xs">Comments</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

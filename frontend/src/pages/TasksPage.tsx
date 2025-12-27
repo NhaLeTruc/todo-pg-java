@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { CategorySelector } from '@/components/tasks/CategorySelector';
 import { TagSelector } from '@/components/tasks/TagSelector';
+import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { TaskEditModal } from '@/components/tasks/TaskEditModal';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
@@ -24,6 +25,7 @@ export function TasksPage() {
   const [sortDirection] = useState<'asc' | 'desc'>('desc');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+  const [viewingTask, setViewingTask] = useState<Task | null>(null);
 
   const {
     data: tasksData,
@@ -163,6 +165,10 @@ export function TasksPage() {
     setPage(0);
   };
 
+  const handleViewTaskDetails = (task: Task) => {
+    setViewingTask(task);
+  };
+
   if (error) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -236,6 +242,7 @@ export function TasksPage() {
           onToggleComplete={handleToggleComplete}
           onDelete={handleDeleteTask}
           onEdit={handleEditTask}
+          onViewDetails={handleViewTaskDetails}
           isLoading={isLoading}
         />
       </div>
@@ -277,6 +284,15 @@ export function TasksPage() {
           onClose={() => setEditingTask(null)}
           onSave={handleSaveTask}
           isLoading={updateMutation.isPending}
+        />
+      )}
+
+      {viewingTask && (
+        <TaskDetailModal
+          task={viewingTask}
+          isOpen={!!viewingTask}
+          onClose={() => setViewingTask(null)}
+          currentUserId={1}
         />
       )}
 
