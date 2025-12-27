@@ -1,6 +1,8 @@
 package com.todoapp.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -512,5 +514,241 @@ public class TaskControllerIntegrationTest {
         .andExpect(status().isNotFound());
 
     assertThat(taskRepository.findById(task.getId())).isPresent();
+  }
+
+  @Test
+  public void shouldSearchTasksByKeyword() throws Exception {
+    Task task1 = new Task();
+    task1.setUser(testUser);
+    task1.setDescription("Buy groceries from the store");
+    task1.setPriority(Priority.MEDIUM);
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setUser(testUser);
+    task2.setDescription("Call doctor for appointment");
+    task2.setPriority(Priority.HIGH);
+    taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setUser(testUser);
+    task3.setDescription("Buy concert tickets");
+    task3.setPriority(Priority.LOW);
+    taskRepository.save(task3);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "buy")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(2))
+        .andExpect(jsonPath("$.totalElements").value(2));
+  }
+
+  @Test
+  public void shouldSearchTasksCaseInsensitive() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("IMPORTANT Meeting with CEO");
+    task.setPriority(Priority.HIGH);
+    taskRepository.save(task);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "important")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(1))
+        .andExpect(jsonPath("$.content[0].description").value("IMPORTANT Meeting with CEO"));
+  }
+
+  @Test
+  public void shouldFilterTasksByCompletionStatus() throws Exception {
+    Task task1 = new Task();
+    task1.setUser(testUser);
+    task1.setDescription("Completed task 1");
+    task1.setPriority(Priority.HIGH);
+    task1.setIsCompleted(true);
+    task1.setCompletedAt(LocalDateTime.now());
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setUser(testUser);
+    task2.setDescription("Active task 1");
+    task2.setPriority(Priority.MEDIUM);
+    task2.setIsCompleted(false);
+    taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setUser(testUser);
+    task3.setDescription("Active task 2");
+    task3.setPriority(Priority.LOW);
+    task3.setIsCompleted(false);
+    taskRepository.save(task3);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("completed", "false")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(2))
+        .andExpect(jsonPath("$.totalElements").value(2))
+        .andExpect(jsonPath("$.content[*].isCompleted").value(everyItem(is(false))));
+  }
+
+  @Test
+  public void shouldCombineSearchAndCompletionFilter() throws Exception {
+    Task task1 = new Task();
+    task1.setUser(testUser);
+    task1.setDescription("Buy groceries");
+    task1.setPriority(Priority.MEDIUM);
+    task1.setIsCompleted(true);
+    task1.setCompletedAt(LocalDateTime.now());
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setUser(testUser);
+    task2.setDescription("Buy tickets");
+    task2.setPriority(Priority.HIGH);
+    task2.setIsCompleted(false);
+    taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setUser(testUser);
+    task3.setDescription("Buy flowers");
+    task3.setPriority(Priority.LOW);
+    task3.setIsCompleted(true);
+    task3.setCompletedAt(LocalDateTime.now());
+    taskRepository.save(task3);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "buy")
+                .param("completed", "true")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(2))
+        .andExpect(jsonPath("$.totalElements").value(2))
+        .andExpect(jsonPath("$.content[*].isCompleted").value(everyItem(is(true))));
+  }
+
+  @Test
+  public void shouldReturnEmptyResultsForNoMatches() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Buy groceries");
+    task.setPriority(Priority.MEDIUM);
+    taskRepository.save(task);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "meeting")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(0))
+        .andExpect(jsonPath("$.totalElements").value(0));
+  }
+
+  @Test
+  public void shouldOnlyReturnCurrentUserTasksInSearch() throws Exception {
+    User otherUser = new User();
+    otherUser.setEmail("other@example.com");
+    otherUser.setPasswordHash("$2a$10$dummyhash2");
+    otherUser.setIsActive(true);
+    otherUser = userRepository.save(otherUser);
+
+    Task task1 = new Task();
+    task1.setUser(testUser);
+    task1.setDescription("Buy groceries");
+    task1.setPriority(Priority.MEDIUM);
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setUser(otherUser);
+    task2.setDescription("Buy tickets");
+    task2.setPriority(Priority.HIGH);
+    taskRepository.save(task2);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "buy")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(1))
+        .andExpect(jsonPath("$.content[0].description").value("Buy groceries"));
+  }
+
+  @Test
+  public void shouldRespectPaginationInSearch() throws Exception {
+    for (int i = 1; i <= 15; i++) {
+      Task task = new Task();
+      task.setUser(testUser);
+      task.setDescription("Task number " + i);
+      task.setPriority(Priority.MEDIUM);
+      taskRepository.save(task);
+    }
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "task")
+                .param("page", "0")
+                .param("size", "5"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(5))
+        .andExpect(jsonPath("$.totalElements").value(15))
+        .andExpect(jsonPath("$.totalPages").value(3));
+  }
+
+  @Test
+  public void shouldHandleEmptySearchTerm() throws Exception {
+    Task task1 = new Task();
+    task1.setUser(testUser);
+    task1.setDescription("Task 1");
+    task1.setPriority(Priority.MEDIUM);
+    taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setUser(testUser);
+    task2.setDescription("Task 2");
+    task2.setPriority(Priority.HIGH);
+    taskRepository.save(task2);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("search", "")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(2));
   }
 }

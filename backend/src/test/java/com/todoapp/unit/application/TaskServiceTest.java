@@ -324,4 +324,147 @@ class TaskServiceTest {
     verify(taskRepository).findById(1L);
     verify(taskRepository, never()).delete(any(Task.class));
   }
+
+  @Test
+  @DisplayName("Should search tasks by keyword only")
+  void shouldSearchTasksByKeywordOnly() {
+    Task task1 = new Task();
+    task1.setId(1L);
+    task1.setUser(testUser);
+    task1.setDescription("Buy groceries");
+    task1.setPriority(Priority.MEDIUM);
+
+    Task task2 = new Task();
+    task2.setId(2L);
+    task2.setUser(testUser);
+    task2.setDescription("Buy concert tickets");
+    task2.setPriority(Priority.HIGH);
+
+    List<Task> tasks = Arrays.asList(task1, task2);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.searchByUserIdAndDescription(1L, "buy", pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.searchTasks(1L, "buy", null, pageable);
+
+    assertNotNull(result);
+    assertEquals(2, result.getTotalElements());
+    verify(taskRepository).searchByUserIdAndDescription(1L, "buy", pageable);
+    verify(taskRepository, never()).findByUserId(anyLong(), any(Pageable.class));
+  }
+
+  @Test
+  @DisplayName("Should search tasks by keyword and completion status")
+  void shouldSearchTasksByKeywordAndCompletionStatus() {
+    Task task = new Task();
+    task.setId(1L);
+    task.setUser(testUser);
+    task.setDescription("Buy groceries");
+    task.setPriority(Priority.MEDIUM);
+    task.setIsCompleted(true);
+
+    List<Task> tasks = Arrays.asList(task);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.searchByUserIdAndDescriptionAndIsCompleted(1L, "buy", true, pageable))
+        .thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.searchTasks(1L, "buy", true, pageable);
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    verify(taskRepository).searchByUserIdAndDescriptionAndIsCompleted(1L, "buy", true, pageable);
+  }
+
+  @Test
+  @DisplayName("Should filter tasks by completion status only")
+  void shouldFilterTasksByCompletionStatusOnly() {
+    Task task = new Task();
+    task.setId(1L);
+    task.setUser(testUser);
+    task.setDescription("Completed task");
+    task.setPriority(Priority.HIGH);
+    task.setIsCompleted(true);
+
+    List<Task> tasks = Arrays.asList(task);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.findByUserIdAndIsCompleted(1L, true, pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.searchTasks(1L, null, true, pageable);
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    verify(taskRepository).findByUserIdAndIsCompleted(1L, true, pageable);
+  }
+
+  @Test
+  @DisplayName("Should return all tasks when no search term or filter")
+  void shouldReturnAllTasksWhenNoSearchTermOrFilter() {
+    List<Task> tasks = Arrays.asList(testTask);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.findByUserId(1L, pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.searchTasks(1L, null, null, pageable);
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    verify(taskRepository).findByUserId(1L, pageable);
+  }
+
+  @Test
+  @DisplayName("Should trim search term before searching")
+  void shouldTrimSearchTermBeforeSearching() {
+    List<Task> tasks = Arrays.asList(testTask);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.searchByUserIdAndDescription(1L, "test", pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    taskService.searchTasks(1L, "  test  ", null, pageable);
+
+    verify(taskRepository).searchByUserIdAndDescription(1L, "test", pageable);
+  }
+
+  @Test
+  @DisplayName("Should treat empty search term as no search")
+  void shouldTreatEmptySearchTermAsNoSearch() {
+    List<Task> tasks = Arrays.asList(testTask);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.findByUserId(1L, pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    taskService.searchTasks(1L, "   ", null, pageable);
+
+    verify(taskRepository).findByUserId(1L, pageable);
+    verify(taskRepository, never()).searchByUserIdAndDescription(anyLong(), anyString(), any(Pageable.class));
+  }
+
+  @Test
+  @DisplayName("Should handle search with no results")
+  void shouldHandleSearchWithNoResults() {
+    Page<Task> emptyPage = new PageImpl<>(Arrays.asList());
+    Pageable pageable = PageRequest.of(0, 10);
+
+    when(taskRepository.searchByUserIdAndDescription(1L, "nonexistent", pageable))
+        .thenReturn(emptyPage);
+
+    Page<TaskResponseDTO> result = taskService.searchTasks(1L, "nonexistent", null, pageable);
+
+    assertNotNull(result);
+    assertEquals(0, result.getTotalElements());
+    verify(taskRepository).searchByUserIdAndDescription(1L, "nonexistent", pageable);
+  }
 }
