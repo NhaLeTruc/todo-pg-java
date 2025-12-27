@@ -407,22 +407,22 @@
 
 ### Tests for User Story 9 (TDD - Write FIRST) ⚠️
 
-- [ ] T198 [P] [US9] Write unit test for TaskShare permission validation in backend/src/test/java/com/todoapp/unit/domain/TaskShareTest.java
-- [ ] T199 [P] [US9] Write unit test for TaskShareService.shareTask() in backend/src/test/java/com/todoapp/unit/application/TaskShareServiceTest.java
-- [ ] T200 [P] [US9] Write unit test for TaskService authorization with shared tasks in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
+- [X] T198 [P] [US9] Write unit test for TaskShare permission validation in backend/src/test/java/com/todoapp/unit/domain/TaskShareTest.java
+- [X] T199 [P] [US9] Write unit test for TaskShareService.shareTask() in backend/src/test/java/com/todoapp/unit/application/TaskShareServiceTest.java
+- [X] T200 [P] [US9] Write unit test for TaskService authorization with shared tasks in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
 
 ### Implementation for User Story 9
 
-- [ ] T201 [P] [US9] Create TaskShare entity in backend/src/main/java/com/todoapp/domain/model/TaskShare.java
-- [ ] T202 [P] [US9] Create PermissionLevel enum (VIEW, EDIT) in backend/src/main/java/com/todoapp/domain/model/PermissionLevel.java
-- [ ] T203 [P] [US9] Create TaskShareRepository in backend/src/main/java/com/todoapp/domain/repository/TaskShareRepository.java
-- [ ] T204 [P] [US9] Create TaskShareDTO in backend/src/main/java/com/todoapp/application/dto/TaskShareDTO.java
-- [ ] T205 [US9] Implement TaskShareService with share/revoke operations in backend/src/main/java/com/todoapp/application/service/TaskShareService.java
-- [ ] T206 [US9] Update TaskService to include shared tasks in queries in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T207 [US9] Update TaskService authorization to check TaskShare permissions in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T208 [US9] Create TaskShareController with POST /api/v1/tasks/{taskId}/share in backend/src/main/java/com/todoapp/presentation/rest/TaskShareController.java
-- [ ] T209 [US9] Add DELETE /api/v1/tasks/{taskId}/share/{userId} endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskShareController.java
-- [ ] T210 [US9] Add GET /api/v1/tasks/shared-with-me endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [X] T201 [P] [US9] Create TaskShare entity in backend/src/main/java/com/todoapp/domain/model/TaskShare.java
+- [X] T202 [P] [US9] Create PermissionLevel enum (VIEW, EDIT) in backend/src/main/java/com/todoapp/domain/model/PermissionLevel.java
+- [X] T203 [P] [US9] Create TaskShareRepository in backend/src/main/java/com/todoapp/domain/repository/TaskShareRepository.java
+- [X] T204 [P] [US9] Create TaskShareDTO in backend/src/main/java/com/todoapp/application/dto/TaskShareDTO.java
+- [X] T205 [US9] Implement TaskShareService with share/revoke operations in backend/src/main/java/com/todoapp/application/service/TaskShareService.java
+- [X] T206 [US9] Update TaskService to include shared tasks in queries in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [X] T207 [US9] Update TaskService authorization to check TaskShare permissions in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [X] T208 [US9] Create TaskShareController with POST /api/v1/tasks/{taskId}/share in backend/src/main/java/com/todoapp/presentation/rest/TaskShareController.java
+- [X] T209 [US9] Add DELETE /api/v1/tasks/{taskId}/share/{userId} endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskShareController.java
+- [X] T210 [US9] Add GET /api/v1/tasks/shared-with-me endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
 - [ ] T211 [P] [US9] Configure WebSocket STOMP over SockJS in backend/src/main/java/com/todoapp/infrastructure/config/WebSocketConfig.java
 - [ ] T212 [P] [US9] Create WebSocket authentication interceptor in backend/src/main/java/com/todoapp/infrastructure/websocket/AuthChannelInterceptor.java
 - [ ] T213 [P] [US9] Create TaskUpdateMessage event DTO in backend/src/main/java/com/todoapp/application/dto/TaskUpdateMessage.java
@@ -437,9 +437,9 @@
 
 ### Integration Tests for User Story 9
 
-- [ ] T222 [P] [US9] Write integration test for task sharing in backend/src/test/java/com/todoapp/integration/api/TaskShareApiTest.java
+- [X] T222 [P] [US9] Write integration test for task sharing in backend/src/test/java/com/todoapp/integration/api/TaskShareApiTest.java
 - [ ] T223 [P] [US9] Write WebSocket contract test in backend/src/test/java/com/todoapp/contract/WebSocketContractTest.java
-- [ ] T224 [P] [US9] Write integration test for shared task authorization in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
+- [X] T224 [P] [US9] Write integration test for shared task authorization in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
 
 **Checkpoint**: Full collaboration features with real-time updates enabled
 

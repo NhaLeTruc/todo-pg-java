@@ -3,7 +3,11 @@ package com.todoapp.presentation.rest;
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
+import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.application.service.TaskService;
+import com.todoapp.domain.model.Task;
+import java.util.List;
+import java.util.stream.Collectors;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,9 +34,11 @@ public class TaskController {
   private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
   private final TaskService taskService;
+  private final TaskMapper taskMapper;
 
-  public TaskController(TaskService taskService) {
+  public TaskController(TaskService taskService, TaskMapper taskMapper) {
     this.taskService = taskService;
+    this.taskMapper = taskMapper;
   }
 
   @PostMapping
@@ -245,5 +251,25 @@ public class TaskController {
     logger.info("Marking task ID: {} as incomplete for user ID: {}", id, userId);
     TaskResponseDTO task = taskService.toggleCompletion(id, userId);
     return ResponseEntity.ok(task);
+  }
+
+  @GetMapping("/shared-with-me")
+  @Operation(
+      summary = "Get shared tasks",
+      description = "Get all tasks that have been shared with the current user")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Shared tasks retrieved successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<List<TaskResponseDTO>> getSharedTasks(
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Fetching shared tasks for user ID: {}", userId);
+    List<Task> sharedTasks = taskService.getSharedTasksForUser(userId);
+    List<TaskResponseDTO> taskDTOs =
+        sharedTasks.stream().map(taskMapper::toResponseDTO).collect(Collectors.toList());
+    return ResponseEntity.ok(taskDTOs);
   }
 }

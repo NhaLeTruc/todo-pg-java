@@ -9,10 +9,13 @@ import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.application.service.TaskService;
+import com.todoapp.domain.model.PermissionLevel;
 import com.todoapp.domain.model.Priority;
 import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +39,8 @@ class TaskServiceTest {
   @Mock private TaskRepository taskRepository;
 
   @Mock private UserRepository userRepository;
+
+  @Mock private TaskShareRepository taskShareRepository;
 
   @Mock private TaskMapper taskMapper;
 
@@ -589,5 +594,196 @@ class TaskServiceTest {
     verify(userRepository).findById(1L);
     verify(taskRepository).save(any(Task.class));
     verify(taskMapper).toResponseDTO(task);
+  }
+
+  // ========================================
+  // User Story 9: Shared Task Authorization Tests
+  // ========================================
+
+  @Test
+  @DisplayName("Should allow task owner to access their task")
+  void shouldAllowTaskOwnerToAccessTheirTask() {
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskMapper.toResponseDTO(testTask)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.getTaskById(1L, 1L);
+
+    assertNotNull(result);
+    verify(taskRepository).findById(1L);
+    verify(taskShareRepository, never()).findByTaskIdAndSharedWithUserId(anyLong(), anyLong());
+  }
+
+  @Test
+  @DisplayName("Should allow user with VIEW permission to view shared task")
+  void shouldAllowUserWithViewPermissionToViewSharedTask() {
+    User sharedUser = new User();
+    sharedUser.setId(2L);
+    sharedUser.setEmail("shared@example.com");
+
+    TaskShare taskShare = new TaskShare();
+    taskShare.setTask(testTask);
+    taskShare.setSharedWithUser(sharedUser);
+    taskShare.setPermissionLevel(PermissionLevel.VIEW);
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L))
+        .thenReturn(Optional.of(taskShare));
+    when(taskMapper.toResponseDTO(testTask)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.getTaskById(1L, 2L);
+
+    assertNotNull(result);
+    verify(taskRepository).findById(1L);
+    verify(taskShareRepository).findByTaskIdAndSharedWithUserId(1L, 2L);
+  }
+
+  @Test
+  @DisplayName("Should allow user with EDIT permission to edit shared task")
+  void shouldAllowUserWithEditPermissionToEditSharedTask() {
+    User sharedUser = new User();
+    sharedUser.setId(2L);
+    sharedUser.setEmail("shared@example.com");
+
+    TaskShare taskShare = new TaskShare();
+    taskShare.setTask(testTask);
+    taskShare.setSharedWithUser(sharedUser);
+    taskShare.setPermissionLevel(PermissionLevel.EDIT);
+
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated by shared user");
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L))
+        .thenReturn(Optional.of(taskShare));
+    when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+    when(taskMapper.toResponseDTO(testTask)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.updateTask(1L, updateDTO, 2L);
+
+    assertNotNull(result);
+    verify(taskRepository).findById(1L);
+    verify(taskShareRepository).findByTaskIdAndSharedWithUserId(1L, 2L);
+    verify(taskRepository).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should deny user with VIEW permission from editing shared task")
+  void shouldDenyUserWithViewPermissionFromEditingSharedTask() {
+    User sharedUser = new User();
+    sharedUser.setId(2L);
+    sharedUser.setEmail("shared@example.com");
+
+    TaskShare taskShare = new TaskShare();
+    taskShare.setTask(testTask);
+    taskShare.setSharedWithUser(sharedUser);
+    taskShare.setPermissionLevel(PermissionLevel.VIEW);
+
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Attempt to update");
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L))
+        .thenReturn(Optional.of(taskShare));
+
+    assertThrows(
+        IllegalArgumentException.class, () -> taskService.updateTask(1L, updateDTO, 2L));
+
+    verify(taskRepository).findById(1L);
+    verify(taskShareRepository).findByTaskIdAndSharedWithUserId(1L, 2L);
+    verify(taskRepository, never()).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should deny unauthorized user from accessing task")
+  void shouldDenyUnauthorizedUserFromAccessingTask() {
+    User unauthorizedUser = new User();
+    unauthorizedUser.setId(3L);
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 3L))
+        .thenReturn(Optional.empty());
+
+    assertThrows(
+        IllegalArgumentException.class, () -> taskService.getTaskById(1L, 3L));
+
+    verify(taskRepository).findById(1L);
+    verify(taskShareRepository).findByTaskIdAndSharedWithUserId(1L, 3L);
+  }
+
+  @Test
+  @DisplayName("Should prevent deleting shared task by non-owner")
+  void shouldPreventDeletingSharedTaskByNonOwner() {
+    User sharedUser = new User();
+    sharedUser.setId(2L);
+
+    TaskShare taskShare = new TaskShare();
+    taskShare.setTask(testTask);
+    taskShare.setSharedWithUser(sharedUser);
+    taskShare.setPermissionLevel(PermissionLevel.EDIT);
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+
+    assertThrows(
+        IllegalArgumentException.class, () -> taskService.deleteTask(1L, 2L));
+
+    verify(taskRepository).findById(1L);
+    verify(taskRepository, never()).delete(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should retrieve shared tasks for user")
+  void shouldRetrieveSharedTasksForUser() {
+    User sharedUser = new User();
+    sharedUser.setId(2L);
+    sharedUser.setEmail("shared@example.com");
+
+    Task sharedTask = new Task();
+    sharedTask.setId(2L);
+    sharedTask.setUser(testUser);
+    sharedTask.setDescription("Shared task");
+    sharedTask.setPriority(Priority.MEDIUM);
+
+    TaskShare taskShare = new TaskShare();
+    taskShare.setTask(sharedTask);
+    taskShare.setSharedWithUser(sharedUser);
+    taskShare.setPermissionLevel(PermissionLevel.VIEW);
+
+    List<TaskShare> shares = Arrays.asList(taskShare);
+    when(taskShareRepository.findBySharedWithUserId(2L)).thenReturn(shares);
+
+    List<TaskShare> result = taskShareRepository.findBySharedWithUserId(2L);
+
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals(2L, result.get(0).getTask().getId());
+    verify(taskShareRepository).findBySharedWithUserId(2L);
+  }
+
+  @Test
+  @DisplayName("Should combine owned and shared tasks in query")
+  void shouldCombineOwnedAndSharedTasksInQuery() {
+    User user = new User();
+    user.setId(2L);
+
+    Task ownedTask = new Task();
+    ownedTask.setId(1L);
+    ownedTask.setUser(user);
+    ownedTask.setDescription("Owned task");
+
+    Task sharedTask = new Task();
+    sharedTask.setId(2L);
+    sharedTask.setUser(testUser);
+    sharedTask.setDescription("Shared task");
+
+    Pageable pageable = PageRequest.of(0, 10);
+    Page<Task> ownedPage = new PageImpl<>(Arrays.asList(ownedTask));
+
+    when(taskRepository.findByUserId(2L, pageable)).thenReturn(ownedPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.getUserTasks(2L, pageable);
+
+    assertNotNull(result);
+    verify(taskRepository).findByUserId(2L, pageable);
   }
 }

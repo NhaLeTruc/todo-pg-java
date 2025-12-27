@@ -5,12 +5,15 @@ import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.domain.model.Category;
+import com.todoapp.domain.model.PermissionLevel;
 import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.CategoryRepository;
 import com.todoapp.domain.repository.TagRepository;
 import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
@@ -32,6 +35,7 @@ public class TaskService {
   private final UserRepository userRepository;
   private final CategoryRepository categoryRepository;
   private final TagRepository tagRepository;
+  private final TaskShareRepository taskShareRepository;
   private final TaskMapper taskMapper;
 
   public TaskService(
@@ -39,11 +43,13 @@ public class TaskService {
       UserRepository userRepository,
       CategoryRepository categoryRepository,
       TagRepository tagRepository,
+      TaskShareRepository taskShareRepository,
       TaskMapper taskMapper) {
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
     this.tagRepository = tagRepository;
+    this.taskShareRepository = taskShareRepository;
     this.taskMapper = taskMapper;
   }
 
@@ -105,11 +111,30 @@ public class TaskService {
             .findById(taskId)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
 
-    if (!task.getUser().getId().equals(userId)) {
-      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+    if (!hasTaskAccess(task, userId)) {
+      throw new IllegalArgumentException("User does not have access to this task");
     }
 
     return taskMapper.toResponseDTO(task);
+  }
+
+  private boolean hasTaskAccess(Task task, Long userId) {
+    if (task.getUser().getId().equals(userId)) {
+      return true;
+    }
+    return taskShareRepository
+        .findByTaskIdAndSharedWithUserId(task.getId(), userId)
+        .isPresent();
+  }
+
+  private boolean hasEditPermission(Task task, Long userId) {
+    if (task.getUser().getId().equals(userId)) {
+      return true;
+    }
+    return taskShareRepository
+        .findByTaskIdAndSharedWithUserId(task.getId(), userId)
+        .map(share -> share.getPermissionLevel() == PermissionLevel.EDIT)
+        .orElse(false);
   }
 
   public Page<TaskResponseDTO> searchTasks(
@@ -179,8 +204,8 @@ public class TaskService {
             .findById(taskId)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
 
-    if (!task.getUser().getId().equals(userId)) {
-      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+    if (!hasEditPermission(task, userId)) {
+      throw new IllegalArgumentException("User does not have edit permission for this task");
     }
 
     if (task.getIsCompleted()) {
@@ -203,8 +228,8 @@ public class TaskService {
             .findById(taskId)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
 
-    if (!task.getUser().getId().equals(userId)) {
-      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+    if (!hasEditPermission(task, userId)) {
+      throw new IllegalArgumentException("User does not have edit permission for this task");
     }
 
     if (updateDTO.getDescription() != null) {
@@ -260,10 +285,16 @@ public class TaskService {
             .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
 
     if (!task.getUser().getId().equals(userId)) {
-      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+      throw new IllegalArgumentException("Only the task owner can delete the task");
     }
 
     taskRepository.delete(task);
     logger.info("Task ID: {} deleted successfully", taskId);
+  }
+
+  public List<Task> getSharedTasksForUser(Long userId) {
+    logger.debug("Fetching shared tasks for user ID: {}", userId);
+    List<TaskShare> shares = taskShareRepository.findBySharedWithUserId(userId);
+    return shares.stream().map(TaskShare::getTask).collect(java.util.stream.Collectors.toList());
   }
 }
