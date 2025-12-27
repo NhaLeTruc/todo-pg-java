@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.application.service.TaskService;
 import com.todoapp.domain.model.Priority;
@@ -234,5 +235,93 @@ class TaskServiceTest {
 
     verify(taskRepository).findById(1L);
     verify(taskRepository, never()).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should update task successfully")
+  void shouldUpdateTaskSuccessfully() {
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated task description");
+    updateDTO.setPriority(Priority.HIGH);
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+    when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+    when(taskMapper.toResponseDTO(testTask)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.updateTask(1L, updateDTO, 1L);
+
+    assertNotNull(result);
+    verify(taskRepository).findById(1L);
+    verify(taskRepository).save(testTask);
+    verify(taskMapper).toResponseDTO(testTask);
+  }
+
+  @Test
+  @DisplayName("Should throw exception when updating non-existent task")
+  void shouldThrowExceptionWhenUpdatingNonExistentTask() {
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated description");
+
+    when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+
+    assertThrows(
+        RuntimeException.class, () -> taskService.updateTask(999L, updateDTO, 1L), "Task not found");
+
+    verify(taskRepository).findById(999L);
+    verify(taskRepository, never()).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should throw exception when updating task owned by different user")
+  void shouldThrowExceptionWhenUpdatingTaskOwnedByDifferentUser() {
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated description");
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+
+    assertThrows(
+        RuntimeException.class,
+        () -> taskService.updateTask(1L, updateDTO, 999L),
+        "User not authorized to modify task");
+
+    verify(taskRepository).findById(1L);
+    verify(taskRepository, never()).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should delete task successfully")
+  void shouldDeleteTaskSuccessfully() {
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+
+    taskService.deleteTask(1L, 1L);
+
+    verify(taskRepository).findById(1L);
+    verify(taskRepository).delete(testTask);
+  }
+
+  @Test
+  @DisplayName("Should throw exception when deleting non-existent task")
+  void shouldThrowExceptionWhenDeletingNonExistentTask() {
+    when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+
+    assertThrows(
+        RuntimeException.class, () -> taskService.deleteTask(999L, 1L), "Task not found");
+
+    verify(taskRepository).findById(999L);
+    verify(taskRepository, never()).delete(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should throw exception when deleting task owned by different user")
+  void shouldThrowExceptionWhenDeletingTaskOwnedByDifferentUser() {
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+
+    assertThrows(
+        RuntimeException.class,
+        () -> taskService.deleteTask(1L, 999L),
+        "User not authorized to delete task");
+
+    verify(taskRepository).findById(1L);
+    verify(taskRepository, never()).delete(any(Task.class));
   }
 }

@@ -183,4 +183,55 @@ class TaskTest {
     assertFalse(task.getIsCompleted());
     assertNull(task.getCompletedAt());
   }
+
+  @Test
+  @DisplayName("Should allow updating task description")
+  void shouldAllowUpdatingTaskDescription() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original description");
+
+    task.setDescription("Updated description");
+
+    assertEquals("Updated description", task.getDescription());
+  }
+
+  @Test
+  @DisplayName("Should reject updating to empty description")
+  void shouldRejectUpdatingToEmptyDescription() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original description");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> task.setDescription(""),
+        "Empty description should throw IllegalArgumentException");
+  }
+
+  @Test
+  @DisplayName("Should reject updating to null description")
+  void shouldRejectUpdatingToNullDescription() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original description");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> task.setDescription(null),
+        "Null description should throw IllegalArgumentException");
+  }
+
+  @Test
+  @DisplayName("Should reject updating to whitespace-only description")
+  void shouldRejectUpdatingToWhitespaceOnlyDescription() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original description");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> task.setDescription("   "),
+        "Whitespace-only description should throw IllegalArgumentException");
+  }
 }

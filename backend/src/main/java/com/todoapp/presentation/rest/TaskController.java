@@ -2,6 +2,7 @@ package com.todoapp.presentation.rest;
 
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -142,6 +143,50 @@ public class TaskController {
     logger.info("Getting task count for user ID: {} (completed: {})", userId, completed);
     long count = taskService.getTaskCount(userId, completed);
     return ResponseEntity.ok(count);
+  }
+
+  @PutMapping("/{id}")
+  @Operation(summary = "Update task", description = "Updates an existing task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Task updated successfully",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TaskResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Task not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<TaskResponseDTO> updateTask(
+      @PathVariable Long id,
+      @Valid @RequestBody TaskUpdateDTO updateDTO,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Updating task ID: {} for user ID: {}", id, userId);
+    TaskResponseDTO task = taskService.updateTask(id, updateDTO, userId);
+    return ResponseEntity.ok(task);
+  }
+
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Delete task", description = "Deletes a task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Task not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<Void> deleteTask(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Deleting task ID: {} for user ID: {}", id, userId);
+    taskService.deleteTask(id, userId);
+    return ResponseEntity.noContent().build();
   }
 
   @PatchMapping("/{id}/complete")

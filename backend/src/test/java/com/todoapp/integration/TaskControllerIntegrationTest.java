@@ -1,14 +1,17 @@
 package com.todoapp.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.domain.model.Priority;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
@@ -376,5 +379,138 @@ public class TaskControllerIntegrationTest {
         .perform(patch("/api/v1/tasks/" + task.getId() + "/complete")
             .header("X-User-Id", testUser.getId()))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldUpdateTaskSuccessfully() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original description");
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated description");
+    updateDTO.setPriority(Priority.HIGH);
+
+    mockMvc
+        .perform(
+            put("/api/v1/tasks/" + task.getId())
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(task.getId()))
+        .andExpect(jsonPath("$.description").value("Updated description"))
+        .andExpect(jsonPath("$.priority").value("HIGH"));
+
+    Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+    assertThat(updatedTask.getDescription()).isEqualTo("Updated description");
+    assertThat(updatedTask.getPriority()).isEqualTo(Priority.HIGH);
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenUpdatingNonExistentTask() throws Exception {
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated description");
+
+    mockMvc
+        .perform(
+            put("/api/v1/tasks/99999")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldNotAllowUpdatingOtherUsersTask() throws Exception {
+    User otherUser = new User();
+    otherUser.setEmail("other@example.com");
+    otherUser.setPasswordHash("$2a$10$dummyhash2");
+    otherUser.setIsActive(true);
+    otherUser = userRepository.save(otherUser);
+
+    Task task = new Task();
+    task.setUser(otherUser);
+    task.setDescription("Other user's task");
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Trying to update");
+
+    mockMvc
+        .perform(
+            put("/api/v1/tasks/" + task.getId())
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldRejectUpdateWithEmptyDescription() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original description");
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("");
+
+    mockMvc
+        .perform(
+            put("/api/v1/tasks/" + task.getId())
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void shouldDeleteTaskSuccessfully() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task to delete");
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    Long taskId = task.getId();
+
+    mockMvc
+        .perform(delete("/api/v1/tasks/" + taskId).header("X-User-Id", testUser.getId()))
+        .andExpect(status().isNoContent());
+
+    assertThat(taskRepository.findById(taskId)).isEmpty();
+  }
+
+  @Test
+  public void shouldReturnNotFoundWhenDeletingNonExistentTask() throws Exception {
+    mockMvc
+        .perform(delete("/api/v1/tasks/99999").header("X-User-Id", testUser.getId()))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void shouldNotAllowDeletingOtherUsersTask() throws Exception {
+    User otherUser = new User();
+    otherUser.setEmail("other@example.com");
+    otherUser.setPasswordHash("$2a$10$dummyhash2");
+    otherUser.setIsActive(true);
+    otherUser = userRepository.save(otherUser);
+
+    Task task = new Task();
+    task.setUser(otherUser);
+    task.setDescription("Other user's task");
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    mockMvc
+        .perform(delete("/api/v1/tasks/" + task.getId()).header("X-User-Id", testUser.getId()))
+        .andExpect(status().isNotFound());
+
+    assertThat(taskRepository.findById(task.getId())).isPresent();
   }
 }

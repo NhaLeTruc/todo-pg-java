@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { TaskEditModal } from '@/components/tasks/TaskEditModal';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
 import { taskService } from '@/services/taskService';
-import { TaskCreateRequest } from '@/types/task';
+import { Task, TaskCreateRequest, TaskUpdateRequest } from '@/types/task';
 
 export function TasksPage() {
   const queryClient = useQueryClient();
@@ -14,6 +16,8 @@ export function TasksPage() {
   const [size] = useState(20);
   const [search, setSearch] = useState<string>('');
   const [completedFilter, setCompletedFilter] = useState<boolean | undefined>(undefined);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
 
   const {
     data: tasksData,
@@ -53,14 +57,29 @@ export function TasksPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: TaskUpdateRequest }) =>
+      taskService.updateTask(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      toast.success('Task updated successfully!');
+      setEditingTask(null);
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update task: ${error.message}`);
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => taskService.deleteTask(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast.success('Task deleted!');
+      setDeletingTaskId(null);
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete task: ${error.message}`);
+      setDeletingTaskId(null);
     },
   });
 
@@ -72,16 +91,25 @@ export function TasksPage() {
     toggleCompleteMutation.mutate({ id, isCompleted });
   };
 
-  const handleDeleteTask = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      deleteMutation.mutate(id);
+  const handleEditTask = (id: number) => {
+    const task = tasksData?.content.find((t) => t.id === id);
+    if (task) {
+      setEditingTask(task);
     }
   };
 
-  const handleEditTask = (id: number) => {
-    toast('Edit functionality coming soon!', { icon: '🚧' });
-    // Edit task functionality will be implemented in a future user story
-    void id;
+  const handleSaveTask = (id: number, data: TaskUpdateRequest) => {
+    updateMutation.mutate({ id, data });
+  };
+
+  const handleDeleteTask = (id: number) => {
+    setDeletingTaskId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deletingTaskId) {
+      deleteMutation.mutate(deletingTaskId);
+    }
   };
 
   const handleSearchChange = (value: string) => {
@@ -185,6 +213,27 @@ export function TasksPage() {
           Showing {tasksData.content.length} of {tasksData.totalElements} tasks
         </div>
       )}
+
+      {editingTask && (
+        <TaskEditModal
+          task={editingTask}
+          isOpen={!!editingTask}
+          onClose={() => setEditingTask(null)}
+          onSave={handleSaveTask}
+          isLoading={updateMutation.isPending}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={deletingTaskId !== null}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingTaskId(null)}
+        isDestructive
+      />
     </div>
   );
 }

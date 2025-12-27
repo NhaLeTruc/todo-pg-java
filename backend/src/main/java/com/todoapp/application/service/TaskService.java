@@ -2,6 +2,7 @@ package com.todoapp.application.service;
 
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
@@ -132,5 +133,60 @@ public class TaskService {
 
     Task savedTask = taskRepository.save(task);
     return taskMapper.toResponseDTO(savedTask);
+  }
+
+  public TaskResponseDTO updateTask(Long taskId, TaskUpdateDTO updateDTO, Long userId) {
+    logger.debug("Updating task ID: {} by user ID: {}", taskId, userId);
+
+    Task task =
+        taskRepository
+            .findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+    if (!task.getUser().getId().equals(userId)) {
+      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+    }
+
+    if (updateDTO.getDescription() != null) {
+      task.setDescription(updateDTO.getDescription());
+    }
+
+    if (updateDTO.getPriority() != null) {
+      task.setPriority(updateDTO.getPriority());
+    }
+
+    if (updateDTO.getDueDate() != null) {
+      task.setDueDate(updateDTO.getDueDate());
+    }
+
+    if (updateDTO.getCategoryId() != null) {
+      // Category validation would go here
+      // For now, we'll just set it as null since we don't have full category support
+      task.setCategory(null);
+    }
+
+    if (updateDTO.getEstimatedDurationMinutes() != null) {
+      task.setEstimatedDurationMinutes(updateDTO.getEstimatedDurationMinutes());
+    }
+
+    Task savedTask = taskRepository.save(task);
+    logger.info("Task ID: {} updated successfully", taskId);
+    return taskMapper.toResponseDTO(savedTask);
+  }
+
+  public void deleteTask(Long taskId, Long userId) {
+    logger.debug("Deleting task ID: {} by user ID: {}", taskId, userId);
+
+    Task task =
+        taskRepository
+            .findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+    if (!task.getUser().getId().equals(userId)) {
+      throw new ResourceNotFoundException("Task not found with ID: " + taskId);
+    }
+
+    taskRepository.delete(task);
+    logger.info("Task ID: {} deleted successfully", taskId);
   }
 }

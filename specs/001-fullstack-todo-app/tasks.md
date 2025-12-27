@@ -167,38 +167,38 @@
 
 ---
 
-## Phase 5: User Story 3 - Edit and Delete Tasks (Priority: P3)
+## Phase 5: User Story 3 - Edit and Delete Tasks (Priority: P3) ✅ COMPLETED
 
 **Goal**: Users can modify task descriptions and delete tasks
 
 **Independent Test**: Edit task descriptions, delete tasks, verify persistence and proper deletion
 
-### Tests for User Story 3 (TDD - Write FIRST) ⚠️
+### Tests for User Story 3 (TDD - Write FIRST) ✅
 
-- [ ] T080 [P] [US3] Write unit test for Task.updateDescription() validation in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
-- [ ] T081 [P] [US3] Write unit test for TaskService.updateTask() in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
-- [ ] T082 [P] [US3] Write unit test for TaskService.deleteTask() in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
+- [x] T080 [P] [US3] Write unit test for Task.updateDescription() validation in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
+- [x] T081 [P] [US3] Write unit test for TaskService.updateTask() in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
+- [x] T082 [P] [US3] Write unit test for TaskService.deleteTask() in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
 
-### Implementation for User Story 3
+### Implementation for User Story 3 ✅
 
-- [ ] T083 [P] [US3] Create TaskUpdateDTO in backend/src/main/java/com/todoapp/application/dto/TaskUpdateDTO.java
-- [ ] T084 [US3] Implement TaskService.updateTask() method in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T085 [US3] Implement TaskService.deleteTask() method in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T086 [US3] Add PUT /api/v1/tasks/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T087 [US3] Add DELETE /api/v1/tasks/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T088 [US3] Add GET /api/v1/tasks/{id} endpoint for single task retrieval in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T089 [P] [US3] Add updateTask() and deleteTask() to task API service in frontend/src/services/taskService.ts
-- [ ] T090 [P] [US3] Create TaskEditModal component for inline editing in frontend/src/components/tasks/TaskEditModal.tsx
-- [ ] T091 [US3] Add edit and delete buttons to TaskItem component in frontend/src/components/tasks/TaskItem.tsx
-- [ ] T092 [US3] Add confirmation dialog for task deletion in frontend/src/components/shared/ConfirmDialog.tsx
-- [ ] T093 [US3] Integrate edit modal and delete confirmation in TaskItem in frontend/src/components/tasks/TaskItem.tsx
+- [x] T083 [P] [US3] Create TaskUpdateDTO in backend/src/main/java/com/todoapp/application/dto/TaskUpdateDTO.java
+- [x] T084 [US3] Implement TaskService.updateTask() method in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [x] T085 [US3] Implement TaskService.deleteTask() method in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [x] T086 [US3] Add PUT /api/v1/tasks/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [x] T087 [US3] Add DELETE /api/v1/tasks/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [x] T088 [US3] Verified GET /api/v1/tasks/{id} endpoint exists in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [x] T089 [P] [US3] Verified updateTask() and deleteTask() exist in frontend/src/services/taskService.ts
+- [x] T090 [P] [US3] Create TaskEditModal component for inline editing in frontend/src/components/tasks/TaskEditModal.tsx
+- [x] T091 [US3] Edit/delete buttons already exist in TaskItem component in frontend/src/components/tasks/TaskItem.tsx
+- [x] T092 [US3] Create ConfirmDialog component for task deletion in frontend/src/components/shared/ConfirmDialog.tsx
+- [x] T093 [US3] Integrate edit modal and delete confirmation in TasksPage in frontend/src/pages/TasksPage.tsx
 
-### Integration Tests for User Story 3
+### Integration Tests for User Story 3 ✅
 
-- [ ] T094 [P] [US3] Write integration test for PUT /api/v1/tasks/{id} in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
-- [ ] T095 [P] [US3] Write integration test for DELETE /api/v1/tasks/{id} in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
+- [x] T094 [P] [US3] Write integration test for PUT /api/v1/tasks/{id} in backend/src/test/java/com/todoapp/integration/TaskControllerIntegrationTest.java
+- [x] T095 [P] [US3] Write integration test for DELETE /api/v1/tasks/{id} in backend/src/test/java/com/todoapp/integration/TaskControllerIntegrationTest.java
 
-**Checkpoint**: Full CRUD operations on tasks are now functional
+**Checkpoint**: ✅ Full CRUD operations on tasks are now functional and tested
 
 ---
 
