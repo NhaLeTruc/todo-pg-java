@@ -234,4 +234,139 @@ class TaskTest {
         () -> task.setDescription("   "),
         "Whitespace-only description should throw IllegalArgumentException");
   }
+
+  // ========================================
+  // User Story 5: Priority and Due Date Tests
+  // ========================================
+
+  @Test
+  @DisplayName("Should accept HIGH priority")
+  void shouldAcceptHighPriority() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("High priority task");
+    task.setPriority(Priority.HIGH);
+
+    assertEquals(Priority.HIGH, task.getPriority());
+  }
+
+  @Test
+  @DisplayName("Should accept MEDIUM priority")
+  void shouldAcceptMediumPriority() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Medium priority task");
+    task.setPriority(Priority.MEDIUM);
+
+    assertEquals(Priority.MEDIUM, task.getPriority());
+  }
+
+  @Test
+  @DisplayName("Should accept LOW priority")
+  void shouldAcceptLowPriority() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Low priority task");
+    task.setPriority(Priority.LOW);
+
+    assertEquals(Priority.LOW, task.getPriority());
+  }
+
+  @Test
+  @DisplayName("Should return false for isOverdue when due date is null")
+  void shouldReturnFalseForOverdueWhenDueDateIsNull() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task without due date");
+    task.setDueDate(null);
+    task.setIsCompleted(false);
+
+    assertFalse(task.isOverdue());
+  }
+
+  @Test
+  @DisplayName("Should return false for isOverdue when task is completed")
+  void shouldReturnFalseForOverdueWhenTaskIsCompleted() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Completed task");
+    task.setDueDate(LocalDateTime.now().minusDays(1)); // Past due date
+    task.setIsCompleted(true);
+
+    assertFalse(task.isOverdue(), "Completed tasks should never be overdue");
+  }
+
+  @Test
+  @DisplayName("Should return true for isOverdue when due date is in the past")
+  void shouldReturnTrueForOverdueWhenDueDateIsInPast() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Overdue task");
+    task.setDueDate(LocalDateTime.now().minusDays(1));
+    task.setIsCompleted(false);
+
+    assertTrue(task.isOverdue(), "Task with past due date should be overdue");
+  }
+
+  @Test
+  @DisplayName("Should return false for isOverdue when due date is in the future")
+  void shouldReturnFalseForOverdueWhenDueDateIsInFuture() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Future task");
+    task.setDueDate(LocalDateTime.now().plusDays(1));
+    task.setIsCompleted(false);
+
+    assertFalse(task.isOverdue(), "Task with future due date should not be overdue");
+  }
+
+  @Test
+  @DisplayName("Should return true for isOverdue when due date is exactly now (edge case)")
+  void shouldReturnTrueForOverdueWhenDueDateIsNow() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task due now");
+    task.setDueDate(LocalDateTime.now().minusSeconds(1));
+    task.setIsCompleted(false);
+
+    assertTrue(task.isOverdue(), "Task with due date in the past should be overdue");
+  }
+
+  @Test
+  @DisplayName("Should allow setting due date")
+  void shouldAllowSettingDueDate() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task with due date");
+    LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
+    task.setDueDate(dueDate);
+
+    assertEquals(dueDate, task.getDueDate());
+  }
+
+  @Test
+  @DisplayName("Should allow null due date (optional field)")
+  void shouldAllowNullDueDate() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task without due date");
+    task.setDueDate(null);
+
+    assertNull(task.getDueDate());
+  }
+
+  @Test
+  @DisplayName("Should combine priority and due date correctly")
+  void shouldCombinePriorityAndDueDateCorrectly() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("High priority task with due date");
+    task.setPriority(Priority.HIGH);
+    LocalDateTime dueDate = LocalDateTime.now().plusDays(3);
+    task.setDueDate(dueDate);
+
+    assertEquals(Priority.HIGH, task.getPriority());
+    assertEquals(dueDate, task.getDueDate());
+    assertFalse(task.isOverdue());
+  }
 }

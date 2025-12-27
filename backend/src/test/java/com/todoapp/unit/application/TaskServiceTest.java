@@ -467,4 +467,127 @@ class TaskServiceTest {
     assertEquals(0, result.getTotalElements());
     verify(taskRepository).searchByUserIdAndDescription(1L, "nonexistent", pageable);
   }
+
+  // ========================================
+  // User Story 5: Priority and Due Date Service Tests
+  // ========================================
+
+  @Test
+  @DisplayName("Should sort tasks by priority (HIGH, MEDIUM, LOW)")
+  void shouldSortTasksByPriority() {
+    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+    Task highPriorityTask = new Task();
+    highPriorityTask.setId(1L);
+    highPriorityTask.setUser(testUser);
+    highPriorityTask.setDescription("High priority task");
+    highPriorityTask.setPriority(Priority.HIGH);
+    highPriorityTask.setCreatedAt(now);
+
+    Task mediumPriorityTask = new Task();
+    mediumPriorityTask.setId(2L);
+    mediumPriorityTask.setUser(testUser);
+    mediumPriorityTask.setDescription("Medium priority task");
+    mediumPriorityTask.setPriority(Priority.MEDIUM);
+    mediumPriorityTask.setCreatedAt(now);
+
+    Task lowPriorityTask = new Task();
+    lowPriorityTask.setId(3L);
+    lowPriorityTask.setUser(testUser);
+    lowPriorityTask.setDescription("Low priority task");
+    lowPriorityTask.setPriority(Priority.LOW);
+    lowPriorityTask.setCreatedAt(now);
+
+    List<Task> tasks = Arrays.asList(highPriorityTask, mediumPriorityTask, lowPriorityTask);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("priority").descending());
+
+    when(taskRepository.findByUserId(1L, pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.getUserTasks(1L, pageable);
+
+    assertNotNull(result);
+    assertEquals(3, result.getTotalElements());
+    verify(taskRepository).findByUserId(1L, pageable);
+  }
+
+  @Test
+  @DisplayName("Should sort tasks by due date")
+  void shouldSortTasksByDueDate() {
+    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+    Task taskDueSoon = new Task();
+    taskDueSoon.setId(1L);
+    taskDueSoon.setUser(testUser);
+    taskDueSoon.setDescription("Task due soon");
+    taskDueSoon.setPriority(Priority.MEDIUM);
+    taskDueSoon.setDueDate(now.plusDays(1));
+
+    Task taskDueLater = new Task();
+    taskDueLater.setId(2L);
+    taskDueLater.setUser(testUser);
+    taskDueLater.setDescription("Task due later");
+    taskDueLater.setPriority(Priority.MEDIUM);
+    taskDueLater.setDueDate(now.plusDays(7));
+
+    Task taskNoDueDate = new Task();
+    taskNoDueDate.setId(3L);
+    taskNoDueDate.setUser(testUser);
+    taskNoDueDate.setDescription("Task without due date");
+    taskNoDueDate.setPriority(Priority.MEDIUM);
+
+    List<Task> tasks = Arrays.asList(taskDueSoon, taskDueLater, taskNoDueDate);
+    Page<Task> taskPage = new PageImpl<>(tasks);
+    Pageable pageable = PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("dueDate").ascending());
+
+    when(taskRepository.findByUserId(1L, pageable)).thenReturn(taskPage);
+    when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
+
+    Page<TaskResponseDTO> result = taskService.getUserTasks(1L, pageable);
+
+    assertNotNull(result);
+    assertEquals(3, result.getTotalElements());
+    verify(taskRepository).findByUserId(1L, pageable);
+  }
+
+  @Test
+  @DisplayName("Should combine priority and due date in task creation")
+  void shouldCombinePriorityAndDueDateInTaskCreation() {
+    java.time.LocalDateTime dueDate = java.time.LocalDateTime.now().plusDays(3);
+
+    TaskCreateDTO createDTO = new TaskCreateDTO();
+    createDTO.setDescription("Task with priority and due date");
+    createDTO.setPriority(Priority.HIGH);
+    createDTO.setDueDate(dueDate);
+
+    Task task = new Task();
+    task.setId(1L);
+    task.setUser(testUser);
+    task.setDescription("Task with priority and due date");
+    task.setPriority(Priority.HIGH);
+    task.setDueDate(dueDate);
+
+    TaskResponseDTO responseDTO = new TaskResponseDTO();
+    responseDTO.setId(1L);
+    responseDTO.setDescription("Task with priority and due date");
+    responseDTO.setPriority(Priority.HIGH);
+    responseDTO.setDueDate(dueDate);
+
+    when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+    when(taskMapper.toEntity(createDTO, testUser)).thenReturn(task);
+    when(taskRepository.save(any(Task.class))).thenReturn(task);
+    when(taskMapper.toResponseDTO(task)).thenReturn(responseDTO);
+
+    TaskResponseDTO result = taskService.createTask(createDTO, 1L);
+
+    assertNotNull(result);
+    assertEquals("Task with priority and due date", result.getDescription());
+    assertEquals(Priority.HIGH, result.getPriority());
+    assertEquals(dueDate, result.getDueDate());
+
+    verify(userRepository).findById(1L);
+    verify(taskRepository).save(any(Task.class));
+    verify(taskMapper).toResponseDTO(task);
+  }
 }

@@ -751,4 +751,194 @@ public class TaskControllerIntegrationTest {
         .andExpect(jsonPath("$.content").isArray())
         .andExpect(jsonPath("$.content.length()").value(2));
   }
+
+  // ========================================
+  // User Story 5: Priority and Due Date Integration Tests
+  // ========================================
+
+  @Test
+  public void shouldSortTasksByPriorityDescending() throws Exception {
+    LocalDateTime now = LocalDateTime.now();
+
+    Task lowPriorityTask = new Task();
+    lowPriorityTask.setUser(testUser);
+    lowPriorityTask.setDescription("Low priority task");
+    lowPriorityTask.setPriority(Priority.LOW);
+    lowPriorityTask.setCreatedAt(now);
+    taskRepository.save(lowPriorityTask);
+
+    Task highPriorityTask = new Task();
+    highPriorityTask.setUser(testUser);
+    highPriorityTask.setDescription("High priority task");
+    highPriorityTask.setPriority(Priority.HIGH);
+    highPriorityTask.setCreatedAt(now.plusSeconds(1));
+    taskRepository.save(highPriorityTask);
+
+    Task mediumPriorityTask = new Task();
+    mediumPriorityTask.setUser(testUser);
+    mediumPriorityTask.setDescription("Medium priority task");
+    mediumPriorityTask.setPriority(Priority.MEDIUM);
+    mediumPriorityTask.setCreatedAt(now.plusSeconds(2));
+    taskRepository.save(mediumPriorityTask);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("sortBy", "priority")
+                .param("sortDirection", "desc")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(3))
+        .andExpect(jsonPath("$.content[0].priority").value("HIGH"))
+        .andExpect(jsonPath("$.content[1].priority").value("MEDIUM"))
+        .andExpect(jsonPath("$.content[2].priority").value("LOW"));
+  }
+
+  @Test
+  public void shouldSortTasksByDueDateAscending() throws Exception {
+    LocalDateTime now = LocalDateTime.now();
+
+    Task taskDueSoon = new Task();
+    taskDueSoon.setUser(testUser);
+    taskDueSoon.setDescription("Task due tomorrow");
+    taskDueSoon.setPriority(Priority.MEDIUM);
+    taskDueSoon.setDueDate(now.plusDays(1));
+    taskRepository.save(taskDueSoon);
+
+    Task taskDueLater = new Task();
+    taskDueLater.setUser(testUser);
+    taskDueLater.setDescription("Task due next week");
+    taskDueLater.setPriority(Priority.MEDIUM);
+    taskDueLater.setDueDate(now.plusDays(7));
+    taskRepository.save(taskDueLater);
+
+    Task taskDueToday = new Task();
+    taskDueToday.setUser(testUser);
+    taskDueToday.setDescription("Task due today");
+    taskDueToday.setPriority(Priority.MEDIUM);
+    taskDueToday.setDueDate(now);
+    taskRepository.save(taskDueToday);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .param("sortBy", "dueDate")
+                .param("sortDirection", "asc")
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(3))
+        .andExpect(jsonPath("$.content[0].description").value("Task due today"))
+        .andExpect(jsonPath("$.content[1].description").value("Task due tomorrow"))
+        .andExpect(jsonPath("$.content[2].description").value("Task due next week"));
+  }
+
+  @Test
+  public void shouldCreateTaskWithPriorityAndDueDate() throws Exception {
+    LocalDateTime dueDate = LocalDateTime.now().plusDays(3);
+
+    TaskCreateDTO createDTO = new TaskCreateDTO();
+    createDTO.setDescription("Important task with deadline");
+    createDTO.setPriority(Priority.HIGH);
+    createDTO.setDueDate(dueDate);
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").exists())
+        .andExpect(jsonPath("$.description").value("Important task with deadline"))
+        .andExpect(jsonPath("$.priority").value("HIGH"))
+        .andExpect(jsonPath("$.dueDate").exists())
+        .andExpect(jsonPath("$.isOverdue").value(false))
+        .andExpect(jsonPath("$.isCompleted").value(false));
+
+    assertThat(taskRepository.count()).isEqualTo(1);
+    Task savedTask = taskRepository.findAll().get(0);
+    assertThat(savedTask.getPriority()).isEqualTo(Priority.HIGH);
+    assertThat(savedTask.getDueDate()).isNotNull();
+  }
+
+  @Test
+  public void shouldMarkOverdueTaskCorrectly() throws Exception {
+    LocalDateTime pastDate = LocalDateTime.now().minusDays(2);
+
+    Task overdueTask = new Task();
+    overdueTask.setUser(testUser);
+    overdueTask.setDescription("Overdue task");
+    overdueTask.setPriority(Priority.HIGH);
+    overdueTask.setDueDate(pastDate);
+    overdueTask.setIsCompleted(false);
+    taskRepository.save(overdueTask);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks/" + overdueTask.getId()).header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(overdueTask.getId()))
+        .andExpect(jsonPath("$.isOverdue").value(true))
+        .andExpect(jsonPath("$.isCompleted").value(false));
+  }
+
+  @Test
+  public void shouldNotMarkCompletedTaskAsOverdue() throws Exception {
+    LocalDateTime pastDate = LocalDateTime.now().minusDays(2);
+
+    Task completedTask = new Task();
+    completedTask.setUser(testUser);
+    completedTask.setDescription("Completed overdue task");
+    completedTask.setPriority(Priority.MEDIUM);
+    completedTask.setDueDate(pastDate);
+    completedTask.setIsCompleted(true);
+    completedTask.setCompletedAt(LocalDateTime.now());
+    taskRepository.save(completedTask);
+
+    mockMvc
+        .perform(
+            get("/api/v1/tasks/" + completedTask.getId()).header("X-User-Id", testUser.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(completedTask.getId()))
+        .andExpect(jsonPath("$.isOverdue").value(false))
+        .andExpect(jsonPath("$.isCompleted").value(true));
+  }
+
+  @Test
+  public void shouldUpdateTaskPriorityAndDueDate() throws Exception {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Original task");
+    task.setPriority(Priority.LOW);
+    task.setDueDate(null);
+    taskRepository.save(task);
+
+    LocalDateTime newDueDate = LocalDateTime.now().plusDays(5);
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated task");
+    updateDTO.setPriority(Priority.HIGH);
+    updateDTO.setDueDate(newDueDate);
+
+    mockMvc
+        .perform(
+            put("/api/v1/tasks/" + task.getId())
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(task.getId()))
+        .andExpect(jsonPath("$.description").value("Updated task"))
+        .andExpect(jsonPath("$.priority").value("HIGH"))
+        .andExpect(jsonPath("$.dueDate").exists());
+
+    Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+    assertThat(updatedTask.getPriority()).isEqualTo(Priority.HIGH);
+    assertThat(updatedTask.getDueDate()).isNotNull();
+  }
 }

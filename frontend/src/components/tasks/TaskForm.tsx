@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
+import { DatePicker } from '@/components/shared/DatePicker';
+import { PrioritySelector } from '@/components/tasks/PrioritySelector';
 import { Priority, TaskCreateRequest } from '@/types/task';
 
 interface TaskFormProps {
@@ -16,6 +18,7 @@ const MAX_DESCRIPTION_LENGTH = 5000;
 export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('MEDIUM');
+  const [dueDate, setDueDate] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
 
@@ -66,10 +69,12 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
       await onSubmit({
         description: description.trim(),
         priority,
+        dueDate,
       });
 
       setDescription('');
       setPriority('MEDIUM');
+      setDueDate(null);
       setValidationError(null);
       setTouched(false);
     } catch (error) {
@@ -81,7 +86,7 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
   const showError = touched && validationError;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex gap-3">
         <div className="flex-1">
           <input
@@ -99,21 +104,27 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
           />
         </div>
 
-        <select
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as Priority)}
-          className="input w-32"
-          disabled={isLoading}
-        >
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
-        </select>
-
         <button type="submit" className="btn-primary" disabled={isLoading || !isDescriptionValid}>
           <Plus className="h-5 w-5" />
           <span className="hidden sm:inline">Add Task</span>
         </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <label className="text-sm font-medium text-gray-700 mb-1 block">Priority</label>
+          <PrioritySelector value={priority} onChange={setPriority} disabled={isLoading} />
+        </div>
+
+        <div className="flex-1">
+          <DatePicker
+            label="Due Date (Optional)"
+            value={dueDate}
+            onChange={setDueDate}
+            disabled={isLoading}
+            placeholder="Select due date"
+          />
+        </div>
       </div>
 
       {showError && (

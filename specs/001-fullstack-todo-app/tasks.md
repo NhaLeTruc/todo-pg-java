@@ -232,37 +232,37 @@
 
 ---
 
-## Phase 7: User Story 5 - Task Priority and Due Dates (Priority: P5)
+## Phase 7: User Story 5 - Task Priority and Due Dates (Priority: P5) ✅ COMPLETED
 
 **Goal**: Users can assign priority levels and due dates, with visual indicators for overdue tasks
 
 **Independent Test**: Create tasks with priorities/due dates, verify sorting and overdue highlighting
 
-### Tests for User Story 5 (TDD - Write FIRST) ⚠️
+### Tests for User Story 5 (TDD - Write FIRST) ✅
 
-- [ ] T107 [P] [US5] Write unit test for Task priority validation in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
-- [ ] T108 [P] [US5] Write unit test for Task.isOverdue() method in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
-- [ ] T109 [P] [US5] Write unit test for TaskService with priority/date sorting in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
+- [x] T107 [P] [US5] Write unit test for Task priority validation in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
+- [x] T108 [P] [US5] Write unit test for Task.isOverdue() method in backend/src/test/java/com/todoapp/unit/domain/TaskTest.java
+- [x] T109 [P] [US5] Write unit test for TaskService with priority/date sorting in backend/src/test/java/com/todoapp/unit/application/TaskServiceTest.java
 
-### Implementation for User Story 5
+### Implementation for User Story 5 ✅
 
-- [ ] T110 [P] [US5] Add priority and dueDate fields to Task entity (already in schema) in backend/src/main/java/com/todoapp/domain/model/Task.java
-- [ ] T111 [P] [US5] Add isOverdue() helper method to Task entity in backend/src/main/java/com/todoapp/domain/model/Task.java
-- [ ] T112 [US5] Add priority and dueDate to TaskCreateDTO and TaskUpdateDTO in backend/src/main/java/com/todoapp/application/dto/
-- [ ] T113 [US5] Update TaskService to handle priority and due date filtering in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T114 [US5] Add sort parameter support (priority, dueDate) to GET /api/v1/tasks in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T115 [P] [US5] Create PrioritySelector component (High/Medium/Low) in frontend/src/components/tasks/PrioritySelector.tsx
-- [ ] T116 [P] [US5] Create DatePicker component for due dates in frontend/src/components/shared/DatePicker.tsx
-- [ ] T117 [US5] Add priority and due date fields to TaskForm in frontend/src/components/tasks/TaskForm.tsx
-- [ ] T118 [US5] Add priority badge and due date display to TaskItem in frontend/src/components/tasks/TaskItem.tsx
-- [ ] T119 [US5] Add overdue visual indicator (red highlight) to TaskItem in frontend/src/components/tasks/TaskItem.tsx
-- [ ] T120 [US5] Add sort dropdown (by priority, by due date) to TasksPage in frontend/src/pages/TasksPage.tsx
+- [x] T110 [P] [US5] Add priority and dueDate fields to Task entity (already in schema) in backend/src/main/java/com/todoapp/domain/model/Task.java
+- [x] T111 [P] [US5] Add isOverdue() helper method to Task entity in backend/src/main/java/com/todoapp/domain/model/Task.java
+- [x] T112 [US5] Add priority and dueDate to TaskCreateDTO and TaskUpdateDTO in backend/src/main/java/com/todoapp/application/dto/
+- [x] T113 [US5] Update TaskService to handle priority and due date filtering in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [x] T114 [US5] Add sort parameter support (priority, dueDate) to GET /api/v1/tasks in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [x] T115 [P] [US5] Create PrioritySelector component (High/Medium/Low) in frontend/src/components/tasks/PrioritySelector.tsx
+- [x] T116 [P] [US5] Create DatePicker component for due dates in frontend/src/components/shared/DatePicker.tsx
+- [x] T117 [US5] Add priority and due date fields to TaskForm in frontend/src/components/tasks/TaskForm.tsx
+- [x] T118 [US5] Add priority badge and due date display to TaskItem in frontend/src/components/tasks/TaskItem.tsx
+- [x] T119 [US5] Add overdue visual indicator (red highlight) to TaskItem in frontend/src/components/tasks/TaskItem.tsx
+- [x] T120 [US5] Add sort dropdown (by priority, by due date) to TasksPage in frontend/src/pages/TasksPage.tsx
 
-### Integration Tests for User Story 5
+### Integration Tests for User Story 5 ✅
 
-- [ ] T121 [P] [US5] Write integration test for priority/due date filtering in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
+- [x] T121 [P] [US5] Write integration test for priority/due date filtering in backend/src/test/java/com/todoapp/integration/TaskControllerIntegrationTest.java
 
-**Checkpoint**: MVP complete - all basic task management features functional (P1-P5)
+**Checkpoint**: ✅ MVP complete - all basic task management features functional (P1-P5)
 
 ---
 

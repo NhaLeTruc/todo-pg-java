@@ -16,6 +16,8 @@ export function TasksPage() {
   const [size] = useState(20);
   const [search, setSearch] = useState<string>('');
   const [completedFilter, setCompletedFilter] = useState<boolean | undefined>(undefined);
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortDirection] = useState<'asc' | 'desc'>('desc');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
 
@@ -24,13 +26,15 @@ export function TasksPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['tasks', page, size, search, completedFilter],
+    queryKey: ['tasks', page, size, search, completedFilter, sortBy, sortDirection],
     queryFn: () =>
       taskService.getTasks({
         page,
         size,
         search: search || undefined,
         completed: completedFilter,
+        sortBy,
+        sortDirection,
       }),
   });
 
@@ -128,6 +132,11 @@ export function TasksPage() {
     setPage(0);
   };
 
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    setPage(0);
+  };
+
   if (error) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -170,6 +179,16 @@ export function TasksPage() {
             <option value="all">All Tasks</option>
             <option value="active">Active</option>
             <option value="completed">Completed</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => handleSortChange(e.target.value)}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="createdAt">Sort by Date</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="dueDate">Sort by Due Date</option>
           </select>
         </div>
       </div>
