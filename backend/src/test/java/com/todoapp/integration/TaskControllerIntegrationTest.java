@@ -941,4 +941,140 @@ public class TaskControllerIntegrationTest {
     assertThat(updatedTask.getPriority()).isEqualTo(Priority.HIGH);
     assertThat(updatedTask.getDueDate()).isNotNull();
   }
+
+  // ========================================
+  // User Story 6: Task Isolation Between Users
+  // ========================================
+
+  @Test
+  public void shouldIsolateTasksBetweenUsers() throws Exception {
+    // Create two users
+    User user1 = new User();
+    user1.setEmail("user1@example.com");
+    user1.setPasswordHash("$2a$10$dummyhash1");
+    user1.setIsActive(true);
+    user1 = userRepository.save(user1);
+
+    User user2 = new User();
+    user2.setEmail("user2@example.com");
+    user2.setPasswordHash("$2a$10$dummyhash2");
+    user2.setIsActive(true);
+    user2 = userRepository.save(user2);
+
+    // Create tasks for user1
+    Task user1Task1 = new Task();
+    user1Task1.setUser(user1);
+    user1Task1.setDescription("User 1 Task 1");
+    user1Task1.setPriority(Priority.HIGH);
+    taskRepository.save(user1Task1);
+
+    Task user1Task2 = new Task();
+    user1Task2.setUser(user1);
+    user1Task2.setDescription("User 1 Task 2");
+    user1Task2.setPriority(Priority.MEDIUM);
+    taskRepository.save(user1Task2);
+
+    // Create tasks for user2
+    Task user2Task1 = new Task();
+    user2Task1.setUser(user2);
+    user2Task1.setDescription("User 2 Task 1");
+    user2Task1.setPriority(Priority.LOW);
+    taskRepository.save(user2Task1);
+
+    // User1 should only see their tasks
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", user1.getId())
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(2))
+        .andExpect(jsonPath("$.totalElements").value(2));
+
+    // User2 should only see their tasks
+    mockMvc
+        .perform(
+            get("/api/v1/tasks")
+                .header("X-User-Id", user2.getId())
+                .param("page", "0")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content.length()").value(1))
+        .andExpect(jsonPath("$.totalElements").value(1));
+  }
+
+  @Test
+  public void shouldPreventUserFromAccessingOtherUsersTasks() throws Exception {
+    // Create two users
+    User user1 = new User();
+    user1.setEmail("owner@example.com");
+    user1.setPasswordHash("$2a$10$dummyhash");
+    user1.setIsActive(true);
+    user1 = userRepository.save(user1);
+
+    User user2 = new User();
+    user2.setEmail("attacker@example.com");
+    user2.setPasswordHash("$2a$10$dummyhash");
+    user2.setIsActive(true);
+    user2 = userRepository.save(user2);
+
+    // Create task for user1
+    Task user1Task = new Task();
+    user1Task.setUser(user1);
+    user1Task.setDescription("User 1 Private Task");
+    user1Task.setPriority(Priority.HIGH);
+    user1Task = taskRepository.save(user1Task);
+
+    // User2 tries to update user1's task - should fail
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Hacked task");
+
+    mockMvc
+        .perform(
+            put("/api/v1/tasks/" + user1Task.getId())
+                .header("X-User-Id", user2.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+        .andExpect(status().isNotFound());
+
+    // Verify task was not modified
+    Task unchangedTask = taskRepository.findById(user1Task.getId()).orElseThrow();
+    assertThat(unchangedTask.getDescription()).isEqualTo("User 1 Private Task");
+  }
+
+  @Test
+  public void shouldPreventUserFromDeletingOtherUsersTasks() throws Exception {
+    // Create two users
+    User user1 = new User();
+    user1.setEmail("taskowner@example.com");
+    user1.setPasswordHash("$2a$10$dummyhash");
+    user1.setIsActive(true);
+    user1 = userRepository.save(user1);
+
+    User user2 = new User();
+    user2.setEmail("nonowner@example.com");
+    user2.setPasswordHash("$2a$10$dummyhash");
+    user2.setIsActive(true);
+    user2 = userRepository.save(user2);
+
+    // Create task for user1
+    Task user1Task = new Task();
+    user1Task.setUser(user1);
+    user1Task.setDescription("Important Task");
+    user1Task.setPriority(Priority.HIGH);
+    user1Task = taskRepository.save(user1Task);
+
+    // User2 tries to delete user1's task - should fail
+    mockMvc
+        .perform(
+            delete("/api/v1/tasks/" + user1Task.getId())
+                .header("X-User-Id", user2.getId()))
+        .andExpect(status().isNotFound());
+
+    // Verify task still exists
+    assertThat(taskRepository.findById(user1Task.getId())).isPresent();
+  }
 }

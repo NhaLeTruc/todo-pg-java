@@ -266,33 +266,33 @@
 
 ---
 
-## Phase 8: User Story 6 - User Accounts and Authentication (Priority: P6)
+## Phase 8: User Story 6 - User Accounts and Authentication (Priority: P6) 🔄 BACKEND COMPLETE
 
 **Goal**: Multi-user support with secure registration, login, logout, and data isolation
 
 **Independent Test**: Register multiple users, login/logout, verify each user sees only their own tasks
 
-### Tests for User Story 6 (TDD - Write FIRST) ⚠️
+### Tests for User Story 6 (TDD - Write FIRST) ✅
 
-- [ ] T122 [P] [US6] Write unit test for User entity email validation in backend/src/test/java/com/todoapp/unit/domain/UserTest.java
-- [ ] T123 [P] [US6] Write unit test for UserService.registerUser() (BCrypt hashing) in backend/src/test/java/com/todoapp/unit/application/UserServiceTest.java
-- [ ] T124 [P] [US6] Write unit test for AuthService.authenticate() in backend/src/test/java/com/todoapp/unit/application/AuthServiceTest.java
-- [ ] T125 [P] [US6] Write unit test for JwtTokenProvider in backend/src/test/java/com/todoapp/unit/infrastructure/JwtTokenProviderTest.java
+- [x] T122 [P] [US6] Write unit test for User entity email validation in backend/src/test/java/com/todoapp/unit/domain/UserTest.java
+- [x] T123 [P] [US6] Write unit test for UserService.registerUser() (BCrypt hashing) in backend/src/test/java/com/todoapp/unit/application/UserServiceTest.java
+- [x] T124 [P] [US6] Write unit test for AuthService.authenticate() in backend/src/test/java/com/todoapp/unit/application/AuthServiceTest.java
+- [x] T125 [P] [US6] Write unit test for JwtTokenProvider in backend/src/test/java/com/todoapp/unit/infrastructure/JwtTokenProviderTest.java
 
-### Implementation for User Story 6
+### Implementation for User Story 6 ✅
 
-- [ ] T126 [P] [US6] Implement User entity with password hashing in backend/src/main/java/com/todoapp/domain/model/User.java
-- [ ] T127 [P] [US6] Create UserDTO and RegisterDTO in backend/src/main/java/com/todoapp/application/dto/
-- [ ] T128 [P] [US6] Create UserMapper in backend/src/main/java/com/todoapp/application/mapper/UserMapper.java
-- [ ] T129 [US6] Implement UserService with registerUser(), findByEmail() in backend/src/main/java/com/todoapp/application/service/UserService.java
-- [ ] T130 [US6] Implement AuthService with authenticate(), login(), logout() in backend/src/main/java/com/todoapp/application/service/AuthService.java
-- [ ] T131 [P] [US6] Create JwtTokenProvider for token generation/validation in backend/src/main/java/com/todoapp/infrastructure/security/JwtTokenProvider.java
-- [ ] T132 [P] [US6] Create JwtAuthenticationFilter for request authentication in backend/src/main/java/com/todoapp/infrastructure/security/JwtAuthenticationFilter.java
-- [ ] T133 [P] [US6] Update SecurityConfig to enable JWT authentication in backend/src/main/java/com/todoapp/infrastructure/config/SecurityConfig.java
-- [ ] T134 [US6] Create AuthController with POST /api/v1/auth/register endpoint in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
-- [ ] T135 [US6] Add POST /api/v1/auth/login endpoint to AuthController in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
-- [ ] T136 [US6] Add POST /api/v1/auth/logout endpoint to AuthController in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
-- [ ] T137 [US6] Update TaskService to enforce user ownership on all operations in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [x] T126 [P] [US6] Implement User entity with password hashing in backend/src/main/java/com/todoapp/domain/model/User.java
+- [x] T127 [P] [US6] Create UserDTO and RegisterDTO in backend/src/main/java/com/todoapp/application/dto/
+- [x] T128 [P] [US6] Create UserMapper in backend/src/main/java/com/todoapp/application/mapper/UserMapper.java
+- [x] T129 [US6] Implement UserService with registerUser(), findByEmail() in backend/src/main/java/com/todoapp/application/service/UserService.java
+- [x] T130 [US6] Implement AuthService with authenticate(), login(), logout() in backend/src/main/java/com/todoapp/application/service/AuthService.java
+- [x] T131 [P] [US6] Create JwtTokenProvider for token generation/validation in backend/src/main/java/com/todoapp/infrastructure/security/JwtTokenProvider.java
+- [x] T132 [P] [US6] Create JwtAuthenticationFilter for request authentication in backend/src/main/java/com/todoapp/infrastructure/security/JwtAuthenticationFilter.java
+- [x] T133 [P] [US6] Update SecurityConfig to enable JWT authentication in backend/src/main/java/com/todoapp/infrastructure/config/SecurityConfig.java
+- [x] T134 [US6] Create AuthController with POST /api/v1/auth/register endpoint in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
+- [x] T135 [US6] Add POST /api/v1/auth/login endpoint to AuthController in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
+- [x] T136 [US6] Add POST /api/v1/auth/logout endpoint to AuthController in backend/src/main/java/com/todoapp/presentation/rest/AuthController.java
+- [x] T137 [US6] Update TaskService to enforce user ownership on all operations in backend/src/main/java/com/todoapp/application/service/TaskService.java (already enforced)
 - [ ] T138 [P] [US6] Create auth types (User, AuthState) in frontend/src/types/auth.ts
 - [ ] T139 [P] [US6] Create auth API service (register, login, logout) in frontend/src/services/authService.ts
 - [ ] T140 [P] [US6] Create AuthContext for global auth state in frontend/src/context/AuthContext.tsx
@@ -305,13 +305,13 @@
 - [ ] T147 [US6] Add JWT token storage and auto-login in frontend/src/services/authService.ts
 - [ ] T148 [US6] Update Axios interceptor to include JWT token in headers in frontend/src/services/api.ts
 
-### Integration Tests for User Story 6
+### Integration Tests for User Story 6 ✅
 
-- [ ] T149 [P] [US6] Write integration test for POST /api/v1/auth/register in backend/src/test/java/com/todoapp/integration/api/AuthApiTest.java
-- [ ] T150 [P] [US6] Write integration test for POST /api/v1/auth/login in backend/src/test/java/com/todoapp/integration/api/AuthApiTest.java
-- [ ] T151 [P] [US6] Write integration test verifying task isolation between users in backend/src/test/java/com/todoapp/integration/api/TaskApiTest.java
+- [x] T149 [P] [US6] Write integration test for POST /api/v1/auth/register in backend/src/test/java/com/todoapp/integration/AuthControllerIntegrationTest.java
+- [x] T150 [P] [US6] Write integration test for POST /api/v1/auth/login in backend/src/test/java/com/todoapp/integration/AuthControllerIntegrationTest.java
+- [x] T151 [P] [US6] Write integration test verifying task isolation between users in backend/src/test/java/com/todoapp/integration/TaskControllerIntegrationTest.java
 
-**Checkpoint**: Multi-user support enabled with secure authentication
+**Checkpoint**: 🔄 Backend multi-user support complete with secure JWT authentication. Frontend remaining (T138-T148).
 
 ---
 
