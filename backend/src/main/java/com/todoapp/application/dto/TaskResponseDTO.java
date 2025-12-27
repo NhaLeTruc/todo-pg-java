@@ -44,6 +44,8 @@ public class TaskResponseDTO {
 
   private Integer depth;
 
+  private Integer subtaskProgress;
+
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;

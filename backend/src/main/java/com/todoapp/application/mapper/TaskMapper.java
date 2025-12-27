@@ -40,6 +40,7 @@ public class TaskMapper {
     dto.setActualDurationMinutes(task.getActualDurationMinutes());
     dto.setIsOverdue(task.isOverdue());
     dto.setDepth(task.getDepth());
+    dto.setSubtaskProgress(task.calculateSubtaskProgress());
     dto.setCreatedAt(task.getCreatedAt());
     dto.setUpdatedAt(task.getUpdatedAt());
 

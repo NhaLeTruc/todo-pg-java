@@ -98,6 +98,9 @@ public class Task {
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private List<Tag> tags = new ArrayList<>();
 
+  @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Task> subtasks = new ArrayList<>();
+
   @PrePersist
   protected void onCreate() {
     if (isCompleted == null) {
@@ -146,5 +149,46 @@ public class Task {
   public void markIncomplete() {
     this.isCompleted = false;
     this.completedAt = null;
+  }
+
+  public void setParentTask(Task parent) {
+    if (parent != null) {
+      int newDepth = parent.getDepth() + 1;
+      if (newDepth > 5) {
+        throw new IllegalArgumentException("Task nesting cannot exceed 5 levels");
+      }
+      this.depth = newDepth;
+    } else {
+      this.depth = 0;
+    }
+    this.parentTask = parent;
+  }
+
+  public int getDepth() {
+    if (parentTask == null) {
+      return 0;
+    }
+    return parentTask.getDepth() + 1;
+  }
+
+  public void addSubtask(Task subtask) {
+    if (subtasks == null) {
+      subtasks = new ArrayList<>();
+    }
+    subtasks.add(subtask);
+    subtask.setParentTask(this);
+  }
+
+  public int calculateSubtaskProgress() {
+    if (subtasks == null || subtasks.isEmpty()) {
+      return 0;
+    }
+
+    long completedCount = subtasks.stream().filter(Task::getIsCompleted).count();
+    return (int) Math.round((completedCount * 100.0) / subtasks.size());
+  }
+
+  public boolean hasSubtasks() {
+    return subtasks != null && !subtasks.isEmpty();
   }
 }

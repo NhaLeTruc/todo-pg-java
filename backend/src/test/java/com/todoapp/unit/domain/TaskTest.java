@@ -369,4 +369,273 @@ class TaskTest {
     assertEquals(dueDate, task.getDueDate());
     assertFalse(task.isOverdue());
   }
+
+  // ========================================
+  // User Story 10: Subtasks and Task Hierarchies Tests
+  // ========================================
+
+  @Test
+  @DisplayName("Should allow creating subtask with parent")
+  void shouldAllowCreatingSubtaskWithParent() {
+    Task parentTask = new Task();
+    parentTask.setUser(testUser);
+    parentTask.setDescription("Parent task");
+
+    Task subtask = new Task();
+    subtask.setUser(testUser);
+    subtask.setDescription("Subtask");
+    subtask.setParentTask(parentTask);
+
+    assertEquals(parentTask, subtask.getParentTask());
+  }
+
+  @Test
+  @DisplayName("Should allow null parent task for top-level tasks")
+  void shouldAllowNullParentTaskForTopLevelTasks() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Top-level task");
+    task.setParentTask(null);
+
+    assertNull(task.getParentTask());
+  }
+
+  @Test
+  @DisplayName("Should calculate depth of 1 for task with parent")
+  void shouldCalculateDepth1ForTaskWithParent() {
+    Task parentTask = new Task();
+    parentTask.setUser(testUser);
+    parentTask.setDescription("Parent");
+
+    Task subtask = new Task();
+    subtask.setUser(testUser);
+    subtask.setDescription("Subtask");
+    subtask.setParentTask(parentTask);
+
+    assertEquals(1, subtask.getDepth());
+  }
+
+  @Test
+  @DisplayName("Should calculate depth of 2 for nested subtask")
+  void shouldCalculateDepth2ForNestedSubtask() {
+    Task grandparent = new Task();
+    grandparent.setUser(testUser);
+    grandparent.setDescription("Grandparent");
+
+    Task parent = new Task();
+    parent.setUser(testUser);
+    parent.setDescription("Parent");
+    parent.setParentTask(grandparent);
+
+    Task child = new Task();
+    child.setUser(testUser);
+    child.setDescription("Child");
+    child.setParentTask(parent);
+
+    assertEquals(2, child.getDepth());
+  }
+
+  @Test
+  @DisplayName("Should calculate depth of 0 for top-level task")
+  void shouldCalculateDepth0ForTopLevelTask() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Top-level");
+
+    assertEquals(0, task.getDepth());
+  }
+
+  @Test
+  @DisplayName("Should reject subtask at depth 6 (exceeds max depth of 5)")
+  void shouldRejectSubtaskAtDepth6() {
+    Task level0 = new Task();
+    level0.setUser(testUser);
+    level0.setDescription("Level 0");
+
+    Task level1 = new Task();
+    level1.setUser(testUser);
+    level1.setDescription("Level 1");
+    level1.setParentTask(level0);
+
+    Task level2 = new Task();
+    level2.setUser(testUser);
+    level2.setDescription("Level 2");
+    level2.setParentTask(level1);
+
+    Task level3 = new Task();
+    level3.setUser(testUser);
+    level3.setDescription("Level 3");
+    level3.setParentTask(level2);
+
+    Task level4 = new Task();
+    level4.setUser(testUser);
+    level4.setDescription("Level 4");
+    level4.setParentTask(level3);
+
+    Task level5 = new Task();
+    level5.setUser(testUser);
+    level5.setDescription("Level 5");
+    level5.setParentTask(level4);
+
+    Task level6 = new Task();
+    level6.setUser(testUser);
+    level6.setDescription("Level 6");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> level6.setParentTask(level5),
+        "Should not allow subtasks deeper than 5 levels");
+  }
+
+  @Test
+  @DisplayName("Should allow subtask at exactly depth 5 (max depth)")
+  void shouldAllowSubtaskAtDepth5() {
+    Task level0 = new Task();
+    level0.setUser(testUser);
+    level0.setDescription("Level 0");
+
+    Task level1 = new Task();
+    level1.setUser(testUser);
+    level1.setDescription("Level 1");
+    level1.setParentTask(level0);
+
+    Task level2 = new Task();
+    level2.setUser(testUser);
+    level2.setDescription("Level 2");
+    level2.setParentTask(level1);
+
+    Task level3 = new Task();
+    level3.setUser(testUser);
+    level3.setDescription("Level 3");
+    level3.setParentTask(level2);
+
+    Task level4 = new Task();
+    level4.setUser(testUser);
+    level4.setDescription("Level 4");
+    level4.setParentTask(level3);
+
+    Task level5 = new Task();
+    level5.setUser(testUser);
+    level5.setDescription("Level 5");
+    level5.setParentTask(level4);
+
+    assertEquals(5, level5.getDepth());
+  }
+
+  @Test
+  @DisplayName("Should calculate 0% progress when no subtasks exist")
+  void shouldCalculate0PercentProgressWhenNoSubtasks() {
+    Task task = new Task();
+    task.setUser(testUser);
+    task.setDescription("Task without subtasks");
+
+    assertEquals(0, task.calculateSubtaskProgress());
+  }
+
+  @Test
+  @DisplayName("Should calculate 0% progress when all subtasks are incomplete")
+  void shouldCalculate0PercentProgressWhenAllSubtasksIncomplete() {
+    Task parent = new Task();
+    parent.setUser(testUser);
+    parent.setDescription("Parent");
+
+    Task subtask1 = new Task();
+    subtask1.setUser(testUser);
+    subtask1.setDescription("Subtask 1");
+    subtask1.setParentTask(parent);
+    subtask1.setIsCompleted(false);
+
+    Task subtask2 = new Task();
+    subtask2.setUser(testUser);
+    subtask2.setDescription("Subtask 2");
+    subtask2.setParentTask(parent);
+    subtask2.setIsCompleted(false);
+
+    parent.addSubtask(subtask1);
+    parent.addSubtask(subtask2);
+
+    assertEquals(0, parent.calculateSubtaskProgress());
+  }
+
+  @Test
+  @DisplayName("Should calculate 50% progress when half subtasks are complete")
+  void shouldCalculate50PercentProgressWhenHalfSubtasksComplete() {
+    Task parent = new Task();
+    parent.setUser(testUser);
+    parent.setDescription("Parent");
+
+    Task subtask1 = new Task();
+    subtask1.setUser(testUser);
+    subtask1.setDescription("Subtask 1");
+    subtask1.setParentTask(parent);
+    subtask1.setIsCompleted(true);
+
+    Task subtask2 = new Task();
+    subtask2.setUser(testUser);
+    subtask2.setDescription("Subtask 2");
+    subtask2.setParentTask(parent);
+    subtask2.setIsCompleted(false);
+
+    parent.addSubtask(subtask1);
+    parent.addSubtask(subtask2);
+
+    assertEquals(50, parent.calculateSubtaskProgress());
+  }
+
+  @Test
+  @DisplayName("Should calculate 100% progress when all subtasks are complete")
+  void shouldCalculate100PercentProgressWhenAllSubtasksComplete() {
+    Task parent = new Task();
+    parent.setUser(testUser);
+    parent.setDescription("Parent");
+
+    Task subtask1 = new Task();
+    subtask1.setUser(testUser);
+    subtask1.setDescription("Subtask 1");
+    subtask1.setParentTask(parent);
+    subtask1.setIsCompleted(true);
+
+    Task subtask2 = new Task();
+    subtask2.setUser(testUser);
+    subtask2.setDescription("Subtask 2");
+    subtask2.setParentTask(parent);
+    subtask2.setIsCompleted(true);
+
+    parent.addSubtask(subtask1);
+    parent.addSubtask(subtask2);
+
+    assertEquals(100, parent.calculateSubtaskProgress());
+  }
+
+  @Test
+  @DisplayName("Should calculate 33% progress when 1 of 3 subtasks complete")
+  void shouldCalculate33PercentProgressWhen1Of3SubtasksComplete() {
+    Task parent = new Task();
+    parent.setUser(testUser);
+    parent.setDescription("Parent");
+
+    Task subtask1 = new Task();
+    subtask1.setUser(testUser);
+    subtask1.setDescription("Subtask 1");
+    subtask1.setParentTask(parent);
+    subtask1.setIsCompleted(true);
+
+    Task subtask2 = new Task();
+    subtask2.setUser(testUser);
+    subtask2.setDescription("Subtask 2");
+    subtask2.setParentTask(parent);
+    subtask2.setIsCompleted(false);
+
+    Task subtask3 = new Task();
+    subtask3.setUser(testUser);
+    subtask3.setDescription("Subtask 3");
+    subtask3.setParentTask(parent);
+    subtask3.setIsCompleted(false);
+
+    parent.addSubtask(subtask1);
+    parent.addSubtask(subtask2);
+    parent.addSubtask(subtask3);
+
+    assertEquals(33, parent.calculateSubtaskProgress());
+  }
 }

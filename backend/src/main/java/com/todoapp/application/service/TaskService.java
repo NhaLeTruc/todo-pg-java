@@ -288,13 +288,114 @@ public class TaskService {
       throw new IllegalArgumentException("Only the task owner can delete the task");
     }
 
+    if (task.hasSubtasks()) {
+      int subtaskCount = task.getSubtasks().size();
+      logger.info(
+          "Task ID: {} has {} subtasks that will be deleted due to cascade",
+          taskId,
+          subtaskCount);
+    }
+
     taskRepository.delete(task);
     logger.info("Task ID: {} deleted successfully", taskId);
+  }
+
+  public boolean taskHasSubtasks(Long taskId, Long userId) {
+    logger.debug("Checking if task ID: {} has subtasks", taskId);
+
+    Task task =
+        taskRepository
+            .findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+    if (!task.getUser().getId().equals(userId)) {
+      throw new IllegalArgumentException("User does not have access to this task");
+    }
+
+    return task.hasSubtasks();
   }
 
   public List<Task> getSharedTasksForUser(Long userId) {
     logger.debug("Fetching shared tasks for user ID: {}", userId);
     List<TaskShare> shares = taskShareRepository.findBySharedWithUserId(userId);
     return shares.stream().map(TaskShare::getTask).collect(java.util.stream.Collectors.toList());
+  }
+
+  public TaskResponseDTO createSubtask(Long parentTaskId, TaskCreateDTO createDTO, Long userId) {
+    logger.debug("Creating subtask for parent task ID: {} by user ID: {}", parentTaskId, userId);
+
+    if (createDTO.getDescription() == null || createDTO.getDescription().trim().isEmpty()) {
+      throw new IllegalArgumentException("Description cannot be empty");
+    }
+
+    Task parentTask =
+        taskRepository
+            .findById(parentTaskId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Parent task not found with ID: " + parentTaskId));
+
+    if (!hasEditPermission(parentTask, userId)) {
+      throw new IllegalArgumentException(
+          "User does not have edit permission for the parent task");
+    }
+
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+    Task subtask = taskMapper.toEntity(createDTO, user);
+
+    // Handle category assignment
+    if (createDTO.getCategoryId() != null) {
+      Category category =
+          categoryRepository
+              .findByIdAndUserId(createDTO.getCategoryId(), userId)
+              .orElseThrow(
+                  () ->
+                      new ResourceNotFoundException(
+                          "Category not found with ID: " + createDTO.getCategoryId()));
+      subtask.setCategory(category);
+    }
+
+    // Handle tag assignments
+    if (createDTO.getTagIds() != null && !createDTO.getTagIds().isEmpty()) {
+      List<Tag> tags = tagRepository.findByIdInAndUserId(createDTO.getTagIds(), userId);
+      if (tags.size() != createDTO.getTagIds().size()) {
+        throw new ResourceNotFoundException("One or more tags not found");
+      }
+      subtask.setTags(tags);
+    }
+
+    // Set parent task - this will validate depth and set depth field
+    subtask.setParentTask(parentTask);
+
+    Task savedSubtask = taskRepository.save(subtask);
+
+    logger.info(
+        "Subtask created with ID: {} for parent task ID: {} at depth: {}",
+        savedSubtask.getId(),
+        parentTaskId,
+        savedSubtask.getDepth());
+    return taskMapper.toResponseDTO(savedSubtask);
+  }
+
+  public List<TaskResponseDTO> getSubtasks(Long parentTaskId, Long userId) {
+    logger.debug("Fetching subtasks for parent task ID: {} by user ID: {}", parentTaskId, userId);
+
+    Task parentTask =
+        taskRepository
+            .findById(parentTaskId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Parent task not found with ID: " + parentTaskId));
+
+    if (!hasTaskAccess(parentTask, userId)) {
+      throw new IllegalArgumentException("User does not have access to this task");
+    }
+
+    List<Task> subtasks = taskRepository.findByParentTaskId(parentTaskId);
+
+    logger.debug("Found {} subtasks for parent task ID: {}", subtasks.size(), parentTaskId);
+    return subtasks.stream().map(taskMapper::toResponseDTO).collect(java.util.stream.Collectors.toList());
   }
 }

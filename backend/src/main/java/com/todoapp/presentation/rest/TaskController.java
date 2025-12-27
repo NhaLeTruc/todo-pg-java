@@ -272,4 +272,70 @@ public class TaskController {
         sharedTasks.stream().map(taskMapper::toResponseDTO).collect(Collectors.toList());
     return ResponseEntity.ok(taskDTOs);
   }
+
+  @GetMapping("/{id}/subtasks")
+  @Operation(summary = "Get subtasks", description = "Retrieves all subtasks for a parent task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Subtasks retrieved successfully"),
+        @ApiResponse(responseCode = "404", description = "Parent task not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<List<TaskResponseDTO>> getSubtasks(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Fetching subtasks for parent task ID: {} by user ID: {}", id, userId);
+    List<TaskResponseDTO> subtasks = taskService.getSubtasks(id, userId);
+    return ResponseEntity.ok(subtasks);
+  }
+
+  @PostMapping("/{id}/subtasks")
+  @Operation(
+      summary = "Create subtask",
+      description = "Creates a new subtask under the specified parent task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Subtask created successfully",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TaskResponseDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid request data or max depth exceeded"),
+        @ApiResponse(responseCode = "404", description = "Parent task not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<TaskResponseDTO> createSubtask(
+      @PathVariable Long id,
+      @Valid @RequestBody TaskCreateDTO createDTO,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Creating subtask for parent task ID: {} by user ID: {}", id, userId);
+    TaskResponseDTO createdSubtask = taskService.createSubtask(id, createDTO, userId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdSubtask);
+  }
+
+  @GetMapping("/{id}/has-subtasks")
+  @Operation(
+      summary = "Check if task has subtasks",
+      description = "Returns whether a task has any subtasks (used for delete confirmation)")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Check completed successfully"),
+        @ApiResponse(responseCode = "404", description = "Task not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<Boolean> taskHasSubtasks(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Checking if task ID: {} has subtasks", id);
+    boolean hasSubtasks = taskService.taskHasSubtasks(id, userId);
+    return ResponseEntity.ok(hasSubtasks);
+  }
 }
