@@ -7,7 +7,7 @@
 
 ```bash
 # From project root
-docker-compose up -d
+docker compose up -d
 
 # Wait 30-40 seconds for all services to start
 # Open browser: http://localhost:3000
@@ -101,13 +101,13 @@ cd todo-pg-java
 
 ```bash
 # Start all services in background
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Check service health
-docker-compose ps
+docker compose ps
 ```
 
 **Expected Output**:
@@ -196,10 +196,10 @@ curl -X POST http://localhost:8080/api/v1/tasks \
 
 ```bash
 # Start only backend dependencies
-docker-compose up -d postgres redis rabbitmq minio
+docker compose up -d postgres redis rabbitmq minio
 
 # Verify services
-docker-compose ps postgres redis rabbitmq minio
+docker compose ps postgres redis rabbitmq minio
 ```
 
 #### 2. Configure Backend
@@ -293,7 +293,7 @@ npm run preview  # Preview production build
 
 ```bash
 # Start test environment
-docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+docker compose -f docker-compose.test.yml up --abort-on-container-exit
 
 # This runs:
 # - Backend unit tests (JUnit)
@@ -350,7 +350,7 @@ npm run test:e2e:ui
 
 **Via Docker**:
 ```bash
-docker-compose exec postgres psql -U todoapp -d todoapp
+docker compose exec postgres psql -U todoapp -d todoapp
 ```
 
 **Via Local Client**:
@@ -434,10 +434,10 @@ curl -X POST http://localhost:8080/api/v1/tasks/1/attachments \
 
 ```bash
 # View queue stats
-docker-compose exec rabbitmq rabbitmqctl list_queues name messages
+docker compose exec rabbitmq rabbitmqctl list_queues name messages
 
 # View connections
-docker-compose exec rabbitmq rabbitmqctl list_connections
+docker compose exec rabbitmq rabbitmqctl list_connections
 ```
 
 ---
@@ -448,16 +448,16 @@ docker-compose exec rabbitmq rabbitmqctl list_connections
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Last 100 lines
-docker-compose logs --tail=100 backend
+docker compose logs --tail=100 backend
 
 # Follow with timestamps
-docker-compose logs -f --timestamps backend
+docker compose logs -f --timestamps backend
 ```
 
 ### Health Checks
@@ -514,13 +514,13 @@ kill -9 <PID>
 **Solution**:
 ```bash
 # Check PostgreSQL is running
-docker-compose ps postgres
+docker compose ps postgres
 
 # Restart PostgreSQL
-docker-compose restart postgres
+docker compose restart postgres
 
 # View logs
-docker-compose logs postgres
+docker compose logs postgres
 ```
 
 ---
@@ -561,16 +561,16 @@ docker pull testcontainers/ryuk:0.5.1
 
 ```bash
 # Stop all services (keeps data)
-docker-compose stop
+docker compose stop
 
 # Stop and remove containers (keeps data in volumes)
-docker-compose down
+docker compose down
 
 # Stop and remove everything including data
-docker-compose down -v
+docker compose down -v
 
 # Remove specific service
-docker-compose rm -f backend
+docker compose rm -f backend
 ```
 
 ---
@@ -579,7 +579,7 @@ docker-compose rm -f backend
 
 ```bash
 # Complete cleanup (WARNING: Deletes all data!)
-docker-compose down -v --remove-orphans
+docker compose down -v --remove-orphans
 docker system prune -a
 ```
 
@@ -633,7 +633,7 @@ VITE_FILE_MAX_SIZE_MB=25
 
 1. **Read the Spec**: [spec.md](spec.md) for all 15 user stories
 2. **Explore API**: http://localhost:8080/swagger-ui.html
-3. **Run Tests**: `docker-compose -f docker-compose.test.yml up`
+3. **Run Tests**: `docker compose -f docker-compose.test.yml up`
 4. **Implement P1**: Start with basic task CRUD (User Story 1-3)
 5. **Follow TDD**: Write tests first for domain logic
 

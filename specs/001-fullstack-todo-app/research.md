@@ -472,7 +472,7 @@ All patterns are standard, well-documented, and have Spring Boot support.
    - Validate response against schema
 
 4. **Local Development**:
-   - `docker-compose up -d` (start services)
+   - `docker compose up -d` (start services)
    - `mvn spring-boot:run` (backend with hot reload)
    - `npm run dev` (frontend with HMR)
    - Make changes, tests auto-run

@@ -46,7 +46,7 @@ Building a comprehensive, enterprise-grade TODO list application with 15 user st
 **Constraints**:
 - < 500ms database query p95
 - < 2GB RAM total across services
-- < 60s startup time (`docker-compose up`)
+- < 60s startup time (`docker compose up`)
 - 15-Factor App compliance (stateless, config in env vars, logs to stdout)
 
 **Scale/Scope**:
@@ -147,7 +147,7 @@ Each phase delivers value, can be deployed independently.
 **Projects/Modules**:
 - backend (Spring Boot)
 - frontend (React)
-- docker-compose orchestration
+- docker compose orchestration
 Total: 2 main projects + 1 orchestration = 3 ✅
 
 **Design Patterns**:

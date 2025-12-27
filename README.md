@@ -60,7 +60,7 @@ A full-stack TODO list application with advanced features including real-time co
 
 3. **Start all services**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. **Access the application**
@@ -72,12 +72,12 @@ A full-stack TODO list application with advanced features including real-time co
 
 5. **Stop all services**
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 6. **Stop and remove all data**
    ```bash
-   docker-compose down -v
+   docker compose down -v
    ```
 
 ### Running Locally (Manual Setup)
@@ -86,7 +86,7 @@ A full-stack TODO list application with advanced features including real-time co
 
 1. **Start infrastructure services**
    ```bash
-   docker-compose up -d postgres redis rabbitmq minio
+   docker compose up -d postgres redis rabbitmq minio
    ```
 
 2. **Run database migrations**

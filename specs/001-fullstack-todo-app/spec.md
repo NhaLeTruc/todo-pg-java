@@ -469,7 +469,7 @@ The system MUST implement all 15 principles of 15-Factor App methodology:
 - **DR-005**: Docker Compose MUST enable volume mounts for local development (hot reload)
 - **DR-006**: Docker Compose MUST support database initialization and migrations on startup
 - **DR-007**: Docker Compose MUST expose appropriate ports for accessing services locally
-- **DR-008**: All services MUST start successfully with a single `docker-compose up` command
+- **DR-008**: All services MUST start successfully with a single `docker compose up` command
 
 ### Key Entities
 
@@ -496,7 +496,7 @@ The system MUST implement all 15 principles of 15-Factor App methodology:
 
 - **SC-001**: Users can create a new task and see it in their list in under 2 seconds
 - **SC-002**: All basic task operations (create, read, update, delete) complete in under 1 second under normal load
-- **SC-003**: The application successfully starts from `docker-compose up` in under 60 seconds (increased for additional services)
+- **SC-003**: The application successfully starts from `docker compose up` in under 60 seconds (increased for additional services)
 - **SC-004**: 100% of tasks, comments, and attachments persist correctly across application restarts
 - **SC-005**: Users can manage task lists with 1000+ tasks without performance degradation (operations still under 2 seconds)
 - **SC-006**: The system handles 500 concurrent users performing task operations without errors
