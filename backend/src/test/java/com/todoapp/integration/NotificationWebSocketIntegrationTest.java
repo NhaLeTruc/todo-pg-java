@@ -69,14 +69,17 @@ public class NotificationWebSocketIntegrationTest {
   @Test
   void testWebSocketNotificationDelivery() throws Exception {
     String wsUrl = "http://localhost:" + port + "/ws/notifications";
-    WebSocketStompClient stompClient = new WebSocketStompClient(
-        new SockJsClient(java.util.List.of(
-            new WebSocketTransport(new StandardWebSocketClient()))));
+    WebSocketStompClient stompClient =
+        new WebSocketStompClient(
+            new SockJsClient(
+                java.util.List.of(new WebSocketTransport(new StandardWebSocketClient()))));
     stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
     AtomicReference<Notification> receivedNotification = new AtomicReference<>();
-    StompSession session = stompClient.connectAsync(wsUrl, new StompSessionHandlerAdapter() {})
-        .get(5, TimeUnit.SECONDS);
+    StompSession session =
+        stompClient
+            .connectAsync(wsUrl, new StompSessionHandlerAdapter() {})
+            .get(5, TimeUnit.SECONDS);
 
     session.subscribe(
         "/user/queue/notifications",
@@ -94,10 +97,7 @@ public class NotificationWebSocketIntegrationTest {
 
     // Create a notification
     notificationService.createNotification(
-        testUser,
-        NotificationType.TASK_DUE_SOON,
-        "Your task is due in 1 hour",
-        testTask);
+        testUser, NotificationType.TASK_DUE_SOON, "Your task is due in 1 hour", testTask);
 
     // Wait for notification to be received
     await()
@@ -116,14 +116,17 @@ public class NotificationWebSocketIntegrationTest {
   @Test
   void testMultipleNotificationsViaWebSocket() throws Exception {
     String wsUrl = "http://localhost:" + port + "/ws/notifications";
-    WebSocketStompClient stompClient = new WebSocketStompClient(
-        new SockJsClient(java.util.List.of(
-            new WebSocketTransport(new StandardWebSocketClient()))));
+    WebSocketStompClient stompClient =
+        new WebSocketStompClient(
+            new SockJsClient(
+                java.util.List.of(new WebSocketTransport(new StandardWebSocketClient()))));
     stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
     java.util.List<Notification> receivedNotifications = new java.util.ArrayList<>();
-    StompSession session = stompClient.connectAsync(wsUrl, new StompSessionHandlerAdapter() {})
-        .get(5, TimeUnit.SECONDS);
+    StompSession session =
+        stompClient
+            .connectAsync(wsUrl, new StompSessionHandlerAdapter() {})
+            .get(5, TimeUnit.SECONDS);
 
     session.subscribe(
         "/user/queue/notifications",

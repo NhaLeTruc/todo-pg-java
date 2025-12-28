@@ -121,6 +121,11 @@ server:
     include-exception: false
   shutdown: graceful
 
+# Graceful shutdown configuration
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}
+
 management:
   endpoints:
     web:

@@ -95,11 +95,10 @@ public class TaskShareService {
 
     // Send notification to the user the task is shared with
     if (!existingShare.isPresent()) {
-      String message = String.format(
-          "Task '%s' has been shared with you by %s with %s permission",
-          task.getDescription(),
-          sharingUser.getEmail(),
-          shareDTO.getPermissionLevel());
+      String message =
+          String.format(
+              "Task '%s' has been shared with you by %s with %s permission",
+              task.getDescription(), sharingUser.getEmail(), shareDTO.getPermissionLevel());
       notificationService.createNotification(
           sharedWithUser, NotificationType.TASK_SHARED, message, task);
     }

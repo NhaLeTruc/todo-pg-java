@@ -76,7 +76,9 @@ public class NotificationController {
       description = "Marks a specific notification as read for the authenticated user")
   @ApiResponses(
       value = {
-        @ApiResponse(responseCode = "200", description = "Notification marked as read successfully"),
+        @ApiResponse(
+            responseCode = "200",
+            description = "Notification marked as read successfully"),
         @ApiResponse(responseCode = "404", description = "Notification not found"),
         @ApiResponse(responseCode = "401", description = "Unauthorized")
       })

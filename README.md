@@ -290,6 +290,8 @@ The architecture implements **15-Factor App** principles including:
 - Configuration externalization
 - Graceful shutdown
 
+📖 **For detailed system architecture, deployment diagrams, and technical decisions, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**
+
 ## Contributing
 
 See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for contribution guidelines.

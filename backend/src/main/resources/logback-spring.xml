@@ -8,6 +8,7 @@
     <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"application":"${applicationName}"}</customFields>
+            <includeMdcKeyName>correlationId</includeMdcKeyName>
             <fieldNames>
                 <timestamp>timestamp</timestamp>
                 <message>message</message>
@@ -30,7 +31,7 @@
     <!-- Console Appender with plain text for development -->
     <appender name="CONSOLE_PLAIN" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr([%X{correlationId:-NO_CORRELATION_ID}]){yellow} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -40,6 +41,7 @@
         <file>logs/todo-backend.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"application":"${applicationName}"}</customFields>
+            <includeMdcKeyName>correlationId</includeMdcKeyName>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/todo-backend-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>

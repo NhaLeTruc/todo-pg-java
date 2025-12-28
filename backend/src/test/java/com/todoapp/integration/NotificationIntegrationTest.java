@@ -86,8 +86,7 @@ public class NotificationIntegrationTest {
     notificationRepository.save(notification2);
 
     mockMvc
-        .perform(
-            get("/api/v1/notifications").requestAttr("userId", testUser.getId()))
+        .perform(get("/api/v1/notifications").requestAttr("userId", testUser.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(2))
         .andExpect(jsonPath("$[0].message").exists())
@@ -107,9 +106,7 @@ public class NotificationIntegrationTest {
     }
 
     mockMvc
-        .perform(
-            get("/api/v1/notifications/count")
-                .requestAttr("userId", testUser.getId()))
+        .perform(get("/api/v1/notifications/count").requestAttr("userId", testUser.getId()))
         .andExpect(status().isOk())
         .andExpect(content().string("5"));
   }
@@ -175,9 +172,7 @@ public class NotificationIntegrationTest {
     }
 
     mockMvc
-        .perform(
-            put("/api/v1/notifications/read-all")
-                .requestAttr("userId", testUser.getId()))
+        .perform(put("/api/v1/notifications/read-all").requestAttr("userId", testUser.getId()))
         .andExpect(status().isNoContent());
 
     // Verify all marked as read
@@ -189,9 +184,7 @@ public class NotificationIntegrationTest {
   @Test
   void testGetNotificationPreferences() throws Exception {
     mockMvc
-        .perform(
-            get("/api/v1/notifications/preferences")
-                .requestAttr("userId", testUser.getId()))
+        .perform(get("/api/v1/notifications/preferences").requestAttr("userId", testUser.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(7)) // All notification types
         .andExpect(jsonPath("$[0].notificationType").exists())

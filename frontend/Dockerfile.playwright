@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/playwright:v1.40.0-jammy
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy Playwright configuration and tests
+COPY playwright.config.ts ./
+COPY tests/ ./tests/
+
+# Install Playwright browsers (already in base image, but ensure they're available)
+RUN npx playwright install
+
+# Set environment variables
+ENV CI=true
+ENV NODE_ENV=test
+
+# Default command to run tests
+CMD ["npx", "playwright", "test"]

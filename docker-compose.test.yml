@@ -1,0 +1,246 @@
+version: '3.8'
+
+# Docker Compose configuration for test environment
+# Optimized for automated testing with faster startup times and isolated test data
+
+services:
+  # PostgreSQL Database for Testing
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: todoapp-postgres-test
+    environment:
+      POSTGRES_DB: todoapp_test
+      POSTGRES_USER: todoapp_test
+      POSTGRES_PASSWORD: todoapp_test
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data  # Use tmpfs for faster I/O in tests
+    networks:
+      - todoapp-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todoapp_test -d todoapp_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # Redis Cache for Testing
+  redis-test:
+    image: redis:7-alpine
+    container_name: todoapp-redis-test
+    command: redis-server --appendonly no --save ""  # Disable persistence for tests
+    ports:
+      - "6380:6379"
+    tmpfs:
+      - /data  # Use tmpfs for faster I/O
+    networks:
+      - todoapp-test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+      start_period: 3s
+
+  # RabbitMQ Message Broker for Testing
+  rabbitmq-test:
+    image: rabbitmq:3.12-alpine  # Use alpine without management UI for faster startup
+    container_name: todoapp-rabbitmq-test
+    environment:
+      RABBITMQ_DEFAULT_USER: todoapp_test
+      RABBITMQ_DEFAULT_PASS: todoapp_test
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5673:5672"
+    tmpfs:
+      - /var/lib/rabbitmq  # Use tmpfs for faster I/O
+    networks:
+      - todoapp-test-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # MinIO (S3-compatible Object Storage) for Testing
+  minio-test:
+    image: minio/minio:latest
+    container_name: todoapp-minio-test
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: todoapp_test
+      MINIO_ROOT_PASSWORD: todoapp_test123
+    ports:
+      - "9001:9000"
+      - "9002:9001"
+    tmpfs:
+      - /data  # Use tmpfs for faster I/O
+    networks:
+      - todoapp-test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # MinIO Bucket Creator for Testing
+  minio-create-bucket-test:
+    image: minio/mc:latest
+    container_name: todoapp-minio-init-test
+    depends_on:
+      minio-test:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio-test:9000 todoapp_test todoapp_test123;
+      /usr/bin/mc mb myminio/todoapp-test-files --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/todoapp-test-files;
+      exit 0;
+      "
+    networks:
+      - todoapp-test-network
+
+  # Backend Application (Spring Boot) for Testing
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - SKIP_TESTS=true  # Skip tests during build for faster image creation
+    container_name: todoapp-backend-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+      rabbitmq-test:
+        condition: service_healthy
+      minio-test:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-test:5432/todoapp_test
+      SPRING_DATASOURCE_USERNAME: todoapp_test
+      SPRING_DATASOURCE_PASSWORD: todoapp_test
+
+      # JPA/Hibernate Settings for Testing
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop  # Recreate schema for each test run
+      SPRING_JPA_SHOW_SQL: false  # Disable SQL logging in tests
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: false
+
+      # Redis
+      SPRING_DATA_REDIS_HOST: redis-test
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ""
+
+      # RabbitMQ
+      SPRING_RABBITMQ_HOST: rabbitmq-test
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: todoapp_test
+      SPRING_RABBITMQ_PASSWORD: todoapp_test
+      SPRING_RABBITMQ_VIRTUAL_HOST: /
+
+      # MinIO
+      MINIO_ENDPOINT: http://minio-test:9000
+      MINIO_ACCESS_KEY: todoapp_test
+      MINIO_SECRET_KEY: todoapp_test123
+      MINIO_BUCKET: todoapp-test-files
+
+      # JWT (shorter expiration for tests)
+      JWT_SECRET: test-secret-key-256-bits-minimum-length-required-for-security-purposes
+      JWT_EXPIRATION_MS: 3600000  # 1 hour
+
+      # SMTP (disabled for testing)
+      SPRING_MAIL_HOST: localhost
+      SPRING_MAIL_PORT: 1025
+      SPRING_MAIL_USERNAME: test
+      SPRING_MAIL_PASSWORD: test
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: false
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: false
+
+      # Application
+      SERVER_PORT: 8080
+      CORS_ALLOWED_ORIGINS: http://localhost:3001
+
+      # Feature Flags
+      FEATURE_FILE_UPLOAD_ENABLED: true
+      FEATURE_NOTIFICATIONS_ENABLED: true
+      FEATURE_TIME_TRACKING_ENABLED: true
+
+      # Security (relaxed for testing)
+      RATE_LIMIT_ENABLED: false  # Disable rate limiting in tests
+      RATE_LIMIT_WINDOW_MS: 60000
+      RATE_LIMIT_MAX_REQUESTS: 1000
+
+      # File Upload
+      MAX_FILE_SIZE_MB: 10  # Smaller limit for tests
+      MAX_USER_STORAGE_GB: 1
+
+      # Logging
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_COM_TODOAPP: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB: WARN
+
+    ports:
+      - "8081:8080"
+    networks:
+      - todoapp-test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Frontend Application (React + Vite) for Testing
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.test
+    container_name: todoapp-frontend-test
+    depends_on:
+      backend-test:
+        condition: service_healthy
+    environment:
+      VITE_API_BASE_URL: http://localhost:8081/api/v1
+      VITE_WS_URL: http://localhost:8081/ws
+      NODE_ENV: test
+    ports:
+      - "3001:80"
+    networks:
+      - todoapp-test-network
+
+  # Playwright E2E Testing Service
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+    container_name: todoapp-playwright
+    depends_on:
+      frontend-test:
+        condition: service_started
+      backend-test:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://frontend-test:80
+      API_URL: http://backend-test:8080/api/v1
+    volumes:
+      - ./frontend/tests/e2e:/app/tests/e2e
+      - ./frontend/playwright-report:/app/playwright-report
+      - ./frontend/test-results:/app/test-results
+    networks:
+      - todoapp-test-network
+    command: npx playwright test
+
+networks:
+  todoapp-test-network:
+    driver: bridge
+    name: todoapp-test-network
+
+# No persistent volumes for test environment - data is ephemeral

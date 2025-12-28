@@ -295,7 +295,8 @@ public class NotificationService {
     Notification notification =
         notificationRepository
             .findById(uuid)
-            .orElseThrow(() -> new ResourceNotFoundException("Notification not found: " + notificationId));
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Notification not found: " + notificationId));
 
     if (!notification.getUser().getId().equals(userId)) {
       throw new IllegalArgumentException("You can only mark your own notifications as read");
@@ -314,7 +315,8 @@ public class NotificationService {
     Notification notification =
         notificationRepository
             .findById(uuid)
-            .orElseThrow(() -> new ResourceNotFoundException("Notification not found: " + notificationId));
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Notification not found: " + notificationId));
 
     if (!notification.getUser().getId().equals(userId)) {
       throw new IllegalArgumentException("You can only delete your own notifications");
@@ -331,7 +333,8 @@ public class NotificationService {
             .findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-    List<Notification> unreadNotifications = notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user);
+    List<Notification> unreadNotifications =
+        notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user);
     for (Notification notification : unreadNotifications) {
       notification.markAsRead();
     }

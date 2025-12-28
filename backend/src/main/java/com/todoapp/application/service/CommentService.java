@@ -1,6 +1,10 @@
 package com.todoapp.application.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -16,11 +20,6 @@ import com.todoapp.domain.repository.CommentRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import jakarta.transaction.Transactional;
 
@@ -88,8 +87,8 @@ public class CommentService {
 
     // Notify task owner if comment author is not the owner
     if (!task.getUser().getId().equals(userId)) {
-      String message = String.format(
-          "%s commented on your task '%s'", user.getEmail(), task.getDescription());
+      String message =
+          String.format("%s commented on your task '%s'", user.getEmail(), task.getDescription());
       notificationService.createNotification(
           task.getUser(), NotificationType.TASK_COMMENTED, message, task);
     }
@@ -176,18 +175,20 @@ public class CommentService {
     }
 
     for (String username : mentionedUsernames) {
-      userRepository.findByEmail(username + "@example.com").ifPresent(mentionedUser -> {
-        // Don't notify the author of the comment
-        if (!mentionedUser.getId().equals(author.getId())) {
-          String message = String.format(
-              "%s mentioned you in a comment on task '%s': %s",
-              author.getEmail(),
-              task.getDescription(),
-              truncateContent(content, 50));
-          notificationService.createNotification(
-              mentionedUser, NotificationType.TASK_MENTIONED, message, task);
-        }
-      });
+      userRepository
+          .findByEmail(username + "@example.com")
+          .ifPresent(
+              mentionedUser -> {
+                // Don't notify the author of the comment
+                if (!mentionedUser.getId().equals(author.getId())) {
+                  String message =
+                      String.format(
+                          "%s mentioned you in a comment on task '%s': %s",
+                          author.getEmail(), task.getDescription(), truncateContent(content, 50));
+                  notificationService.createNotification(
+                      mentionedUser, NotificationType.TASK_MENTIONED, message, task);
+                }
+              });
     }
   }
 
