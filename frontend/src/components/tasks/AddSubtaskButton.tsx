@@ -21,8 +21,7 @@ export function AddSubtaskButton({ parentTask, disabled = false }: AddSubtaskBut
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
-    mutationFn: (data: TaskCreateRequest) =>
-      taskService.createSubtask(parentTask.id, data),
+    mutationFn: (data: TaskCreateRequest) => taskService.createSubtask(parentTask.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subtasks', parentTask.id] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -32,7 +31,9 @@ export function AddSubtaskButton({ parentTask, disabled = false }: AddSubtaskBut
       setIsFormOpen(false);
     },
     onError: (error: Error) => {
-      const message = (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to create subtask';
+      const message =
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message ||
+        'Failed to create subtask';
       if (message.includes('depth')) {
         toast.error('Maximum subtask depth (5 levels) reached');
       } else {

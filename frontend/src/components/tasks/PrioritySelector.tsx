@@ -15,7 +15,11 @@ const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
   { value: 'LOW', label: 'Low', color: 'bg-green-100 text-green-800 border-green-300' },
 ];
 
-export const PrioritySelector: React.FC<PrioritySelectorProps> = ({ value, onChange, disabled = false }) => {
+export const PrioritySelector: React.FC<PrioritySelectorProps> = ({
+  value,
+  onChange,
+  disabled = false,
+}) => {
   return (
     <div className="flex gap-2">
       {PRIORITY_OPTIONS.map((option) => (
@@ -25,9 +29,9 @@ export const PrioritySelector: React.FC<PrioritySelectorProps> = ({ value, onCha
           onClick={() => onChange(option.value)}
           disabled={disabled}
           className={`
-            px-3 py-1.5 rounded-md text-sm font-medium border transition-all
-            ${value === option.value ? option.color : 'bg-gray-50 text-gray-700 border-gray-300'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80 cursor-pointer'}
+            rounded-md border px-3 py-1.5 text-sm font-medium transition-all
+            ${value === option.value ? option.color : 'border-gray-300 bg-gray-50 text-gray-700'}
+            ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:opacity-80'}
           `}
         >
           {option.label}
@@ -39,7 +43,7 @@ export const PrioritySelector: React.FC<PrioritySelectorProps> = ({ value, onCha
 
 export const PriorityBadge: React.FC<{ priority: Priority }> = ({ priority }) => {
   return (
-    <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(priority)}`}>
+    <span className={`rounded px-2 py-1 text-xs font-medium ${getPriorityColor(priority)}`}>
       {priority}
     </span>
   );

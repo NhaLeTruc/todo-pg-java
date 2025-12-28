@@ -34,18 +34,14 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [showManualTimeLog, setShowManualTimeLog] = useState(false);
 
-  const {
-    data: comments = [],
-    isLoading: isLoadingComments,
-  } = useQuery({
+  const { data: comments = [], isLoading: isLoadingComments } = useQuery({
     queryKey: ['comments', task.id],
     queryFn: () => commentService.getTaskComments(task.id),
     enabled: isOpen,
   });
 
   const createCommentMutation = useMutation({
-    mutationFn: (content: string) =>
-      commentService.createComment(task.id, { content }),
+    mutationFn: (content: string) => commentService.createComment(task.id, { content }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', task.id] });
       toast.success('Comment added!');
@@ -122,16 +118,19 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black bg-opacity-25 transition-opacity" onClick={onClose} />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-25 transition-opacity"
+          onClick={onClose}
+        />
 
-        <div className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl">
+        <div className="relative w-full max-w-2xl rounded-lg bg-white shadow-xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-semibold text-gray-900 truncate">{task.description}</h2>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <div className="flex items-center justify-between border-b border-gray-200 p-6">
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate text-xl font-semibold text-gray-900">{task.description}</h2>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span
-                  className={`px-2 py-1 text-xs font-medium rounded ${priorityColors[task.priority]}`}
+                  className={`rounded px-2 py-1 text-xs font-medium ${priorityColors[task.priority]}`}
                 >
                   {task.priority}
                 </span>
@@ -142,7 +141,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 )}
                 {task.categoryName && (
                   <span
-                    className="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-700"
+                    className="rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700"
                     style={
                       task.categoryColor
                         ? { backgroundColor: task.categoryColor, borderColor: task.categoryColor }
@@ -156,9 +155,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   task.tags.map((tag) => (
                     <span
                       key={tag.id}
-                      className="px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-700"
+                      className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
                       style={
-                        tag.color ? { backgroundColor: tag.color, borderColor: tag.color } : undefined
+                        tag.color
+                          ? { backgroundColor: tag.color, borderColor: tag.color }
+                          : undefined
                       }
                     >
                       {tag.name}
@@ -168,7 +169,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="ml-4 flex-shrink-0 p-1 text-gray-400 hover:text-gray-500 transition-colors"
+              className="ml-4 flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-gray-500"
             >
               <X className="h-6 w-6" />
             </button>
@@ -177,7 +178,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           {/* Time Tracking Section */}
           <div className="border-b border-gray-200 p-6">
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-gray-500" />
                   <h3 className="text-lg font-medium text-gray-900">Time Tracking</h3>
@@ -202,7 +203,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           {/* Subtasks Section */}
           <div className="border-b border-gray-200 p-6">
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ListTree className="h-5 w-5 text-gray-500" />
                   <h3 className="text-lg font-medium text-gray-900">Subtasks</h3>
@@ -221,15 +222,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
           {/* Comments Section */}
           <div className="p-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="mb-4 flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-gray-500" />
-              <h3 className="text-lg font-medium text-gray-900">
-                Comments ({comments.length})
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900">Comments ({comments.length})</h3>
             </div>
 
             {isLoadingComments ? (
-              <div className="text-center py-8 text-gray-500">Loading comments...</div>
+              <div className="py-8 text-center text-gray-500">Loading comments...</div>
             ) : (
               <div className="space-y-6">
                 <CommentList
@@ -242,7 +241,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 <div className="border-t border-gray-200 pt-4">
                   {editingComment ? (
                     <>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Edit Comment</h4>
+                      <h4 className="mb-2 text-sm font-medium text-gray-700">Edit Comment</h4>
                       <CommentForm
                         onSubmit={handleUpdateComment}
                         onCancel={handleCancelEdit}

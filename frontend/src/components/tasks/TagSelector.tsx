@@ -45,9 +45,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ value, onChange }) => 
             type="button"
             onClick={() => handleToggleTag(tag.id)}
             disabled={isLoading}
-            className={`btn-sm ${
-              value.includes(tag.id) ? 'btn-primary' : 'btn-secondary'
-            }`}
+            className={`btn-sm ${value.includes(tag.id) ? 'btn-primary' : 'btn-secondary'}`}
             style={
               tag.color && value.includes(tag.id)
                 ? { backgroundColor: tag.color, borderColor: tag.color }

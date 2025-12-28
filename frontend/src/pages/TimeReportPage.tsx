@@ -92,8 +92,8 @@ const TimeReportPage: React.FC = () => {
       const date = entry.startTime
         ? new Date(entry.startTime).toISOString().slice(0, 10)
         : entry.loggedAt
-        ? new Date(entry.loggedAt).toISOString().slice(0, 10)
-        : '';
+          ? new Date(entry.loggedAt).toISOString().slice(0, 10)
+          : '';
 
       if (date && entry.durationMinutes) {
         timeByDay.set(date, (timeByDay.get(date) || 0) + entry.durationMinutes);
@@ -147,9 +147,7 @@ const TimeReportPage: React.FC = () => {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-800">{error}</div>
-      )}
+      {error && <div className="mb-6 rounded-md bg-red-50 p-4 text-sm text-red-800">{error}</div>}
 
       {report && (
         <>
@@ -189,9 +187,7 @@ const TimeReportPage: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Avg per Day</p>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {timeByDay.size > 0
-                      ? formatHours(report.totalMinutes / timeByDay.size)
-                      : '0h'}
+                    {timeByDay.size > 0 ? formatHours(report.totalMinutes / timeByDay.size) : '0h'}
                   </p>
                 </div>
               </div>
@@ -260,8 +256,8 @@ const TimeReportPage: React.FC = () => {
                           {entry.startTime
                             ? format(new Date(entry.startTime), 'MMM d, yyyy HH:mm')
                             : entry.loggedAt
-                            ? format(new Date(entry.loggedAt), 'MMM d, yyyy HH:mm')
-                            : '-'}
+                              ? format(new Date(entry.loggedAt), 'MMM d, yyyy HH:mm')
+                              : '-'}
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm">
                           <span
@@ -277,9 +273,7 @@ const TimeReportPage: React.FC = () => {
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                           {entry.durationMinutes ? formatMinutes(entry.durationMinutes) : '-'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {entry.notes || '-'}
-                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{entry.notes || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -295,7 +289,8 @@ const TimeReportPage: React.FC = () => {
           <Clock className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No report generated</h3>
           <p className="mt-1 text-sm text-gray-500">
-            Select a date range and click &quot;Generate Report&quot; to view your time tracking data.
+            Select a date range and click &quot;Generate Report&quot; to view your time tracking
+            data.
           </p>
         </div>
       )}

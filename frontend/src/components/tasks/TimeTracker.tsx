@@ -22,11 +22,7 @@ interface TimeTrackerProps {
   onTimerStopped?: () => void;
 }
 
-const TimeTracker: React.FC<TimeTrackerProps> = ({
-  taskId,
-  onTimerStarted,
-  onTimerStopped,
-}) => {
+const TimeTracker: React.FC<TimeTrackerProps> = ({ taskId, onTimerStarted, onTimerStopped }) => {
   const [activeTimer, setActiveTimer] = useState<TimeEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,11 +153,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
   return (
     <div className="space-y-4">
-      {error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</div>}
 
       <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex items-center space-x-4">
@@ -173,10 +165,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               <div>
                 <div className="text-sm font-medium text-gray-900">Timer Running</div>
                 {activeTimer.startTime && (
-                  <TimerDisplay
-                    startTime={activeTimer.startTime}
-                    className="text-green-600"
-                  />
+                  <TimerDisplay startTime={activeTimer.startTime} className="text-green-600" />
                 )}
               </div>
             </>
@@ -187,9 +176,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
               <div>
                 <div className="text-sm font-medium text-gray-900">No Active Timer</div>
-                <div className="text-xs text-gray-500">
-                  Total: {formatMinutes(totalTime)}
-                </div>
+                <div className="text-xs text-gray-500">Total: {formatMinutes(totalTime)}</div>
               </div>
             </>
           )}

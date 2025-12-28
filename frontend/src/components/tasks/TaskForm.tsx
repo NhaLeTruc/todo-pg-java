@@ -118,9 +118,9 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
         </button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex-1">
-          <label className="text-sm font-medium text-gray-700 mb-1 block">Priority</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Priority</label>
           <PrioritySelector value={priority} onChange={setPriority} disabled={isLoading} />
         </div>
 
@@ -135,7 +135,7 @@ export function TaskForm({ onSubmit, isLoading = false }: TaskFormProps) {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="flex-1">
           <CategorySelector value={categoryId} onChange={setCategoryId} />
         </div>

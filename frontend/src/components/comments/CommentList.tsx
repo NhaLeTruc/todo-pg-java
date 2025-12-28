@@ -19,7 +19,7 @@ export const CommentList: React.FC<CommentListProps> = ({
 }) => {
   if (comments.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="py-8 text-center text-gray-500">
         <p>No comments yet. Be the first to comment!</p>
       </div>
     );

@@ -16,7 +16,11 @@ const priorityBadges = {
   HIGH: 'badge-danger',
 };
 
-function SubtaskItem({ subtask, onToggle, onDelete }: {
+function SubtaskItem({
+  subtask,
+  onToggle,
+  onDelete,
+}: {
   subtask: Task;
   onToggle: (id: number, isCompleted: boolean) => void;
   onDelete: (id: number) => void;
@@ -67,9 +71,7 @@ function SubtaskItem({ subtask, onToggle, onDelete }: {
         </div>
 
         {subtask.depth < 5 && (
-          <span className="mt-1 inline-block text-xs text-gray-500">
-            Depth: {subtask.depth}
-          </span>
+          <span className="mt-1 inline-block text-xs text-gray-500">Depth: {subtask.depth}</span>
         )}
       </div>
     </div>
@@ -79,7 +81,11 @@ function SubtaskItem({ subtask, onToggle, onDelete }: {
 export function SubtaskList({ parentTaskId }: SubtaskListProps) {
   const queryClient = useQueryClient();
 
-  const { data: subtasks = [], isLoading, error } = useQuery({
+  const {
+    data: subtasks = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['subtasks', parentTaskId],
     queryFn: () => taskService.getSubtasks(parentTaskId),
     staleTime: 30000,
@@ -130,9 +136,7 @@ export function SubtaskList({ parentTaskId }: SubtaskListProps) {
 
   if (error) {
     return (
-      <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-        Failed to load subtasks
-      </div>
+      <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">Failed to load subtasks</div>
     );
   }
 

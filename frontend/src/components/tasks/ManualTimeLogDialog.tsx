@@ -18,9 +18,7 @@ const ManualTimeLogDialog: React.FC<ManualTimeLogDialogProps> = ({
   const [hours, setHours] = useState<number>(0);
   const [minutes, setMinutes] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
-  const [loggedDate, setLoggedDate] = useState<string>(
-    new Date().toISOString().slice(0, 16)
-  );
+  const [loggedDate, setLoggedDate] = useState<string>(new Date().toISOString().slice(0, 16));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,11 +94,7 @@ const ManualTimeLogDialog: React.FC<ManualTimeLogDialogProps> = ({
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">

@@ -97,10 +97,12 @@ export const CommentForm: React.FC<CommentFormProps> = ({
           maxLength={MAX_CONTENT_LENGTH}
           disabled={isLoading}
           className={`w-full rounded-lg border ${
-            error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
-          } px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 resize-none`}
+            error
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
+              : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
+          } resize-none px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2`}
         />
-        <div className="flex items-center justify-between mt-1">
+        <div className="mt-1 flex items-center justify-between">
           <span className="text-xs text-gray-500">
             {content.length}/{MAX_CONTENT_LENGTH}
           </span>
@@ -108,22 +110,22 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         </div>
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex justify-end gap-2">
         {(isEditing || onCancel) && (
           <button
             type="button"
             onClick={handleCancel}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <X className="h-4 w-4 inline mr-1" />
+            <X className="mr-1 inline h-4 w-4" />
             Cancel
           </button>
         )}
         <button
           type="submit"
           disabled={isLoading || !isValid}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send className="h-4 w-4" />
           {isEditing ? 'Update' : 'Post'} Comment

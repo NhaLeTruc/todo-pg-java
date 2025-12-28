@@ -46,7 +46,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   return (
     <div className="flex flex-col gap-1">
       {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
-      <div className="flex gap-2 items-center">
+      <div className="flex items-center gap-2">
         <input
           type="datetime-local"
           value={formatForInput(value)}
@@ -58,10 +58,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           min={minDate}
           placeholder={placeholder}
           className="
-            flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-            disabled:bg-gray-100 disabled:cursor-not-allowed
-            text-sm
+            flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm
+            shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2
+            focus:ring-blue-500 disabled:cursor-not-allowed
+            disabled:bg-gray-100
           "
         />
         {value && !disabled && (
@@ -69,8 +69,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             type="button"
             onClick={handleClear}
             className="
-              px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100
-              border border-gray-300 rounded-md hover:bg-gray-200
+              rounded-md border border-gray-300 bg-gray-100 px-3 py-2
+              text-sm font-medium text-gray-700 hover:bg-gray-200
               focus:outline-none focus:ring-2 focus:ring-gray-500
             "
           >

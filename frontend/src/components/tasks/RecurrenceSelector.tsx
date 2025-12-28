@@ -31,7 +31,9 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
   const [enabled, setEnabled] = useState(!!value);
   const [frequency, setFrequency] = useState<Frequency>(value?.frequency || 'DAILY');
   const [intervalValue, setIntervalValue] = useState(value?.intervalValue || 1);
-  const [startDate, setStartDate] = useState(value?.startDate || new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(
+    value?.startDate || new Date().toISOString().split('T')[0]
+  );
   const [endDate, setEndDate] = useState(value?.endDate || '');
   const [daysOfWeek, setDaysOfWeek] = useState<string[]>(value?.daysOfWeek || []);
   const [dayOfMonth, setDayOfMonth] = useState(value?.dayOfMonth || 1);
@@ -78,7 +80,17 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
       updatePattern();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frequency, intervalValue, startDate, endDate, daysOfWeek, dayOfMonth, maxOccurrences, endType, enabled]);
+  }, [
+    frequency,
+    intervalValue,
+    startDate,
+    endDate,
+    daysOfWeek,
+    dayOfMonth,
+    maxOccurrences,
+    endType,
+    enabled,
+  ]);
 
   const toggleDayOfWeek = (day: string) => {
     const newDays = daysOfWeek.includes(day)
@@ -107,7 +119,7 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
         <>
           {/* Frequency Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Repeat</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Repeat</label>
             <div className="flex space-x-2">
               <select
                 value={frequency}
@@ -129,7 +141,11 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
                   className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
                 <span className="text-sm text-gray-700">
-                  {frequency === 'DAILY' ? 'day(s)' : frequency === 'WEEKLY' ? 'week(s)' : 'month(s)'}
+                  {frequency === 'DAILY'
+                    ? 'day(s)'
+                    : frequency === 'WEEKLY'
+                      ? 'week(s)'
+                      : 'month(s)'}
                 </span>
               </div>
             </div>
@@ -138,14 +154,14 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
           {/* Weekly: Day of Week Selection */}
           {frequency === 'WEEKLY' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Repeat on</label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Repeat on</label>
               <div className="flex flex-wrap gap-2">
                 {DAYS_OF_WEEK.map((day) => (
                   <button
                     key={day.value}
                     type="button"
                     onClick={() => toggleDayOfWeek(day.value)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    className={`rounded-md px-3 py-2 text-sm font-medium ${
                       daysOfWeek.includes(day.value)
                         ? 'bg-indigo-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -161,7 +177,10 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
           {/* Monthly: Day of Month */}
           {frequency === 'MONTHLY' && (
             <div>
-              <label htmlFor="day-of-month" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="day-of-month"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 Day of month
               </label>
               <input
@@ -178,7 +197,7 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
 
           {/* Start Date */}
           <div>
-            <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="start-date" className="mb-2 block text-sm font-medium text-gray-700">
               Start date
             </label>
             <input
@@ -192,7 +211,7 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
 
           {/* End Condition */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Ends</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Ends</label>
             <div className="space-y-2">
               <div className="flex items-center">
                 <input
@@ -226,7 +245,7 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
                     setEndType('date');
                   }}
                   disabled={endType !== 'date'}
-                  className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-100"
+                  className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 sm:text-sm"
                 />
               </div>
 
@@ -250,7 +269,7 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
                     setEndType('count');
                   }}
                   disabled={endType !== 'count'}
-                  className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-100"
+                  className="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 sm:text-sm"
                 />
                 <span className="text-sm text-gray-700">occurrence(s)</span>
               </div>
