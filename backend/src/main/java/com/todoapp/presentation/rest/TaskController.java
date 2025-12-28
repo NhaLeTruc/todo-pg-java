@@ -1,21 +1,8 @@
 package com.todoapp.presentation.rest;
 
-import com.todoapp.application.dto.TaskCreateDTO;
-import com.todoapp.application.dto.TaskResponseDTO;
-import com.todoapp.application.dto.TaskUpdateDTO;
-import com.todoapp.application.mapper.TaskMapper;
-import com.todoapp.application.service.TaskService;
-import com.todoapp.domain.model.Task;
 import java.util.List;
 import java.util.stream.Collectors;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,6 +12,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.application.dto.TaskResponseDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
+import com.todoapp.application.mapper.TaskMapper;
+import com.todoapp.application.service.TaskService;
+import com.todoapp.domain.model.Task;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -80,17 +83,13 @@ public class TaskController {
           int page,
       @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size,
       @Parameter(description = "Sort by field") @RequestParam(required = false) String sortBy,
-      @Parameter(description = "Sort direction (asc/desc)")
-          @RequestParam(defaultValue = "desc")
+      @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "desc")
           String sortDirection,
-      @Parameter(description = "Search term for filtering")
-          @RequestParam(required = false)
+      @Parameter(description = "Search term for filtering") @RequestParam(required = false)
           String search,
-      @Parameter(description = "Filter by completion status")
-          @RequestParam(required = false)
+      @Parameter(description = "Filter by completion status") @RequestParam(required = false)
           Boolean completed,
-      @Parameter(description = "Filter by category ID")
-          @RequestParam(required = false)
+      @Parameter(description = "Filter by category ID") @RequestParam(required = false)
           Long categoryId,
       @Parameter(description = "Filter by tag IDs (comma-separated)")
           @RequestParam(required = false)
@@ -106,8 +105,7 @@ public class TaskController {
         tagIds);
 
     Sort sort =
-        Sort.by(
-            Sort.Direction.fromString(sortDirection), sortBy != null ? sortBy : "createdAt");
+        Sort.by(Sort.Direction.fromString(sortDirection), sortBy != null ? sortBy : "createdAt");
     Pageable pageable = PageRequest.of(page, size, sort);
 
     Page<TaskResponseDTO> tasks;
@@ -153,8 +151,7 @@ public class TaskController {
       @Parameter(description = "User ID (temporary - will be from JWT)")
           @RequestHeader(value = "X-User-Id", defaultValue = "1")
           Long userId,
-      @Parameter(description = "Filter by completion status")
-          @RequestParam(required = false)
+      @Parameter(description = "Filter by completion status") @RequestParam(required = false)
           Boolean completed) {
     logger.info("Getting task count for user ID: {} (completed: {})", userId, completed);
     long count = taskService.getTaskCount(userId, completed);
@@ -304,7 +301,9 @@ public class TaskController {
                 @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = TaskResponseDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid request data or max depth exceeded"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid request data or max depth exceeded"),
         @ApiResponse(responseCode = "404", description = "Parent task not found"),
         @ApiResponse(responseCode = "401", description = "Unauthorized")
       })

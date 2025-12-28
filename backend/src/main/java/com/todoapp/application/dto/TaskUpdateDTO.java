@@ -1,9 +1,11 @@
 package com.todoapp.application.dto;
 
-import com.todoapp.domain.model.Priority;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.todoapp.domain.model.Priority;
+
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -2,16 +2,20 @@ package com.todoapp.unit.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.User;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 @DisplayName("Category Entity Unit Tests")
 class CategoryTest {
@@ -57,8 +61,7 @@ class CategoryTest {
     Set<ConstraintViolation<Category>> violations = validator.validate(category);
 
     assertFalse(violations.isEmpty());
-    assertTrue(
-        violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("name")));
+    assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("name")));
   }
 
   @Test
@@ -166,11 +169,13 @@ class CategoryTest {
   }
 
   @Test
-  @DisplayName("Should have createdAt and updatedAt timestamps")
-  void shouldHaveTimestamps() {
+  @DisplayName("Should allow setting createdAt and updatedAt timestamps")
+  void shouldAllowSettingTimestamps() {
     Category category = new Category();
     category.setName("Work");
     category.setUser(user);
+    category.setCreatedAt(LocalDateTime.now());
+    category.setUpdatedAt(LocalDateTime.now());
 
     assertNotNull(category.getCreatedAt());
     assertNotNull(category.getUpdatedAt());

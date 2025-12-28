@@ -1,10 +1,5 @@
 package com.todoapp.application.service;
 
-import com.todoapp.application.dto.RegisterDTO;
-import com.todoapp.application.dto.UserResponseDTO;
-import com.todoapp.application.mapper.UserMapper;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,19 +7,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.todoapp.application.dto.RegisterDTO;
+import com.todoapp.application.dto.UserResponseDTO;
+import com.todoapp.application.mapper.UserMapper;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.UserRepository;
+
 @Service
 public class UserService {
 
   private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+  @Autowired private PasswordEncoder passwordEncoder;
 
-  @Autowired
-  private UserMapper userMapper;
+  @Autowired private UserMapper userMapper;
 
   @Transactional
   public UserResponseDTO registerUser(RegisterDTO registerDTO) {
@@ -50,19 +48,21 @@ public class UserService {
   public UserResponseDTO findByEmail(String email) {
     logger.debug("Finding user by email: {}", email);
 
-    User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+    User user =
+        userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
     return userMapper.toResponseDTO(user);
   }
 
   public User getUserEntityByEmail(String email) {
-    return userRepository.findByEmail(email)
+    return userRepository
+        .findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));
   }
 
   public User getUserEntityById(Long userId) {
-    return userRepository.findById(userId)
+    return userRepository
+        .findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
   }
 }

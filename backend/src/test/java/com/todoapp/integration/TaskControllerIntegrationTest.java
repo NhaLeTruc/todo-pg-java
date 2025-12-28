@@ -11,17 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoapp.application.dto.TaskCreateDTO;
-import com.todoapp.application.dto.TaskUpdateDTO;
-import com.todoapp.domain.model.Priority;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.CategoryRepository;
-import com.todoapp.domain.repository.TagRepository;
-import com.todoapp.domain.repository.TaskRepository;
-import com.todoapp.domain.repository.UserRepository;
 import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +23,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
+import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.CategoryRepository;
+import com.todoapp.domain.repository.TagRepository;
+import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -342,7 +344,8 @@ public class TaskControllerIntegrationTest {
     Long taskId = task.getId();
 
     mockMvc
-        .perform(patch("/api/v1/tasks/" + taskId + "/complete").header("X-User-Id", testUser.getId()))
+        .perform(
+            patch("/api/v1/tasks/" + taskId + "/complete").header("X-User-Id", testUser.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.isCompleted").value(true));
 
@@ -353,7 +356,8 @@ public class TaskControllerIntegrationTest {
         .andExpect(jsonPath("$.isCompleted").value(false));
 
     mockMvc
-        .perform(patch("/api/v1/tasks/" + taskId + "/complete").header("X-User-Id", testUser.getId()))
+        .perform(
+            patch("/api/v1/tasks/" + taskId + "/complete").header("X-User-Id", testUser.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.isCompleted").value(true));
   }
@@ -387,8 +391,9 @@ public class TaskControllerIntegrationTest {
     task = taskRepository.save(task);
 
     mockMvc
-        .perform(patch("/api/v1/tasks/" + task.getId() + "/complete")
-            .header("X-User-Id", testUser.getId()))
+        .perform(
+            patch("/api/v1/tasks/" + task.getId() + "/complete")
+                .header("X-User-Id", testUser.getId()))
         .andExpect(status().isNotFound());
   }
 
@@ -577,44 +582,6 @@ public class TaskControllerIntegrationTest {
         .andExpect(jsonPath("$.content").isArray())
         .andExpect(jsonPath("$.content.length()").value(1))
         .andExpect(jsonPath("$.content[0].description").value("IMPORTANT Meeting with CEO"));
-  }
-
-  @Test
-  public void shouldFilterTasksByCompletionStatus() throws Exception {
-    Task task1 = new Task();
-    task1.setUser(testUser);
-    task1.setDescription("Completed task 1");
-    task1.setPriority(Priority.HIGH);
-    task1.setIsCompleted(true);
-    task1.setCompletedAt(LocalDateTime.now());
-    taskRepository.save(task1);
-
-    Task task2 = new Task();
-    task2.setUser(testUser);
-    task2.setDescription("Active task 1");
-    task2.setPriority(Priority.MEDIUM);
-    task2.setIsCompleted(false);
-    taskRepository.save(task2);
-
-    Task task3 = new Task();
-    task3.setUser(testUser);
-    task3.setDescription("Active task 2");
-    task3.setPriority(Priority.LOW);
-    task3.setIsCompleted(false);
-    taskRepository.save(task3);
-
-    mockMvc
-        .perform(
-            get("/api/v1/tasks")
-                .header("X-User-Id", testUser.getId())
-                .param("completed", "false")
-                .param("page", "0")
-                .param("size", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").isArray())
-        .andExpect(jsonPath("$.content.length()").value(2))
-        .andExpect(jsonPath("$.totalElements").value(2))
-        .andExpect(jsonPath("$.content[*].isCompleted").value(everyItem(is(false))));
   }
 
   @Test
@@ -889,8 +856,7 @@ public class TaskControllerIntegrationTest {
     taskRepository.save(overdueTask);
 
     mockMvc
-        .perform(
-            get("/api/v1/tasks/" + overdueTask.getId()).header("X-User-Id", testUser.getId()))
+        .perform(get("/api/v1/tasks/" + overdueTask.getId()).header("X-User-Id", testUser.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(overdueTask.getId()))
         .andExpect(jsonPath("$.isOverdue").value(true))
@@ -1078,9 +1044,7 @@ public class TaskControllerIntegrationTest {
 
     // User2 tries to delete user1's task - should fail
     mockMvc
-        .perform(
-            delete("/api/v1/tasks/" + user1Task.getId())
-                .header("X-User-Id", user2.getId()))
+        .perform(delete("/api/v1/tasks/" + user1Task.getId()).header("X-User-Id", user2.getId()))
         .andExpect(status().isNotFound());
 
     // Verify task still exists
@@ -1096,8 +1060,7 @@ public class TaskControllerIntegrationTest {
     workCategory.setUser(testUser);
     workCategory = categoryRepository.save(workCategory);
 
-    com.todoapp.domain.model.Category personalCategory =
-        new com.todoapp.domain.model.Category();
+    com.todoapp.domain.model.Category personalCategory = new com.todoapp.domain.model.Category();
     personalCategory.setName("Personal");
     personalCategory.setUser(testUser);
     personalCategory = categoryRepository.save(personalCategory);

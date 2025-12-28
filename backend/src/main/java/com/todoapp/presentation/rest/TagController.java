@@ -1,16 +1,19 @@
 package com.todoapp.presentation.rest;
 
-import com.todoapp.application.dto.TagDTO;
-import com.todoapp.application.service.TagService;
-import com.todoapp.infrastructure.security.UserPrincipal;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import com.todoapp.application.dto.TagDTO;
+import com.todoapp.application.service.TagService;
+import com.todoapp.infrastructure.security.UserPrincipal;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tags")
@@ -25,8 +28,7 @@ public class TagController {
 
   @GetMapping
   @Operation(summary = "Get all tags for current user")
-  public ResponseEntity<List<TagDTO>> getAllTags(
-      @AuthenticationPrincipal UserPrincipal principal) {
+  public ResponseEntity<List<TagDTO>> getAllTags(@AuthenticationPrincipal UserPrincipal principal) {
     List<TagDTO> tags = tagService.getTagsByUserId(principal.getUserId());
     return ResponseEntity.ok(tags);
   }

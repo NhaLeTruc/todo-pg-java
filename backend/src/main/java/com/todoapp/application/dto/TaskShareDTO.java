@@ -1,8 +1,10 @@
 package com.todoapp.application.dto;
 
-import com.todoapp.domain.model.PermissionLevel;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+
+import com.todoapp.domain.model.PermissionLevel;
+
+import jakarta.validation.constraints.NotNull;
 
 public class TaskShareDTO {
 

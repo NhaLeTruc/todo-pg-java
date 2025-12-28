@@ -93,9 +93,7 @@ public class RabbitMQConfig {
 
   @Bean
   public Binding recurrenceBinding(Queue recurrenceQueue, DirectExchange recurrenceExchange) {
-    return BindingBuilder.bind(recurrenceQueue)
-        .to(recurrenceExchange)
-        .with(RECURRENCE_ROUTING_KEY);
+    return BindingBuilder.bind(recurrenceQueue).to(recurrenceExchange).with(RECURRENCE_ROUTING_KEY);
   }
 
   @Bean
@@ -112,8 +110,7 @@ public class RabbitMQConfig {
   }
 
   @Bean
-  public Binding notificationBinding(
-      Queue notificationQueue, DirectExchange notificationExchange) {
+  public Binding notificationBinding(Queue notificationQueue, DirectExchange notificationExchange) {
     return BindingBuilder.bind(notificationQueue)
         .to(notificationExchange)
         .with(NOTIFICATION_ROUTING_KEY);

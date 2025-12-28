@@ -1,5 +1,12 @@
 package com.todoapp.application.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.todoapp.application.dto.CommentDTO;
 import com.todoapp.domain.model.Comment;
 import com.todoapp.domain.model.Task;
@@ -8,12 +15,8 @@ import com.todoapp.domain.repository.CommentRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
+
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional

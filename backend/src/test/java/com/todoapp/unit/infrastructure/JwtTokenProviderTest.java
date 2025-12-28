@@ -2,17 +2,21 @@ package com.todoapp.unit.infrastructure;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.todoapp.infrastructure.security.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
 import javax.crypto.SecretKey;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import com.todoapp.infrastructure.security.JwtTokenProvider;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @DisplayName("JwtTokenProvider Unit Tests")
 class JwtTokenProviderTest {
@@ -128,11 +132,7 @@ class JwtTokenProviderTest {
     String token = jwtTokenProvider.generateToken(email, userId);
 
     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-    Claims claims = Jwts.parser()
-        .verifyWith(key)
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
+    Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
 
     assertNotNull(claims.getIssuedAt());
     assertTrue(claims.getIssuedAt().before(new Date(System.currentTimeMillis() + 1000)));
@@ -147,11 +147,7 @@ class JwtTokenProviderTest {
     String token = jwtTokenProvider.generateToken(email, userId);
 
     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-    Claims claims = Jwts.parser()
-        .verifyWith(key)
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
+    Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
 
     assertNotNull(claims.getExpiration());
     assertTrue(claims.getExpiration().after(new Date()));

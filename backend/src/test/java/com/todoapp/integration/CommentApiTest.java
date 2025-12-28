@@ -8,15 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoapp.application.dto.CommentDTO;
-import com.todoapp.domain.model.Comment;
-import com.todoapp.domain.model.Priority;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.CommentRepository;
-import com.todoapp.domain.repository.TaskRepository;
-import com.todoapp.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +18,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoapp.application.dto.CommentDTO;
+import com.todoapp.domain.model.Comment;
+import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.CommentRepository;
+import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc

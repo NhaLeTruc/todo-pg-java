@@ -4,13 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.todoapp.application.dto.RegisterDTO;
-import com.todoapp.application.dto.UserResponseDTO;
-import com.todoapp.application.mapper.UserMapper;
-import com.todoapp.application.service.UserService;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.UserRepository;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.todoapp.application.dto.RegisterDTO;
+import com.todoapp.application.dto.UserResponseDTO;
+import com.todoapp.application.mapper.UserMapper;
+import com.todoapp.application.service.UserService;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserService Unit Tests")
@@ -61,8 +63,7 @@ class UserServiceTest {
   @DisplayName("Should register user with BCrypt password hashing")
   void shouldRegisterUserWithBCryptHashing() {
     when(userRepository.existsByEmail(registerDTO.getEmail())).thenReturn(false);
-    when(passwordEncoder.encode(registerDTO.getPassword()))
-        .thenReturn("$2a$12$hashedPassword");
+    when(passwordEncoder.encode(registerDTO.getPassword())).thenReturn("$2a$12$hashedPassword");
     when(userRepository.save(any(User.class))).thenReturn(user);
     when(userMapper.toResponseDTO(user)).thenReturn(userResponseDTO);
 
@@ -137,11 +138,13 @@ class UserServiceTest {
   void shouldSetNewUserAsActiveByDefault() {
     when(userRepository.existsByEmail(registerDTO.getEmail())).thenReturn(false);
     when(passwordEncoder.encode(any())).thenReturn("$2a$12$hashedPassword");
-    when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-      User savedUser = invocation.getArgument(0);
-      assertTrue(savedUser.getIsActive());
-      return savedUser;
-    });
+    when(userRepository.save(any(User.class)))
+        .thenAnswer(
+            invocation -> {
+              User savedUser = invocation.getArgument(0);
+              assertTrue(savedUser.getIsActive());
+              return savedUser;
+            });
     when(userMapper.toResponseDTO(any(User.class))).thenReturn(userResponseDTO);
 
     userService.registerUser(registerDTO);

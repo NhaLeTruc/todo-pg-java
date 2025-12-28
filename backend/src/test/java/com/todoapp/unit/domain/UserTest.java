@@ -2,9 +2,10 @@ package com.todoapp.unit.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.todoapp.domain.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import com.todoapp.domain.model.User;
 
 @DisplayName("User Entity Unit Tests")
 class UserTest {

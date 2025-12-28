@@ -3,6 +3,7 @@ package com.todoapp.presentation.exception;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -95,8 +96,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleGlobalException(
-      Exception ex, WebRequest request) {
+  public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
     ErrorResponse errorResponse =
         new ErrorResponse(
             LocalDateTime.now(),

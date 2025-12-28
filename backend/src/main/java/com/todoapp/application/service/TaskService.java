@@ -1,5 +1,14 @@
 package com.todoapp.application.service;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
@@ -16,14 +25,8 @@ import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
+
 import jakarta.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -122,9 +125,7 @@ public class TaskService {
     if (task.getUser().getId().equals(userId)) {
       return true;
     }
-    return taskShareRepository
-        .findByTaskIdAndSharedWithUserId(task.getId(), userId)
-        .isPresent();
+    return taskShareRepository.findByTaskIdAndSharedWithUserId(task.getId(), userId).isPresent();
   }
 
   private boolean hasEditPermission(Task task, Long userId) {
@@ -291,9 +292,7 @@ public class TaskService {
     if (task.hasSubtasks()) {
       int subtaskCount = task.getSubtasks().size();
       logger.info(
-          "Task ID: {} has {} subtasks that will be deleted due to cascade",
-          taskId,
-          subtaskCount);
+          "Task ID: {} has {} subtasks that will be deleted due to cascade", taskId, subtaskCount);
     }
 
     taskRepository.delete(task);
@@ -332,11 +331,12 @@ public class TaskService {
         taskRepository
             .findById(parentTaskId)
             .orElseThrow(
-                () -> new ResourceNotFoundException("Parent task not found with ID: " + parentTaskId));
+                () ->
+                    new ResourceNotFoundException(
+                        "Parent task not found with ID: " + parentTaskId));
 
     if (!hasEditPermission(parentTask, userId)) {
-      throw new IllegalArgumentException(
-          "User does not have edit permission for the parent task");
+      throw new IllegalArgumentException("User does not have edit permission for the parent task");
     }
 
     User user =
@@ -387,7 +387,9 @@ public class TaskService {
         taskRepository
             .findById(parentTaskId)
             .orElseThrow(
-                () -> new ResourceNotFoundException("Parent task not found with ID: " + parentTaskId));
+                () ->
+                    new ResourceNotFoundException(
+                        "Parent task not found with ID: " + parentTaskId));
 
     if (!hasTaskAccess(parentTask, userId)) {
       throw new IllegalArgumentException("User does not have access to this task");
@@ -396,6 +398,8 @@ public class TaskService {
     List<Task> subtasks = taskRepository.findByParentTaskId(parentTaskId);
 
     logger.debug("Found {} subtasks for parent task ID: {}", subtasks.size(), parentTaskId);
-    return subtasks.stream().map(taskMapper::toResponseDTO).collect(java.util.stream.Collectors.toList());
+    return subtasks.stream()
+        .map(taskMapper::toResponseDTO)
+        .collect(java.util.stream.Collectors.toList());
   }
 }

@@ -1,5 +1,14 @@
 package com.todoapp.application.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.todoapp.application.dto.TaskShareDTO;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.TaskShare;
@@ -8,13 +17,6 @@ import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -45,8 +47,7 @@ public class TaskShareService {
     Task task =
         taskRepository
             .findById(taskId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
 
     User sharingUser =
         userRepository
@@ -71,8 +72,7 @@ public class TaskShareService {
                         "User not found with ID: " + shareDTO.getSharedWithUserId()));
 
     Optional<TaskShare> existingShare =
-        taskShareRepository.findByTaskIdAndSharedWithUserId(
-            taskId, shareDTO.getSharedWithUserId());
+        taskShareRepository.findByTaskIdAndSharedWithUserId(taskId, shareDTO.getSharedWithUserId());
 
     TaskShare taskShare;
     if (existingShare.isPresent()) {
@@ -101,8 +101,7 @@ public class TaskShareService {
     Task task =
         taskRepository
             .findById(taskId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
 
     if (!task.getUser().getId().equals(userId)) {
       throw new IllegalArgumentException("Only the task owner can revoke shares");
@@ -111,8 +110,7 @@ public class TaskShareService {
     TaskShare taskShare =
         taskShareRepository
             .findByTaskIdAndSharedWithUserId(taskId, sharedWithUserId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException("Task share not found for this user"));
+            .orElseThrow(() -> new ResourceNotFoundException("Task share not found for this user"));
 
     taskShareRepository.delete(taskShare);
     logger.info("Share revoked successfully");

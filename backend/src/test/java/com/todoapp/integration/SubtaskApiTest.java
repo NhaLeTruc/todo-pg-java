@@ -7,14 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoapp.application.dto.TaskCreateDTO;
-import com.todoapp.domain.model.Priority;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.TaskRepository;
-import com.todoapp.domain.repository.UserRepository;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -159,8 +161,7 @@ public class SubtaskApiTest {
 
     mockMvc
         .perform(
-            delete("/api/v1/tasks/" + parentTask.getId())
-                .header("X-User-Id", testUser.getId()))
+            delete("/api/v1/tasks/" + parentTask.getId()).header("X-User-Id", testUser.getId()))
         .andExpect(status().isNoContent());
 
     assertThat(taskRepository.findById(parentTask.getId())).isEmpty();

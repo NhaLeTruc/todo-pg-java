@@ -1,15 +1,19 @@
 package com.todoapp.domain.model;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "tags", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "user_id"})})
+@Table(
+    name = "tags",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "user_id"})})
 public class Tag {
 
   @Id

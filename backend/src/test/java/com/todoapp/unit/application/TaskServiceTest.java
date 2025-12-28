@@ -4,6 +4,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
@@ -17,20 +33,6 @@ import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TaskService Unit Tests")
@@ -270,7 +272,9 @@ class TaskServiceTest {
     when(taskRepository.findById(999L)).thenReturn(Optional.empty());
 
     assertThrows(
-        RuntimeException.class, () -> taskService.updateTask(999L, updateDTO, 1L), "Task not found");
+        RuntimeException.class,
+        () -> taskService.updateTask(999L, updateDTO, 1L),
+        "Task not found");
 
     verify(taskRepository).findById(999L);
     verify(taskRepository, never()).save(any(Task.class));
@@ -309,8 +313,7 @@ class TaskServiceTest {
   void shouldThrowExceptionWhenDeletingNonExistentTask() {
     when(taskRepository.findById(999L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        RuntimeException.class, () -> taskService.deleteTask(999L, 1L), "Task not found");
+    assertThrows(RuntimeException.class, () -> taskService.deleteTask(999L, 1L), "Task not found");
 
     verify(taskRepository).findById(999L);
     verify(taskRepository, never()).delete(any(Task.class));
@@ -454,7 +457,8 @@ class TaskServiceTest {
     taskService.searchTasks(1L, "   ", null, pageable);
 
     verify(taskRepository).findByUserId(1L, pageable);
-    verify(taskRepository, never()).searchByUserIdAndDescription(anyLong(), anyString(), any(Pageable.class));
+    verify(taskRepository, never())
+        .searchByUserIdAndDescription(anyLong(), anyString(), any(Pageable.class));
   }
 
   @Test
@@ -505,7 +509,8 @@ class TaskServiceTest {
 
     List<Task> tasks = Arrays.asList(highPriorityTask, mediumPriorityTask, lowPriorityTask);
     Page<Task> taskPage = new PageImpl<>(tasks);
-    Pageable pageable = PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("priority").descending());
+    Pageable pageable =
+        PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("priority").descending());
 
     when(taskRepository.findByUserId(1L, pageable)).thenReturn(taskPage);
     when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
@@ -544,7 +549,8 @@ class TaskServiceTest {
 
     List<Task> tasks = Arrays.asList(taskDueSoon, taskDueLater, taskNoDueDate);
     Page<Task> taskPage = new PageImpl<>(tasks);
-    Pageable pageable = PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("dueDate").ascending());
+    Pageable pageable =
+        PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("dueDate").ascending());
 
     when(taskRepository.findByUserId(1L, pageable)).thenReturn(taskPage);
     when(taskMapper.toResponseDTO(any(Task.class))).thenReturn(responseDTO);
@@ -685,8 +691,7 @@ class TaskServiceTest {
     when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L))
         .thenReturn(Optional.of(taskShare));
 
-    assertThrows(
-        IllegalArgumentException.class, () -> taskService.updateTask(1L, updateDTO, 2L));
+    assertThrows(IllegalArgumentException.class, () -> taskService.updateTask(1L, updateDTO, 2L));
 
     verify(taskRepository).findById(1L);
     verify(taskShareRepository).findByTaskIdAndSharedWithUserId(1L, 2L);
@@ -700,11 +705,9 @@ class TaskServiceTest {
     unauthorizedUser.setId(3L);
 
     when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
-    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 3L))
-        .thenReturn(Optional.empty());
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 3L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        IllegalArgumentException.class, () -> taskService.getTaskById(1L, 3L));
+    assertThrows(IllegalArgumentException.class, () -> taskService.getTaskById(1L, 3L));
 
     verify(taskRepository).findById(1L);
     verify(taskShareRepository).findByTaskIdAndSharedWithUserId(1L, 3L);
@@ -723,8 +726,7 @@ class TaskServiceTest {
 
     when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
 
-    assertThrows(
-        IllegalArgumentException.class, () -> taskService.deleteTask(1L, 2L));
+    assertThrows(IllegalArgumentException.class, () -> taskService.deleteTask(1L, 2L));
 
     verify(taskRepository).findById(1L);
     verify(taskRepository, never()).delete(any(Task.class));

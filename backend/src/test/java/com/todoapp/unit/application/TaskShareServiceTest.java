@@ -4,6 +4,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.todoapp.application.dto.TaskShareDTO;
 import com.todoapp.application.service.TaskShareService;
 import com.todoapp.domain.model.PermissionLevel;
@@ -14,16 +26,6 @@ import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskShareServiceTest {
@@ -75,8 +77,7 @@ public class TaskShareServiceTest {
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
     when(userRepository.findById(1L)).thenReturn(Optional.of(owner));
     when(userRepository.findById(2L)).thenReturn(Optional.of(sharedWith));
-    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L))
-        .thenReturn(Optional.empty());
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L)).thenReturn(Optional.empty());
     when(taskShareRepository.save(any(TaskShare.class))).thenReturn(taskShare);
 
     TaskShareDTO result = taskShareService.shareTask(1L, shareDTO, 1L);
@@ -99,8 +100,7 @@ public class TaskShareServiceTest {
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
     when(userRepository.findById(1L)).thenReturn(Optional.of(owner));
     when(userRepository.findById(2L)).thenReturn(Optional.of(sharedWith));
-    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L))
-        .thenReturn(Optional.empty());
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 2L)).thenReturn(Optional.empty());
     when(taskShareRepository.save(any(TaskShare.class))).thenReturn(taskShare);
 
     TaskShareDTO result = taskShareService.shareTask(1L, shareDTO, 1L);
@@ -237,11 +237,9 @@ public class TaskShareServiceTest {
   @DisplayName("Should throw exception when revoking non-existent share")
   public void shouldThrowExceptionWhenRevokingNonExistentShare() {
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 99L))
-        .thenReturn(Optional.empty());
+    when(taskShareRepository.findByTaskIdAndSharedWithUserId(1L, 99L)).thenReturn(Optional.empty());
 
-    assertThrows(
-        ResourceNotFoundException.class, () -> taskShareService.revokeShare(1L, 99L, 1L));
+    assertThrows(ResourceNotFoundException.class, () -> taskShareService.revokeShare(1L, 99L, 1L));
 
     verify(taskShareRepository, never()).delete(any(TaskShare.class));
   }
@@ -254,8 +252,7 @@ public class TaskShareServiceTest {
 
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
-    assertThrows(
-        IllegalArgumentException.class, () -> taskShareService.revokeShare(1L, 2L, 3L));
+    assertThrows(IllegalArgumentException.class, () -> taskShareService.revokeShare(1L, 2L, 3L));
 
     verify(taskShareRepository, never()).delete(any(TaskShare.class));
   }

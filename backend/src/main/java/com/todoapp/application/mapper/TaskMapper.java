@@ -1,15 +1,16 @@
 package com.todoapp.application.mapper;
 
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.todoapp.application.dto.TagDTO;
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.Priority;
-import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 
 @Component
 public class TaskMapper {

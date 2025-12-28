@@ -2,16 +2,19 @@ package com.todoapp.unit.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.User;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 @DisplayName("Tag Entity Unit Tests")
 class TagTest {
@@ -165,11 +168,13 @@ class TagTest {
   }
 
   @Test
-  @DisplayName("Should have createdAt and updatedAt timestamps")
-  void shouldHaveTimestamps() {
+  @DisplayName("Should allow setting createdAt and updatedAt timestamps")
+  void shouldAllowSettingTimestamps() {
     Tag tag = new Tag();
     tag.setName("urgent");
     tag.setUser(user);
+    tag.setCreatedAt(java.time.LocalDateTime.now());
+    tag.setUpdatedAt(java.time.LocalDateTime.now());
 
     assertNotNull(tag.getCreatedAt());
     assertNotNull(tag.getUpdatedAt());

@@ -1,11 +1,19 @@
 package com.todoapp.presentation.rest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.todoapp.application.dto.LoginDTO;
 import com.todoapp.application.dto.LoginResponseDTO;
 import com.todoapp.application.dto.RegisterDTO;
 import com.todoapp.application.dto.UserResponseDTO;
 import com.todoapp.application.service.AuthService;
 import com.todoapp.application.service.UserService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,12 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -27,11 +29,9 @@ public class AuthController {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-  @Autowired
-  private UserService userService;
+  @Autowired private UserService userService;
 
-  @Autowired
-  private AuthService authService;
+  @Autowired private AuthService authService;
 
   @PostMapping("/register")
   @Operation(summary = "Register a new user", description = "Creates a new user account")
@@ -93,11 +93,10 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-  @Operation(summary = "User logout", description = "Logs out the current user (client-side token removal)")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Logout successful")
-      })
+  @Operation(
+      summary = "User logout",
+      description = "Logs out the current user (client-side token removal)")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Logout successful")})
   public ResponseEntity<Void> logout() {
     // With JWT, logout is primarily handled client-side by removing the token
     // This endpoint is provided for consistency and future server-side logout logic

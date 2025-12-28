@@ -2,11 +2,6 @@ package com.todoapp.unit.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.todoapp.domain.model.Priority;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.TaskRepository;
-import com.todoapp.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+
+import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.UserRepository;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -140,7 +141,8 @@ public class TaskRepositoryTest {
 
     assertThat(results.getContent()).hasSize(2);
     assertThat(results.getContent())
-        .allMatch(task -> task.getIsCompleted() && task.getDescription().toLowerCase().contains("buy"));
+        .allMatch(
+            task -> task.getIsCompleted() && task.getDescription().toLowerCase().contains("buy"));
   }
 
   @Test

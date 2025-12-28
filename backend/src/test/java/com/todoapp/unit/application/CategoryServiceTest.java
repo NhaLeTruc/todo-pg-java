@@ -4,15 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.todoapp.application.dto.CategoryDTO;
-import com.todoapp.application.service.CategoryService;
-import com.todoapp.domain.model.Category;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.CategoryRepository;
-import com.todoapp.domain.repository.UserRepository;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +15,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.todoapp.application.dto.CategoryDTO;
+import com.todoapp.application.service.CategoryService;
+import com.todoapp.domain.model.Category;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.CategoryRepository;
+import com.todoapp.domain.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CategoryService Unit Tests")
@@ -76,8 +78,7 @@ class CategoryServiceTest {
     when(userRepository.findById(1L)).thenReturn(Optional.of(user));
     when(categoryRepository.existsByNameAndUserId("Work", 1L)).thenReturn(true);
 
-    assertThrows(
-        RuntimeException.class, () -> categoryService.createCategory(categoryDTO, 1L));
+    assertThrows(RuntimeException.class, () -> categoryService.createCategory(categoryDTO, 1L));
 
     verify(categoryRepository, never()).save(any(Category.class));
   }

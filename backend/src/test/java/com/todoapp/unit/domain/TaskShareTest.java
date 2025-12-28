@@ -2,18 +2,21 @@ package com.todoapp.unit.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import com.todoapp.domain.model.PermissionLevel;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 public class TaskShareTest {
 

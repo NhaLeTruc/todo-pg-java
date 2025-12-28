@@ -1,11 +1,15 @@
 package com.todoapp.domain.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.*;
+
 @Entity
-@Table(name = "task_tags", uniqueConstraints = {@UniqueConstraint(columnNames = {"task_id", "tag_id"})})
+@Table(
+    name = "task_tags",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"task_id", "tag_id"})})
 public class TaskTag {
 
   @Id

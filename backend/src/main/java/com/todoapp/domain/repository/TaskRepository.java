@@ -1,13 +1,15 @@
 package com.todoapp.domain.repository;
 
-import com.todoapp.domain.model.Task;
 import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.todoapp.domain.model.Task;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
@@ -38,7 +40,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
   @Query(
       "SELECT DISTINCT t FROM Task t JOIN t.tags tag WHERE t.user.id = :userId AND tag.id IN :tagIds")
   Page<Task> findByUserIdAndTagIdsIn(
-      @Param("userId") Long userId, @Param("tagIds") java.util.List<Long> tagIds, Pageable pageable);
+      @Param("userId") Long userId,
+      @Param("tagIds") java.util.List<Long> tagIds,
+      Pageable pageable);
 
   @Query(
       "SELECT DISTINCT t FROM Task t LEFT JOIN t.tags tag WHERE t.user.id = :userId "

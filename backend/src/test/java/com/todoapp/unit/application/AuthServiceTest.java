@@ -4,14 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.todoapp.application.dto.LoginDTO;
-import com.todoapp.application.dto.LoginResponseDTO;
-import com.todoapp.application.service.AuthService;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.UserRepository;
-import com.todoapp.infrastructure.security.JwtTokenProvider;
 import java.time.LocalDateTime;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.todoapp.application.dto.LoginDTO;
+import com.todoapp.application.dto.LoginResponseDTO;
+import com.todoapp.application.service.AuthService;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.UserRepository;
+import com.todoapp.infrastructure.security.JwtTokenProvider;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService Unit Tests")
@@ -77,9 +79,7 @@ class AuthServiceTest {
     when(userRepository.findByEmail(loginDTO.getEmail())).thenReturn(Optional.empty());
 
     assertThrows(
-        RuntimeException.class,
-        () -> authService.login(loginDTO),
-        "Invalid email or password");
+        RuntimeException.class, () -> authService.login(loginDTO), "Invalid email or password");
 
     verify(passwordEncoder, never()).matches(any(), any());
     verify(jwtTokenProvider, never()).generateToken(any(), any());
@@ -92,9 +92,7 @@ class AuthServiceTest {
     when(passwordEncoder.matches(loginDTO.getPassword(), user.getPasswordHash())).thenReturn(false);
 
     assertThrows(
-        RuntimeException.class,
-        () -> authService.login(loginDTO),
-        "Invalid email or password");
+        RuntimeException.class, () -> authService.login(loginDTO), "Invalid email or password");
 
     verify(jwtTokenProvider, never()).generateToken(any(), any());
     verify(userRepository, never()).save(any());
@@ -108,9 +106,7 @@ class AuthServiceTest {
     when(passwordEncoder.matches(loginDTO.getPassword(), user.getPasswordHash())).thenReturn(true);
 
     assertThrows(
-        RuntimeException.class,
-        () -> authService.login(loginDTO),
-        "User account is deactivated");
+        RuntimeException.class, () -> authService.login(loginDTO), "User account is deactivated");
 
     verify(jwtTokenProvider, never()).generateToken(any(), any());
   }
@@ -121,12 +117,14 @@ class AuthServiceTest {
     when(userRepository.findByEmail(loginDTO.getEmail())).thenReturn(Optional.of(user));
     when(passwordEncoder.matches(loginDTO.getPassword(), user.getPasswordHash())).thenReturn(true);
     when(jwtTokenProvider.generateToken(any(), any())).thenReturn("jwt.token.here");
-    when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-      User savedUser = invocation.getArgument(0);
-      assertNotNull(savedUser.getLastLoginAt());
-      assertTrue(savedUser.getLastLoginAt().isBefore(LocalDateTime.now().plusSeconds(1)));
-      return savedUser;
-    });
+    when(userRepository.save(any(User.class)))
+        .thenAnswer(
+            invocation -> {
+              User savedUser = invocation.getArgument(0);
+              assertNotNull(savedUser.getLastLoginAt());
+              assertTrue(savedUser.getLastLoginAt().isBefore(LocalDateTime.now().plusSeconds(1)));
+              return savedUser;
+            });
 
     authService.login(loginDTO);
 

@@ -1,14 +1,16 @@
 package com.todoapp.application.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.todoapp.application.dto.TagDTO;
 import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.TagRepository;
 import com.todoapp.domain.repository.UserRepository;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TagService {

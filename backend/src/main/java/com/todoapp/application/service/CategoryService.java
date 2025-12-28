@@ -1,14 +1,16 @@
 package com.todoapp.application.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.todoapp.application.dto.CategoryDTO;
 import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.CategoryRepository;
 import com.todoapp.domain.repository.UserRepository;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CategoryService {
@@ -24,9 +26,7 @@ public class CategoryService {
   @Transactional
   public CategoryDTO createCategory(CategoryDTO categoryDTO, Long userId) {
     User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
     if (categoryRepository.existsByNameAndUserId(categoryDTO.getName(), userId)) {
       throw new RuntimeException(

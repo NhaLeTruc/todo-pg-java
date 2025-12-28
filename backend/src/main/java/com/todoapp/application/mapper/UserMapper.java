@@ -1,8 +1,9 @@
 package com.todoapp.application.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.todoapp.application.dto.UserResponseDTO;
 import com.todoapp.domain.model.User;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {

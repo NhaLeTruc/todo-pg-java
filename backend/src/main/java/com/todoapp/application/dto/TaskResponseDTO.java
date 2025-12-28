@@ -1,8 +1,10 @@
 package com.todoapp.application.dto;
 
-import com.todoapp.domain.model.Priority;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.todoapp.domain.model.Priority;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
