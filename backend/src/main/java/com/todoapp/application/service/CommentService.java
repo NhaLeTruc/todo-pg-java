@@ -9,12 +9,18 @@ import org.springframework.stereotype.Service;
 
 import com.todoapp.application.dto.CommentDTO;
 import com.todoapp.domain.model.Comment;
+import com.todoapp.domain.model.NotificationType;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.CommentRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jakarta.transaction.Transactional;
 
@@ -27,14 +33,19 @@ public class CommentService {
   private final CommentRepository commentRepository;
   private final TaskRepository taskRepository;
   private final UserRepository userRepository;
+  private final NotificationService notificationService;
+
+  private static final Pattern MENTION_PATTERN = Pattern.compile("@(\\w+)");
 
   public CommentService(
       CommentRepository commentRepository,
       TaskRepository taskRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      NotificationService notificationService) {
     this.commentRepository = commentRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
+    this.notificationService = notificationService;
   }
 
   public CommentDTO addComment(Long taskId, CommentDTO commentDTO, Long userId) {
@@ -71,6 +82,17 @@ public class CommentService {
 
     Comment savedComment = commentRepository.save(comment);
     logger.info("Comment ID: {} created for task ID: {}", savedComment.getId(), taskId);
+
+    // Process mentions and send notifications
+    processMentions(savedComment, user, task);
+
+    // Notify task owner if comment author is not the owner
+    if (!task.getUser().getId().equals(userId)) {
+      String message = String.format(
+          "%s commented on your task '%s'", user.getEmail(), task.getDescription());
+      notificationService.createNotification(
+          task.getUser(), NotificationType.TASK_COMMENTED, message, task);
+    }
 
     return toDTO(savedComment);
   }
@@ -141,6 +163,39 @@ public class CommentService {
 
     commentRepository.delete(comment);
     logger.info("Comment ID: {} deleted successfully", commentId);
+  }
+
+  private void processMentions(Comment comment, User author, Task task) {
+    String content = comment.getContent();
+    Matcher matcher = MENTION_PATTERN.matcher(content);
+    Set<String> mentionedUsernames = new HashSet<>();
+
+    while (matcher.find()) {
+      String username = matcher.group(1);
+      mentionedUsernames.add(username);
+    }
+
+    for (String username : mentionedUsernames) {
+      userRepository.findByEmail(username + "@example.com").ifPresent(mentionedUser -> {
+        // Don't notify the author of the comment
+        if (!mentionedUser.getId().equals(author.getId())) {
+          String message = String.format(
+              "%s mentioned you in a comment on task '%s': %s",
+              author.getEmail(),
+              task.getDescription(),
+              truncateContent(content, 50));
+          notificationService.createNotification(
+              mentionedUser, NotificationType.TASK_MENTIONED, message, task);
+        }
+      });
+    }
+  }
+
+  private String truncateContent(String content, int maxLength) {
+    if (content.length() <= maxLength) {
+      return content;
+    }
+    return content.substring(0, maxLength) + "...";
   }
 
   private CommentDTO toDTO(Comment comment) {

@@ -12,10 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.todoapp.application.dto.NotificationDTO;
+import com.todoapp.application.dto.NotificationPreferenceDTO;
 import com.todoapp.domain.model.*;
 import com.todoapp.domain.repository.NotificationPreferenceRepository;
 import com.todoapp.domain.repository.NotificationRepository;
+import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.infrastructure.messaging.EmailNotifier;
+import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
 
 @Service
 public class NotificationService {
@@ -26,16 +29,19 @@ public class NotificationService {
   private final NotificationPreferenceRepository preferenceRepository;
   private final SimpMessagingTemplate messagingTemplate;
   private final EmailNotifier emailNotifier;
+  private final UserRepository userRepository;
 
   public NotificationService(
       NotificationRepository notificationRepository,
       NotificationPreferenceRepository preferenceRepository,
       SimpMessagingTemplate messagingTemplate,
-      EmailNotifier emailNotifier) {
+      EmailNotifier emailNotifier,
+      UserRepository userRepository) {
     this.notificationRepository = notificationRepository;
     this.preferenceRepository = preferenceRepository;
     this.messagingTemplate = messagingTemplate;
     this.emailNotifier = emailNotifier;
+    this.userRepository = userRepository;
   }
 
   /**
@@ -261,5 +267,134 @@ public class NotificationService {
     preference.setInAppEnabled(true);
     preference.setEmailEnabled(false);
     return preference;
+  }
+
+  // Overloaded methods for controller usage with Long userId
+
+  @Transactional(readOnly = true)
+  public List<NotificationDTO> getUnreadNotifications(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+    return toDTOList(getUnreadNotifications(user));
+  }
+
+  @Transactional(readOnly = true)
+  public long getUnreadCount(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+    return getUnreadCount(user);
+  }
+
+  @Transactional
+  public NotificationDTO markAsRead(String notificationId, Long userId) {
+    UUID uuid = UUID.fromString(notificationId);
+    Notification notification =
+        notificationRepository
+            .findById(uuid)
+            .orElseThrow(() -> new ResourceNotFoundException("Notification not found: " + notificationId));
+
+    if (!notification.getUser().getId().equals(userId)) {
+      throw new IllegalArgumentException("You can only mark your own notifications as read");
+    }
+
+    notification.markAsRead();
+    notificationRepository.save(notification);
+    logger.info("Notification marked as read: id={}", notificationId);
+
+    return toDTO(notification);
+  }
+
+  @Transactional
+  public void deleteNotification(String notificationId, Long userId) {
+    UUID uuid = UUID.fromString(notificationId);
+    Notification notification =
+        notificationRepository
+            .findById(uuid)
+            .orElseThrow(() -> new ResourceNotFoundException("Notification not found: " + notificationId));
+
+    if (!notification.getUser().getId().equals(userId)) {
+      throw new IllegalArgumentException("You can only delete your own notifications");
+    }
+
+    notificationRepository.delete(notification);
+    logger.info("Notification deleted: id={}", notificationId);
+  }
+
+  @Transactional
+  public void markAllAsRead(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+    List<Notification> unreadNotifications = notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user);
+    for (Notification notification : unreadNotifications) {
+      notification.markAsRead();
+    }
+    notificationRepository.saveAll(unreadNotifications);
+
+    logger.info("All notifications marked as read for user: {}", userId);
+  }
+
+  @Transactional(readOnly = true)
+  public List<NotificationPreferenceDTO> getPreferences(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+    List<NotificationPreference> preferences = preferenceRepository.findByUser(user);
+
+    // If no preferences exist, return default preferences for all types
+    if (preferences.isEmpty()) {
+      return java.util.Arrays.stream(NotificationType.values())
+          .map(type -> toPreferenceDTO(getDefaultPreference(user, type)))
+          .collect(Collectors.toList());
+    }
+
+    return preferences.stream().map(this::toPreferenceDTO).collect(Collectors.toList());
+  }
+
+  @Transactional
+  public NotificationPreferenceDTO updatePreference(Long userId, NotificationPreferenceDTO dto) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+    NotificationType type = dto.getNotificationType();
+    Optional<NotificationPreference> existing =
+        preferenceRepository.findByUserAndNotificationType(user, type);
+
+    NotificationPreference preference;
+    if (existing.isPresent()) {
+      preference = existing.get();
+    } else {
+      preference = new NotificationPreference();
+      preference.setUser(user);
+      preference.setNotificationType(type);
+    }
+
+    preference.setInAppEnabled(dto.isInAppEnabled());
+    preference.setEmailEnabled(dto.isEmailEnabled());
+
+    preference = preferenceRepository.save(preference);
+    logger.info("Notification preference updated for user {} and type {}", userId, type);
+
+    return toPreferenceDTO(preference);
+  }
+
+  private NotificationPreferenceDTO toPreferenceDTO(NotificationPreference preference) {
+    NotificationPreferenceDTO dto = new NotificationPreferenceDTO();
+    dto.setId(preference.getId());
+    dto.setUserId(preference.getUser().getId());
+    dto.setNotificationType(preference.getNotificationType());
+    dto.setInAppEnabled(preference.isInAppEnabled());
+    dto.setEmailEnabled(preference.isEmailEnabled());
+    return dto;
   }
 }

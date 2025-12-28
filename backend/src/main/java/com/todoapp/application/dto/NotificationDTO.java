@@ -8,10 +8,10 @@ import com.todoapp.domain.model.NotificationType;
 public class NotificationDTO {
 
   private UUID id;
-  private UUID userId;
+  private Long userId;
   private NotificationType type;
   private String message;
-  private UUID relatedTaskId;
+  private Long relatedTaskId;
   private String relatedTaskDescription;
   private boolean isRead;
   private LocalDateTime createdAt;
@@ -23,10 +23,10 @@ public class NotificationDTO {
 
   public NotificationDTO(
       UUID id,
-      UUID userId,
+      Long userId,
       NotificationType type,
       String message,
-      UUID relatedTaskId,
+      Long relatedTaskId,
       String relatedTaskDescription,
       boolean isRead,
       LocalDateTime createdAt,
@@ -52,11 +52,11 @@ public class NotificationDTO {
     this.id = id;
   }
 
-  public UUID getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
-  public void setUserId(UUID userId) {
+  public void setUserId(Long userId) {
     this.userId = userId;
   }
 
@@ -76,11 +76,11 @@ public class NotificationDTO {
     this.message = message;
   }
 
-  public UUID getRelatedTaskId() {
+  public Long getRelatedTaskId() {
     return relatedTaskId;
   }
 
-  public void setRelatedTaskId(UUID relatedTaskId) {
+  public void setRelatedTaskId(Long relatedTaskId) {
     this.relatedTaskId = relatedTaskId;
   }
 

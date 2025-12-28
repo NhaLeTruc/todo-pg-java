@@ -55,4 +55,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
       Pageable pageable);
 
   List<Task> findByParentTaskId(Long parentTaskId);
+
+  @Query(
+      "SELECT t FROM Task t WHERE t.isCompleted = false AND t.dueDate IS NOT NULL "
+          + "AND t.dueDate > CURRENT_TIMESTAMP AND t.dueDate <= FUNCTION('TIMESTAMPADD', HOUR, 24, CURRENT_TIMESTAMP)")
+  List<Task> findTasksDueSoon();
+
+  @Query(
+      "SELECT t FROM Task t WHERE t.isCompleted = false AND t.dueDate IS NOT NULL "
+          + "AND t.dueDate < CURRENT_TIMESTAMP")
+  List<Task> findOverdueTasks();
 }

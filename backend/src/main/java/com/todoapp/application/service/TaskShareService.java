@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.todoapp.application.dto.TaskShareDTO;
+import com.todoapp.domain.model.NotificationType;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
@@ -27,14 +28,17 @@ public class TaskShareService {
   private final TaskShareRepository taskShareRepository;
   private final TaskRepository taskRepository;
   private final UserRepository userRepository;
+  private final NotificationService notificationService;
 
   public TaskShareService(
       TaskShareRepository taskShareRepository,
       TaskRepository taskRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      NotificationService notificationService) {
     this.taskShareRepository = taskShareRepository;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
+    this.notificationService = notificationService;
   }
 
   public TaskShareDTO shareTask(Long taskId, TaskShareDTO shareDTO, Long sharingUserId) {
@@ -88,6 +92,18 @@ public class TaskShareService {
     }
 
     TaskShare savedShare = taskShareRepository.save(taskShare);
+
+    // Send notification to the user the task is shared with
+    if (!existingShare.isPresent()) {
+      String message = String.format(
+          "Task '%s' has been shared with you by %s with %s permission",
+          task.getDescription(),
+          sharingUser.getEmail(),
+          shareDTO.getPermissionLevel());
+      notificationService.createNotification(
+          sharedWithUser, NotificationType.TASK_SHARED, message, task);
+    }
+
     return toDTO(savedShare);
   }
 
