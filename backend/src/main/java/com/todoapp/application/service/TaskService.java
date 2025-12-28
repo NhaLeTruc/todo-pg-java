@@ -437,4 +437,137 @@ public class TaskService {
 
     return recurrencePatternRepository.findByTaskId(taskId).orElse(null);
   }
+
+  /**
+   * Batch complete multiple tasks.
+   *
+   * @param taskIds the list of task IDs to complete
+   * @param userId the user ID
+   */
+  @org.springframework.transaction.annotation.Transactional
+  public void batchComplete(List<Long> taskIds, Long userId) {
+    logger.debug("Batch completing {} tasks for user ID: {}", taskIds.size(), userId);
+
+    int completed = 0;
+    for (Long taskId : taskIds) {
+      try {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null && task.getUser().getId().equals(userId)) {
+          if (!task.getIsCompleted()) {
+            task.markComplete();
+            taskRepository.save(task);
+            completed++;
+          }
+        }
+      } catch (Exception e) {
+        logger.warn("Failed to complete task ID: {} - {}", taskId, e.getMessage());
+      }
+    }
+
+    logger.info("Batch completed {} tasks for user ID: {}", completed, userId);
+  }
+
+  /**
+   * Batch delete multiple tasks.
+   *
+   * @param taskIds the list of task IDs to delete
+   * @param userId the user ID
+   */
+  @org.springframework.transaction.annotation.Transactional
+  public void batchDelete(List<Long> taskIds, Long userId) {
+    logger.debug("Batch deleting {} tasks for user ID: {}", taskIds.size(), userId);
+
+    int deleted = 0;
+    for (Long taskId : taskIds) {
+      try {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null && task.getUser().getId().equals(userId)) {
+          taskRepository.delete(task);
+          deleted++;
+        }
+      } catch (Exception e) {
+        logger.warn("Failed to delete task ID: {} - {}", taskId, e.getMessage());
+      }
+    }
+
+    logger.info("Batch deleted {} tasks for user ID: {}", deleted, userId);
+  }
+
+  /**
+   * Batch assign category to multiple tasks.
+   *
+   * @param taskIds the list of task IDs
+   * @param categoryId the category ID to assign
+   * @param userId the user ID
+   */
+  @org.springframework.transaction.annotation.Transactional
+  public void batchUpdateCategory(List<Long> taskIds, Long categoryId, Long userId) {
+    logger.debug(
+        "Batch updating category to {} for {} tasks by user ID: {}",
+        categoryId,
+        taskIds.size(),
+        userId);
+
+    Category category = null;
+    if (categoryId != null) {
+      category =
+          categoryRepository
+              .findByIdAndUserId(categoryId, userId)
+              .orElseThrow(
+                  () -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
+    }
+
+    int updated = 0;
+    for (Long taskId : taskIds) {
+      try {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null && task.getUser().getId().equals(userId)) {
+          task.setCategory(category);
+          taskRepository.save(task);
+          updated++;
+        }
+      } catch (Exception e) {
+        logger.warn("Failed to update category for task ID: {} - {}", taskId, e.getMessage());
+      }
+    }
+
+    logger.info("Batch updated category for {} tasks by user ID: {}", updated, userId);
+  }
+
+  /**
+   * Batch assign tags to multiple tasks.
+   *
+   * @param taskIds the list of task IDs
+   * @param tagIds the list of tag IDs to assign
+   * @param userId the user ID
+   */
+  @org.springframework.transaction.annotation.Transactional
+  public void batchUpdateTags(List<Long> taskIds, List<Long> tagIds, Long userId) {
+    logger.debug(
+        "Batch updating tags for {} tasks by user ID: {}", taskIds.size(), userId);
+
+    List<Tag> tags = Collections.emptyList();
+    if (tagIds != null && !tagIds.isEmpty()) {
+      tags = tagRepository.findByIdInAndUserId(tagIds, userId);
+      if (tags.size() != tagIds.size()) {
+        throw new ResourceNotFoundException("One or more tags not found");
+      }
+    }
+
+    int updated = 0;
+    for (Long taskId : taskIds) {
+      try {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null && task.getUser().getId().equals(userId)) {
+          task.setTags(tags);
+          taskRepository.save(task);
+          updated++;
+        }
+      } catch (Exception e) {
+        logger.warn("Failed to update tags for task ID: {} - {}", taskId, e.getMessage());
+      }
+    }
+
+    logger.info("Batch updated tags for {} tasks by user ID: {}", updated, userId);
+  }
 }

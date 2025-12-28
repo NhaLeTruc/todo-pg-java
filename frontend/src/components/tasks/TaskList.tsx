@@ -9,6 +9,9 @@ interface TaskListProps {
   onEdit: (id: number) => void;
   onViewDetails?: (task: Task) => void;
   isLoading?: boolean;
+  selectedTaskIds?: number[];
+  onSelectionChange?: (id: number, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
 }
 
 export function TaskList({
@@ -18,6 +21,9 @@ export function TaskList({
   onEdit,
   onViewDetails,
   isLoading = false,
+  selectedTaskIds = [],
+  onSelectionChange,
+  onSelectAll,
 }: TaskListProps) {
   if (isLoading) {
     return (
@@ -56,8 +62,41 @@ export function TaskList({
     );
   }
 
+  const allSelected = tasks.length > 0 && selectedTaskIds.length === tasks.length;
+  const someSelected = selectedTaskIds.length > 0 && selectedTaskIds.length < tasks.length;
+
+  const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onSelectAll) {
+      onSelectAll(e.target.checked);
+    }
+  };
+
   return (
     <div className="space-y-2">
+      {onSelectAll && tasks.length > 0 && (
+        <div className="card flex items-center gap-3 bg-gray-50">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            ref={(input) => {
+              if (input) {
+                input.indeterminate = someSelected;
+              }
+            }}
+            onChange={handleSelectAllChange}
+            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            aria-label="Select all tasks"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            {allSelected
+              ? `All ${tasks.length} tasks selected`
+              : someSelected
+                ? `${selectedTaskIds.length} of ${tasks.length} tasks selected`
+                : 'Select all tasks'}
+          </span>
+        </div>
+      )}
+
       {tasks.map((task) => (
         <TaskItem
           key={task.id}
@@ -66,6 +105,8 @@ export function TaskList({
           onDelete={onDelete}
           onEdit={onEdit}
           onViewDetails={onViewDetails}
+          isSelected={selectedTaskIds.includes(task.id)}
+          onSelectionChange={onSelectionChange}
         />
       ))}
     </div>

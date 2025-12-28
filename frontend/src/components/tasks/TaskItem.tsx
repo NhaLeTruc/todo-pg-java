@@ -12,6 +12,8 @@ interface TaskItemProps {
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
   onViewDetails?: (task: Task) => void;
+  isSelected?: boolean;
+  onSelectionChange?: (id: number, selected: boolean) => void;
 }
 
 const priorityBadges = {
@@ -20,7 +22,15 @@ const priorityBadges = {
   HIGH: 'badge-danger',
 };
 
-export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetails }: TaskItemProps) {
+export function TaskItem({
+  task,
+  onToggleComplete,
+  onDelete,
+  onEdit,
+  onViewDetails,
+  isSelected = false,
+  onSelectionChange,
+}: TaskItemProps) {
   const [totalTime, setTotalTime] = useState<number>(0);
 
   useEffect(() => {
@@ -64,14 +74,31 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetai
     }
   };
 
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onSelectionChange) {
+      onSelectionChange(task.id, e.target.checked);
+    }
+  };
+
   return (
     <div
       className={cn(
         'card group flex items-start gap-3 transition-all hover:shadow-md',
         task.isCompleted && 'bg-gray-50',
-        task.isOverdue && !task.isCompleted && 'border-l-4 border-red-500'
+        task.isOverdue && !task.isCompleted && 'border-l-4 border-red-500',
+        isSelected && 'bg-indigo-50 ring-2 ring-indigo-500'
       )}
     >
+      {onSelectionChange && (
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={handleSelectionChange}
+          className="mt-1 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          aria-label="Select task"
+        />
+      )}
+
       <button
         onClick={handleToggle}
         className={cn(
@@ -88,7 +115,7 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetai
           <p
             onClick={handleViewDetails}
             className={cn(
-              'text-sm font-medium text-gray-900 cursor-pointer hover:text-blue-600 transition-colors',
+              'cursor-pointer text-sm font-medium text-gray-900 transition-colors hover:text-blue-600',
               task.isCompleted && 'text-gray-500 line-through hover:text-gray-600'
             )}
           >
@@ -162,7 +189,7 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetai
           {onViewDetails && (
             <button
               onClick={handleViewDetails}
-              className="flex items-center gap-1 text-gray-400 hover:text-blue-600 transition-colors"
+              className="flex items-center gap-1 text-gray-400 transition-colors hover:text-blue-600"
               aria-label="View comments"
             >
               <MessageSquare className="h-4 w-4" />

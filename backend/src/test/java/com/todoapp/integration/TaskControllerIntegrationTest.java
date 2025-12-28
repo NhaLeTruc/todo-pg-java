@@ -1194,4 +1194,367 @@ public class TaskControllerIntegrationTest {
         .andExpect(jsonPath("$.content.length()").value(1))
         .andExpect(jsonPath("$.content[0].description").value("Urgent work task"));
   }
+
+  // ========================================
+  // User Story 13: Batch Operations Integration Tests
+  // ========================================
+
+  @Test
+  @DisplayName("Should batch complete multiple tasks successfully")
+  public void shouldBatchCompleteTasksSuccessfully() throws Exception {
+    // Create tasks
+    Task task1 = new Task();
+    task1.setDescription("Task 1");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.MEDIUM);
+    task1.setIsCompleted(false);
+    task1 = taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Task 2");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.HIGH);
+    task2.setIsCompleted(false);
+    task2 = taskRepository.save(task2);
+
+    Task task3 = new Task();
+    task3.setDescription("Task 3");
+    task3.setUser(testUser);
+    task3.setPriority(Priority.LOW);
+    task3.setIsCompleted(false);
+    task3 = taskRepository.save(task3);
+
+    String requestBody =
+        String.format(
+            "{\"taskIds\":[%d,%d,%d],\"operationType\":\"COMPLETE\"}",
+            task1.getId(), task2.getId(), task3.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").exists());
+
+    // Verify all tasks are completed
+    Task updatedTask1 = taskRepository.findById(task1.getId()).orElseThrow();
+    Task updatedTask2 = taskRepository.findById(task2.getId()).orElseThrow();
+    Task updatedTask3 = taskRepository.findById(task3.getId()).orElseThrow();
+
+    assertThat(updatedTask1.getIsCompleted()).isTrue();
+    assertThat(updatedTask1.getCompletedAt()).isNotNull();
+    assertThat(updatedTask2.getIsCompleted()).isTrue();
+    assertThat(updatedTask2.getCompletedAt()).isNotNull();
+    assertThat(updatedTask3.getIsCompleted()).isTrue();
+    assertThat(updatedTask3.getCompletedAt()).isNotNull();
+  }
+
+  @Test
+  @DisplayName("Should batch delete multiple tasks successfully")
+  public void shouldBatchDeleteTasksSuccessfully() throws Exception {
+    // Create tasks
+    Task task1 = new Task();
+    task1.setDescription("Task to delete 1");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.MEDIUM);
+    task1 = taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Task to delete 2");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.HIGH);
+    task2 = taskRepository.save(task2);
+
+    Long task1Id = task1.getId();
+    Long task2Id = task2.getId();
+
+    String requestBody =
+        String.format("{\"taskIds\":[%d,%d],\"operationType\":\"DELETE\"}", task1Id, task2Id);
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").exists());
+
+    // Verify tasks are deleted
+    assertThat(taskRepository.findById(task1Id)).isEmpty();
+    assertThat(taskRepository.findById(task2Id)).isEmpty();
+  }
+
+  @Test
+  @DisplayName("Should batch assign category to multiple tasks")
+  public void shouldBatchAssignCategorySuccessfully() throws Exception {
+    // Create category
+    com.todoapp.domain.model.Category category = new com.todoapp.domain.model.Category();
+    category.setName("Batch Category");
+    category.setUser(testUser);
+    category = categoryRepository.save(category);
+
+    // Create tasks
+    Task task1 = new Task();
+    task1.setDescription("Task 1");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.MEDIUM);
+    task1 = taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Task 2");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.HIGH);
+    task2 = taskRepository.save(task2);
+
+    String requestBody =
+        String.format(
+            "{\"taskIds\":[%d,%d],\"operationType\":\"ASSIGN_CATEGORY\",\"categoryId\":%d}",
+            task1.getId(), task2.getId(), category.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").exists());
+
+    // Verify category is assigned
+    Task updatedTask1 = taskRepository.findById(task1.getId()).orElseThrow();
+    Task updatedTask2 = taskRepository.findById(task2.getId()).orElseThrow();
+
+    assertThat(updatedTask1.getCategory()).isNotNull();
+    assertThat(updatedTask1.getCategory().getId()).isEqualTo(category.getId());
+    assertThat(updatedTask2.getCategory()).isNotNull();
+    assertThat(updatedTask2.getCategory().getId()).isEqualTo(category.getId());
+  }
+
+  @Test
+  @DisplayName("Should batch assign tags to multiple tasks")
+  public void shouldBatchAssignTagsSuccessfully() throws Exception {
+    // Create tags
+    com.todoapp.domain.model.Tag tag1 = new com.todoapp.domain.model.Tag();
+    tag1.setName("tag1");
+    tag1.setUser(testUser);
+    tag1 = tagRepository.save(tag1);
+
+    com.todoapp.domain.model.Tag tag2 = new com.todoapp.domain.model.Tag();
+    tag2.setName("tag2");
+    tag2.setUser(testUser);
+    tag2 = tagRepository.save(tag2);
+
+    // Create tasks
+    Task task1 = new Task();
+    task1.setDescription("Task 1");
+    task1.setUser(testUser);
+    task1.setPriority(Priority.MEDIUM);
+    task1 = taskRepository.save(task1);
+
+    Task task2 = new Task();
+    task2.setDescription("Task 2");
+    task2.setUser(testUser);
+    task2.setPriority(Priority.HIGH);
+    task2 = taskRepository.save(task2);
+
+    String requestBody =
+        String.format(
+            "{\"taskIds\":[%d,%d],\"operationType\":\"ASSIGN_TAGS\",\"tagIds\":[%d,%d]}",
+            task1.getId(), task2.getId(), tag1.getId(), tag2.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").exists());
+
+    // Verify tags are assigned
+    Task updatedTask1 = taskRepository.findById(task1.getId()).orElseThrow();
+    Task updatedTask2 = taskRepository.findById(task2.getId()).orElseThrow();
+
+    assertThat(updatedTask1.getTags()).hasSize(2);
+    assertThat(updatedTask1.getTags()).extracting("id").containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
+    assertThat(updatedTask2.getTags()).hasSize(2);
+    assertThat(updatedTask2.getTags()).extracting("id").containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
+  }
+
+  @Test
+  @DisplayName("Should skip tasks not owned by user in batch complete")
+  public void shouldSkipNonOwnedTasksInBatchComplete() throws Exception {
+    // Create another user
+    User otherUser = new User();
+    otherUser.setEmail("other@example.com");
+    otherUser.setPasswordHash("$2a$10$dummyhash");
+    otherUser.setIsActive(true);
+    otherUser = userRepository.save(otherUser);
+
+    // Create task for current user
+    Task ownTask = new Task();
+    ownTask.setDescription("Own task");
+    ownTask.setUser(testUser);
+    ownTask.setPriority(Priority.MEDIUM);
+    ownTask.setIsCompleted(false);
+    ownTask = taskRepository.save(ownTask);
+
+    // Create task for other user
+    Task otherTask = new Task();
+    otherTask.setDescription("Other user's task");
+    otherTask.setUser(otherUser);
+    otherTask.setPriority(Priority.HIGH);
+    otherTask.setIsCompleted(false);
+    otherTask = taskRepository.save(otherTask);
+
+    String requestBody =
+        String.format(
+            "{\"taskIds\":[%d,%d],\"operationType\":\"COMPLETE\"}",
+            ownTask.getId(), otherTask.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk());
+
+    // Verify only owned task is completed
+    Task updatedOwnTask = taskRepository.findById(ownTask.getId()).orElseThrow();
+    Task updatedOtherTask = taskRepository.findById(otherTask.getId()).orElseThrow();
+
+    assertThat(updatedOwnTask.getIsCompleted()).isTrue();
+    assertThat(updatedOtherTask.getIsCompleted()).isFalse();
+  }
+
+  @Test
+  @DisplayName("Should skip tasks not owned by user in batch delete")
+  public void shouldSkipNonOwnedTasksInBatchDelete() throws Exception {
+    // Create another user
+    User otherUser = new User();
+    otherUser.setEmail("other@example.com");
+    otherUser.setPasswordHash("$2a$10$dummyhash");
+    otherUser.setIsActive(true);
+    otherUser = userRepository.save(otherUser);
+
+    // Create task for current user
+    Task ownTask = new Task();
+    ownTask.setDescription("Own task");
+    ownTask.setUser(testUser);
+    ownTask.setPriority(Priority.MEDIUM);
+    ownTask = taskRepository.save(ownTask);
+
+    // Create task for other user
+    Task otherTask = new Task();
+    otherTask.setDescription("Other user's task");
+    otherTask.setUser(otherUser);
+    otherTask.setPriority(Priority.HIGH);
+    otherTask = taskRepository.save(otherTask);
+
+    Long ownTaskId = ownTask.getId();
+    Long otherTaskId = otherTask.getId();
+
+    String requestBody =
+        String.format("{\"taskIds\":[%d,%d],\"operationType\":\"DELETE\"}", ownTaskId, otherTaskId);
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk());
+
+    // Verify only owned task is deleted
+    assertThat(taskRepository.findById(ownTaskId)).isEmpty();
+    assertThat(taskRepository.findById(otherTaskId)).isPresent();
+  }
+
+  @Test
+  @DisplayName("Should reject batch operation with empty task list")
+  public void shouldRejectBatchOperationWithEmptyTaskList() throws Exception {
+    String requestBody = "{\"taskIds\":[],\"operationType\":\"COMPLETE\"}";
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("Should reject ASSIGN_CATEGORY operation without categoryId")
+  public void shouldRejectAssignCategoryWithoutCategoryId() throws Exception {
+    Task task = new Task();
+    task.setDescription("Task 1");
+    task.setUser(testUser);
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    String requestBody =
+        String.format("{\"taskIds\":[%d],\"operationType\":\"ASSIGN_CATEGORY\"}", task.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("Should reject ASSIGN_TAGS operation without tagIds")
+  public void shouldRejectAssignTagsWithoutTagIds() throws Exception {
+    Task task = new Task();
+    task.setDescription("Task 1");
+    task.setUser(testUser);
+    task.setPriority(Priority.MEDIUM);
+    task = taskRepository.save(task);
+
+    String requestBody =
+        String.format("{\"taskIds\":[%d],\"operationType\":\"ASSIGN_TAGS\"}", task.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("Should handle batch operation with non-existent task IDs gracefully")
+  public void shouldHandleBatchOperationWithNonExistentTasks() throws Exception {
+    Task task = new Task();
+    task.setDescription("Valid task");
+    task.setUser(testUser);
+    task.setPriority(Priority.MEDIUM);
+    task.setIsCompleted(false);
+    task = taskRepository.save(task);
+
+    // Include both valid and non-existent task IDs
+    String requestBody =
+        String.format(
+            "{\"taskIds\":[%d,99999,88888],\"operationType\":\"COMPLETE\"}", task.getId());
+
+    mockMvc
+        .perform(
+            post("/api/v1/tasks/batch")
+                .header("X-User-Id", testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk());
+
+    // Verify valid task is completed
+    Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+    assertThat(updatedTask.getIsCompleted()).isTrue();
+  }
 }

@@ -788,4 +788,135 @@ class TaskServiceTest {
     assertNotNull(result);
     verify(taskRepository).findByUserId(2L, pageable);
   }
+
+  @Test
+  @DisplayName("Should batch complete tasks successfully")
+  void shouldBatchCompleteTasksSuccessfully() {
+    List<Long> taskIds = Arrays.asList(1L, 2L, 3L);
+
+    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).isCompleted(false).build();
+    Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).isCompleted(false).build();
+    Task task3 = Task.builder().id(3L).description("Task 3").user(testUser).isCompleted(false).build();
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
+    when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+    when(taskRepository.findById(3L)).thenReturn(Optional.of(task3));
+
+    taskService.batchComplete(taskIds, 1L);
+
+    assertTrue(task1.getIsCompleted());
+    assertTrue(task2.getIsCompleted());
+    assertTrue(task3.getIsCompleted());
+    verify(taskRepository, times(3)).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should skip tasks user doesn't own in batch complete")
+  void shouldSkipTasksUserDoesNotOwnInBatchComplete() {
+    User otherUser = User.builder().id(2L).email("other@test.com").build();
+    List<Long> taskIds = Arrays.asList(1L, 2L);
+
+    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).isCompleted(false).build();
+    Task task2 = Task.builder().id(2L).description("Task 2").user(otherUser).isCompleted(false).build();
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
+    when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+
+    taskService.batchComplete(taskIds, 1L);
+
+    assertTrue(task1.getIsCompleted());
+    assertFalse(task2.getIsCompleted());
+    verify(taskRepository, times(1)).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should handle empty task list in batch complete")
+  void shouldHandleEmptyTaskListInBatchComplete() {
+    List<Long> taskIds = Arrays.asList();
+
+    taskService.batchComplete(taskIds, 1L);
+
+    verify(taskRepository, never()).findById(anyLong());
+    verify(taskRepository, never()).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should batch delete tasks successfully")
+  void shouldBatchDeleteTasksSuccessfully() {
+    List<Long> taskIds = Arrays.asList(1L, 2L, 3L);
+
+    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).build();
+    Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).build();
+    Task task3 = Task.builder().id(3L).description("Task 3").user(testUser).build();
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
+    when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+    when(taskRepository.findById(3L)).thenReturn(Optional.of(task3));
+
+    taskService.batchDelete(taskIds, 1L);
+
+    verify(taskRepository, times(3)).delete(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should skip tasks user doesn't own in batch delete")
+  void shouldSkipTasksUserDoesNotOwnInBatchDelete() {
+    User otherUser = User.builder().id(2L).email("other@test.com").build();
+    List<Long> taskIds = Arrays.asList(1L, 2L);
+
+    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).build();
+    Task task2 = Task.builder().id(2L).description("Task 2").user(otherUser).build();
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
+    when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+
+    taskService.batchDelete(taskIds, 1L);
+
+    verify(taskRepository, times(1)).delete(task1);
+    verify(taskRepository, never()).delete(task2);
+  }
+
+  @Test
+  @DisplayName("Should handle empty task list in batch delete")
+  void shouldHandleEmptyTaskListInBatchDelete() {
+    List<Long> taskIds = Arrays.asList();
+
+    taskService.batchDelete(taskIds, 1L);
+
+    verify(taskRepository, never()).findById(anyLong());
+    verify(taskRepository, never()).delete(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should batch assign category to tasks")
+  void shouldBatchAssignCategoryToTasks() {
+    List<Long> taskIds = Arrays.asList(1L, 2L);
+
+    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).build();
+    Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).build();
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
+    when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+
+    taskService.batchUpdateCategory(taskIds, 5L, 1L);
+
+    verify(taskRepository, times(2)).save(any(Task.class));
+  }
+
+  @Test
+  @DisplayName("Should batch assign tags to tasks")
+  void shouldBatchAssignTagsToTasks() {
+    List<Long> taskIds = Arrays.asList(1L, 2L);
+    List<Long> tagIds = Arrays.asList(10L, 20L);
+
+    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).build();
+    Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).build();
+
+    when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
+    when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+
+    taskService.batchUpdateTags(taskIds, tagIds, 1L);
+
+    verify(taskRepository, times(2)).save(any(Task.class));
+  }
 }

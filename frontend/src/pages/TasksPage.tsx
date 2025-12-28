@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import BatchActionBar from '@/components/tasks/BatchActionBar';
 import { CategorySelector } from '@/components/tasks/CategorySelector';
 import { TagSelector } from '@/components/tasks/TagSelector';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
@@ -27,6 +28,7 @@ export function TasksPage() {
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
   const [taskToDeleteHasSubtasks, setTaskToDeleteHasSubtasks] = useState(false);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
 
   const {
     data: tasksData,
@@ -55,6 +57,32 @@ export function TasksPage() {
         sortBy,
         sortDirection,
       }),
+  });
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/v1/categories', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+  });
+
+  const { data: tagsData } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const response = await fetch('/api/v1/tags', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch tags');
+      return response.json();
+    },
   });
 
   const createMutation = useMutation({
@@ -181,6 +209,32 @@ export function TasksPage() {
     setViewingTask(task);
   };
 
+  const handleSelectionChange = (id: number, selected: boolean) => {
+    if (selected) {
+      setSelectedTaskIds((prev) => [...prev, id]);
+    } else {
+      setSelectedTaskIds((prev) => prev.filter((taskId) => taskId !== id));
+    }
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      const allTaskIds = tasksData?.content.map((task) => task.id) || [];
+      setSelectedTaskIds(allTaskIds);
+    } else {
+      setSelectedTaskIds([]);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedTaskIds([]);
+  };
+
+  const handleBatchOperationComplete = () => {
+    queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    setSelectedTaskIds([]);
+  };
+
   if (error) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -256,6 +310,9 @@ export function TasksPage() {
           onEdit={handleEditTask}
           onViewDetails={handleViewTaskDetails}
           isLoading={isLoading}
+          selectedTaskIds={selectedTaskIds}
+          onSelectionChange={handleSelectionChange}
+          onSelectAll={handleSelectAll}
         />
       </div>
 
@@ -313,14 +370,22 @@ export function TasksPage() {
         title="Delete Task"
         message={
           taskToDeleteHasSubtasks
-            ? "This task has subtasks. Deleting it will also delete all its subtasks. This action cannot be undone."
-            : "Are you sure you want to delete this task? This action cannot be undone."
+            ? 'This task has subtasks. Deleting it will also delete all its subtasks. This action cannot be undone.'
+            : 'Are you sure you want to delete this task? This action cannot be undone.'
         }
         confirmLabel="Delete"
         cancelLabel="Cancel"
         onConfirm={confirmDelete}
         onCancel={handleCancelDelete}
         isDestructive
+      />
+
+      <BatchActionBar
+        selectedTaskIds={selectedTaskIds}
+        onClearSelection={handleClearSelection}
+        onOperationComplete={handleBatchOperationComplete}
+        availableCategories={categoriesData || []}
+        availableTags={tagsData || []}
       />
     </div>
   );

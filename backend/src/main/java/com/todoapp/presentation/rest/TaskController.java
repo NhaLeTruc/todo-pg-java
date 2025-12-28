@@ -480,4 +480,50 @@ public class TaskController {
         .completed(pattern.isCompleted())
         .build();
   }
+
+  @PostMapping("/batch")
+  @Operation(
+      summary = "Perform batch operation on multiple tasks",
+      description = "Execute a batch operation (complete, delete, assign category/tags) on selected tasks")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Batch operation completed successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid operation request")
+      })
+  public ResponseEntity<Map<String, String>> batchOperation(
+      @Valid @RequestBody com.todoapp.application.dto.BatchOperationDTO batchOperationDTO,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+    batchOperationDTO.validate();
+
+    switch (batchOperationDTO.getOperationType()) {
+      case COMPLETE:
+        taskService.batchComplete(batchOperationDTO.getTaskIds(), userPrincipal.getId());
+        break;
+      case DELETE:
+        taskService.batchDelete(batchOperationDTO.getTaskIds(), userPrincipal.getId());
+        break;
+      case ASSIGN_CATEGORY:
+        taskService.batchUpdateCategory(
+            batchOperationDTO.getTaskIds(),
+            batchOperationDTO.getCategoryId(),
+            userPrincipal.getId());
+        break;
+      case ASSIGN_TAGS:
+        taskService.batchUpdateTags(
+            batchOperationDTO.getTaskIds(),
+            batchOperationDTO.getTagIds(),
+            userPrincipal.getId());
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown operation type");
+    }
+
+    return ResponseEntity.ok(
+        Map.of(
+            "message",
+            String.format(
+                "Batch operation %s completed successfully",
+                batchOperationDTO.getOperationType())));
+  }
 }
