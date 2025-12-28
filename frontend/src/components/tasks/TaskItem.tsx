@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
+
 import { format } from 'date-fns';
-import { Check, Circle, MessageSquare, Pencil, Trash2 } from 'lucide-react';
+import { Check, Circle, MessageSquare, Pencil, Trash2, Clock } from 'lucide-react';
 
 import { Task } from '@/types/task';
 import { cn } from '@/utils/cn';
@@ -19,6 +21,39 @@ const priorityBadges = {
 };
 
 export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetails }: TaskItemProps) {
+  const [totalTime, setTotalTime] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchTotalTime = async () => {
+      try {
+        const response = await fetch(`/api/v1/tasks/${task.id}/time-entries/total`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTotalTime(data.totalMinutes || 0);
+        }
+      } catch (err) {
+        console.error('Error fetching total time:', err);
+      }
+    };
+
+    fetchTotalTime();
+  }, [task.id]);
+
+  const formatMinutes = (minutes: number): string => {
+    if (minutes === 0) return '';
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  };
+
   const handleToggle = () => {
     onToggleComplete(task.id, !task.isCompleted);
   };
@@ -116,6 +151,13 @@ export function TaskItem({ task, onToggleComplete, onDelete, onEdit, onViewDetai
           <span className="text-gray-400">
             Created {format(new Date(task.createdAt), 'MMM d, yyyy')}
           </span>
+
+          {totalTime > 0 && (
+            <span className="flex items-center gap-1 text-blue-600">
+              <Clock className="h-4 w-4" />
+              <span className="text-xs font-medium">{formatMinutes(totalTime)}</span>
+            </span>
+          )}
 
           {onViewDetails && (
             <button
