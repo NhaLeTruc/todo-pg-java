@@ -590,26 +590,26 @@
 
 **Independent Test**: Upload files (PDF, images), download, verify virus scanning, test rich text
 
-### Tests for User Story 14 (TDD - Write FIRST) ⚠️
+### Tests for User Story 14 (TDD - Write FIRST) ✅
 
-- [ ] T288 [P] [US14] Write unit test for FileAttachment size validation in backend/src/test/java/com/todoapp/unit/domain/FileAttachmentTest.java
-- [ ] T289 [P] [US14] Write unit test for FileStorageService.uploadFile() in backend/src/test/java/com/todoapp/unit/infrastructure/FileStorageServiceTest.java
+- [x] T288 [P] [US14] Write unit test for FileAttachment size validation in backend/src/test/java/com/todoapp/unit/domain/FileAttachmentTest.java
+- [x] T289 [P] [US14] Write unit test for FileStorageService.uploadFile() in backend/src/test/java/com/todoapp/unit/infrastructure/FileStorageServiceTest.java
 
-### Implementation for User Story 14
+### Implementation for User Story 14 ✅ (Backend Complete, Frontend Partial)
 
-- [ ] T290 [P] [US14] Create FileAttachment entity in backend/src/main/java/com/todoapp/domain/model/FileAttachment.java
-- [ ] T291 [P] [US14] Create VirusScanStatus enum in backend/src/main/java/com/todoapp/domain/model/VirusScanStatus.java
-- [ ] T292 [P] [US14] Create FileAttachmentRepository in backend/src/main/java/com/todoapp/domain/repository/FileAttachmentRepository.java
-- [ ] T293 [P] [US14] Create FileAttachmentDTO in backend/src/main/java/com/todoapp/application/dto/FileAttachmentDTO.java
-- [ ] T294 [US14] Implement FileStorageService with MinIO integration in backend/src/main/java/com/todoapp/infrastructure/storage/FileStorageService.java
-- [ ] T295 [US14] Implement VirusScanService (ClamAV integration via RabbitMQ) in backend/src/main/java/com/todoapp/infrastructure/messaging/VirusScanService.java
-- [ ] T296 [US14] Implement FileAttachmentService with upload/download/delete in backend/src/main/java/com/todoapp/application/service/FileAttachmentService.java
-- [ ] T297 [US14] Create FileAttachmentController with POST /api/v1/tasks/{taskId}/attachments in backend/src/main/java/com/todoapp/presentation/rest/FileAttachmentController.java
-- [ ] T298 [US14] Add GET /api/v1/attachments/{id}/download endpoint in backend/src/main/java/com/todoapp/presentation/rest/FileAttachmentController.java
-- [ ] T299 [US14] Add DELETE /api/v1/attachments/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/FileAttachmentController.java
-- [ ] T300 [P] [US14] Create FileUpload component with drag-and-drop in frontend/src/components/shared/FileUpload.tsx
-- [ ] T301 [P] [US14] Create AttachmentList component in frontend/src/components/tasks/AttachmentList.tsx
-- [ ] T302 [P] [US14] Create RichTextEditor component (lightweight markdown) in frontend/src/components/shared/RichTextEditor.tsx
+- [x] T290 [P] [US14] Create FileAttachment entity in backend/src/main/java/com/todoapp/domain/model/FileAttachment.java
+- [x] T291 [P] [US14] Create VirusScanStatus enum in backend/src/main/java/com/todoapp/domain/model/VirusScanStatus.java
+- [x] T292 [P] [US14] Create FileAttachmentRepository in backend/src/main/java/com/todoapp/domain/repository/FileAttachmentRepository.java
+- [x] T293 [P] [US14] Create FileAttachmentDTO in backend/src/main/java/com/todoapp/application/dto/FileAttachmentDTO.java
+- [x] T294 [US14] Implement FileStorageService with MinIO integration in backend/src/main/java/com/todoapp/infrastructure/storage/FileStorageService.java
+- [x] T295 [US14] Implement VirusScanService (ClamAV integration via RabbitMQ) in backend/src/main/java/com/todoapp/infrastructure/messaging/VirusScanService.java
+- [x] T296 [US14] Implement FileAttachmentService with upload/download/delete in backend/src/main/java/com/todoapp/application/service/FileAttachmentService.java
+- [x] T297 [US14] Create FileAttachmentController with POST /api/v1/tasks/{taskId}/attachments in backend/src/main/java/com/todoapp/presentation/rest/FileAttachmentController.java
+- [x] T298 [US14] Add GET /api/v1/attachments/{id}/download endpoint in backend/src/main/java/com/todoapp/presentation/rest/FileAttachmentController.java
+- [x] T299 [US14] Add DELETE /api/v1/attachments/{id} endpoint in backend/src/main/java/com/todoapp/presentation/rest/FileAttachmentController.java
+- [x] T300 [P] [US14] Create FileUpload component with drag-and-drop in frontend/src/components/shared/FileUpload.tsx
+- [x] T301 [P] [US14] Create AttachmentList component in frontend/src/components/tasks/AttachmentList.tsx
+- [x] T302 [P] [US14] Create RichTextEditor component (lightweight markdown) in frontend/src/components/shared/RichTextEditor.tsx
 - [ ] T303 [US14] Replace TaskForm description input with RichTextEditor in frontend/src/components/tasks/TaskForm.tsx
 - [ ] T304 [US14] Add FileUpload to TaskDetailModal in frontend/src/components/tasks/TaskDetailModal.tsx
 - [ ] T305 [US14] Display AttachmentList in TaskDetailModal in frontend/src/components/tasks/TaskDetailModal.tsx
