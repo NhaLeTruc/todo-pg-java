@@ -486,24 +486,24 @@
 
 **Independent Test**: Create recurring tasks (daily, weekly, monthly), verify automatic generation
 
-### Tests for User Story 11 (TDD - Write FIRST) ⚠️
+### Tests for User Story 11 (TDD - Write FIRST) ✅
 
-- [ ] T241 [P] [US11] Write unit test for RecurrencePattern validation in backend/src/test/java/com/todoapp/unit/domain/RecurrencePatternTest.java
-- [ ] T242 [P] [US11] Write unit test for RecurrenceService.generateNextInstance() in backend/src/test/java/com/todoapp/unit/application/RecurrenceServiceTest.java
+- [X] T241 [P] [US11] Write unit test for RecurrencePattern validation in backend/src/test/java/com/todoapp/unit/domain/RecurrencePatternTest.java
+- [X] T242 [P] [US11] Write unit test for RecurrenceService.generateNextInstance() in backend/src/test/java/com/todoapp/unit/application/RecurrenceServiceTest.java
 
-### Implementation for User Story 11
+### Implementation for User Story 11 ✅
 
-- [ ] T243 [P] [US11] Create RecurrencePattern entity in backend/src/main/java/com/todoapp/domain/model/RecurrencePattern.java
-- [ ] T244 [P] [US11] Create Frequency enum (DAILY, WEEKLY, MONTHLY) in backend/src/main/java/com/todoapp/domain/model/Frequency.java
-- [ ] T245 [P] [US11] Create RecurrencePatternRepository in backend/src/main/java/com/todoapp/domain/repository/RecurrencePatternRepository.java
-- [ ] T246 [P] [US11] Create RecurrencePatternDTO in backend/src/main/java/com/todoapp/application/dto/RecurrencePatternDTO.java
-- [ ] T247 [US11] Implement RecurrenceService with instance generation logic in backend/src/main/java/com/todoapp/application/service/RecurrenceService.java
-- [ ] T248 [US11] Update TaskService to handle recurrence pattern assignments in backend/src/main/java/com/todoapp/application/service/TaskService.java
-- [ ] T249 [P] [US11] Create RecurrenceProcessor scheduled job (RabbitMQ consumer) in backend/src/main/java/com/todoapp/infrastructure/messaging/RecurrenceProcessor.java
-- [ ] T250 [P] [US11] Configure RabbitMQ queue for recurring tasks in backend/src/main/java/com/todoapp/infrastructure/config/RabbitMQConfig.java
-- [ ] T251 [US11] Add recurrence pattern to POST /api/v1/tasks in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T252 [US11] Add PUT /api/v1/tasks/{id}/recurrence endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
-- [ ] T253 [P] [US11] Create RecurrenceSelector component in frontend/src/components/tasks/RecurrenceSelector.tsx
+- [X] T243 [P] [US11] Create RecurrencePattern entity in backend/src/main/java/com/todoapp/domain/model/RecurrencePattern.java
+- [X] T244 [P] [US11] Create Frequency enum (DAILY, WEEKLY, MONTHLY) in backend/src/main/java/com/todoapp/domain/model/Frequency.java
+- [X] T245 [P] [US11] Create RecurrencePatternRepository in backend/src/main/java/com/todoapp/domain/repository/RecurrencePatternRepository.java
+- [X] T246 [P] [US11] Create RecurrencePatternDTO in backend/src/main/java/com/todoapp/application/dto/RecurrencePatternDTO.java
+- [X] T247 [US11] Implement RecurrenceService with instance generation logic in backend/src/main/java/com/todoapp/application/service/RecurrenceService.java
+- [X] T248 [US11] Update TaskService to handle recurrence pattern assignments in backend/src/main/java/com/todoapp/application/service/TaskService.java
+- [X] T249 [P] [US11] Create RecurrenceProcessor scheduled job (RabbitMQ consumer) in backend/src/main/java/com/todoapp/infrastructure/messaging/RecurrenceProcessor.java
+- [X] T250 [P] [US11] Configure RabbitMQ queue for recurring tasks in backend/src/main/java/com/todoapp/infrastructure/config/RabbitMQConfig.java
+- [X] T251 [US11] Add recurrence pattern to POST /api/v1/tasks in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [X] T252 [US11] Add PUT /api/v1/tasks/{id}/recurrence endpoint in backend/src/main/java/com/todoapp/presentation/rest/TaskController.java
+- [X] T253 [P] [US11] Create RecurrenceSelector component in frontend/src/components/tasks/RecurrenceSelector.tsx
 - [ ] T254 [US11] Add recurrence selector to TaskForm in frontend/src/components/tasks/TaskForm.tsx
 - [ ] T255 [US11] Display recurrence indicator in TaskItem in frontend/src/components/tasks/TaskItem.tsx
 

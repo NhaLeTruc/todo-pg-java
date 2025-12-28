@@ -1,32 +1,32 @@
 package com.todoapp.application.service;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
+import com.todoapp.application.dto.RecurrencePatternDTO;
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.PermissionLevel;
+import com.todoapp.domain.model.RecurrencePattern;
 import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
 import com.todoapp.domain.repository.CategoryRepository;
+import com.todoapp.domain.repository.RecurrencePatternRepository;
 import com.todoapp.domain.repository.TagRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
-
 import jakarta.transaction.Transactional;
+import java.util.Collections;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -39,7 +39,9 @@ public class TaskService {
   private final CategoryRepository categoryRepository;
   private final TagRepository tagRepository;
   private final TaskShareRepository taskShareRepository;
+  private final RecurrencePatternRepository recurrencePatternRepository;
   private final TaskMapper taskMapper;
+  private RecurrenceService recurrenceService; // Lazy injection to avoid circular dependency
 
   public TaskService(
       TaskRepository taskRepository,
@@ -47,13 +49,24 @@ public class TaskService {
       CategoryRepository categoryRepository,
       TagRepository tagRepository,
       TaskShareRepository taskShareRepository,
+      RecurrencePatternRepository recurrencePatternRepository,
       TaskMapper taskMapper) {
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
     this.tagRepository = tagRepository;
     this.taskShareRepository = taskShareRepository;
+    this.recurrencePatternRepository = recurrencePatternRepository;
     this.taskMapper = taskMapper;
+  }
+
+  /**
+   * Set the recurrence service (used for lazy injection to avoid circular dependency).
+   *
+   * @param recurrenceService the recurrence service
+   */
+  public void setRecurrenceService(RecurrenceService recurrenceService) {
+    this.recurrenceService = recurrenceService;
   }
 
   public TaskResponseDTO createTask(TaskCreateDTO createDTO, Long userId) {
@@ -401,5 +414,27 @@ public class TaskService {
     return subtasks.stream()
         .map(taskMapper::toResponseDTO)
         .collect(java.util.stream.Collectors.toList());
+  }
+
+  /**
+   * Get the recurrence pattern for a task.
+   *
+   * @param taskId the task ID
+   * @param userId the user ID
+   * @return the recurrence pattern, or null if the task doesn't have one
+   */
+  public RecurrencePattern getRecurrencePattern(Long taskId, Long userId) {
+    logger.debug("Fetching recurrence pattern for task ID: {} by user ID: {}", taskId, userId);
+
+    Task task =
+        taskRepository
+            .findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+    if (!hasTaskAccess(task, userId)) {
+      throw new IllegalArgumentException("User does not have access to this task");
+    }
+
+    return recurrencePatternRepository.findByTaskId(taskId).orElse(null);
   }
 }

@@ -1,8 +1,24 @@
 package com.todoapp.presentation.rest;
 
+import com.todoapp.application.dto.RecurrencePatternDTO;
+import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.application.dto.TaskResponseDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
+import com.todoapp.application.mapper.TaskMapper;
+import com.todoapp.application.service.RecurrenceService;
+import com.todoapp.application.service.TaskService;
+import com.todoapp.domain.model.RecurrencePattern;
+import com.todoapp.domain.model.Task;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -13,22 +29,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.todoapp.application.dto.TaskCreateDTO;
-import com.todoapp.application.dto.TaskResponseDTO;
-import com.todoapp.application.dto.TaskUpdateDTO;
-import com.todoapp.application.mapper.TaskMapper;
-import com.todoapp.application.service.TaskService;
-import com.todoapp.domain.model.Task;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api/v1/tasks")
 @Tag(name = "Tasks", description = "Task management endpoints")
@@ -37,10 +37,12 @@ public class TaskController {
   private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
   private final TaskService taskService;
+  private final RecurrenceService recurrenceService;
   private final TaskMapper taskMapper;
 
-  public TaskController(TaskService taskService, TaskMapper taskMapper) {
+  public TaskController(TaskService taskService, RecurrenceService recurrenceService, TaskMapper taskMapper) {
     this.taskService = taskService;
+    this.recurrenceService = recurrenceService;
     this.taskMapper = taskMapper;
   }
 
@@ -336,5 +338,146 @@ public class TaskController {
     logger.info("Checking if task ID: {} has subtasks", id);
     boolean hasSubtasks = taskService.taskHasSubtasks(id, userId);
     return ResponseEntity.ok(hasSubtasks);
+  }
+
+  @PutMapping("/{id}/recurrence")
+  @Operation(
+      summary = "Set or update recurrence pattern",
+      description = "Creates or updates a recurrence pattern for a task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Recurrence pattern set successfully",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = RecurrencePatternDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Task not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid recurrence pattern"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<RecurrencePatternDTO> setRecurrencePattern(
+      @PathVariable Long id,
+      @Valid @RequestBody RecurrencePatternDTO recurrenceDTO,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Setting recurrence pattern for task ID: {} by user ID: {}", id, userId);
+
+    // Get the task
+    TaskResponseDTO taskDTO = taskService.getTaskById(id, userId);
+    Task task = taskMapper.toEntity(taskDTO);
+
+    // Check if pattern already exists
+    RecurrencePattern existingPattern = taskService.getRecurrencePattern(id, userId);
+
+    RecurrencePattern pattern;
+    if (existingPattern != null) {
+      // Update existing pattern
+      pattern =
+          recurrenceService.updateRecurrencePattern(
+              existingPattern.getId(),
+              recurrenceDTO.getFrequency(),
+              recurrenceDTO.getIntervalValue(),
+              recurrenceDTO.getEndDate(),
+              recurrenceDTO.getDaysOfWeek(),
+              recurrenceDTO.getDayOfMonth(),
+              recurrenceDTO.getMaxOccurrences());
+    } else {
+      // Create new pattern
+      pattern =
+          recurrenceService.createRecurrencePattern(
+              task,
+              recurrenceDTO.getFrequency(),
+              recurrenceDTO.getIntervalValue(),
+              recurrenceDTO.getStartDate(),
+              recurrenceDTO.getEndDate(),
+              recurrenceDTO.getDaysOfWeek(),
+              recurrenceDTO.getDayOfMonth(),
+              recurrenceDTO.getMaxOccurrences());
+    }
+
+    RecurrencePatternDTO responseDTO = toRecurrencePatternDTO(pattern);
+    return ResponseEntity.ok(responseDTO);
+  }
+
+  @GetMapping("/{id}/recurrence")
+  @Operation(
+      summary = "Get recurrence pattern",
+      description = "Retrieves the recurrence pattern for a task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Recurrence pattern retrieved successfully",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = RecurrencePatternDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Task or recurrence pattern not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<RecurrencePatternDTO> getRecurrencePattern(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Getting recurrence pattern for task ID: {} by user ID: {}", id, userId);
+
+    RecurrencePattern pattern = taskService.getRecurrencePattern(id, userId);
+    if (pattern == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    RecurrencePatternDTO responseDTO = toRecurrencePatternDTO(pattern);
+    return ResponseEntity.ok(responseDTO);
+  }
+
+  @DeleteMapping("/{id}/recurrence")
+  @Operation(
+      summary = "Delete recurrence pattern",
+      description = "Removes the recurrence pattern from a task")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "204", description = "Recurrence pattern deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Task or recurrence pattern not found"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized")
+      })
+  public ResponseEntity<Void> deleteRecurrencePattern(
+      @PathVariable Long id,
+      @Parameter(description = "User ID (temporary - will be from JWT)")
+          @RequestHeader(value = "X-User-Id", defaultValue = "1")
+          Long userId) {
+    logger.info("Deleting recurrence pattern for task ID: {} by user ID: {}", id, userId);
+
+    RecurrencePattern pattern = taskService.getRecurrencePattern(id, userId);
+    if (pattern != null) {
+      recurrenceService.deleteRecurrencePattern(pattern.getId());
+    }
+
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Convert RecurrencePattern entity to DTO.
+   *
+   * @param pattern the recurrence pattern entity
+   * @return the recurrence pattern DTO
+   */
+  private RecurrencePatternDTO toRecurrencePatternDTO(RecurrencePattern pattern) {
+    return RecurrencePatternDTO.builder()
+        .id(pattern.getId())
+        .frequency(pattern.getFrequency())
+        .intervalValue(pattern.getIntervalValue())
+        .startDate(pattern.getStartDate())
+        .endDate(pattern.getEndDate())
+        .daysOfWeek(pattern.getDaysOfWeek())
+        .dayOfMonth(pattern.getDayOfMonth())
+        .maxOccurrences(pattern.getMaxOccurrences())
+        .generatedCount(pattern.getGeneratedCount())
+        .lastGeneratedDate(pattern.getLastGeneratedDate())
+        .completed(pattern.isCompleted())
+        .build();
   }
 }
