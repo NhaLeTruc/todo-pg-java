@@ -1,10 +1,12 @@
 package com.todoapp.infrastructure.messaging;
 
-import com.todoapp.application.service.RecurrenceService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.todoapp.application.service.RecurrenceService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Scheduled job that processes pending recurrence patterns and generates task instances.

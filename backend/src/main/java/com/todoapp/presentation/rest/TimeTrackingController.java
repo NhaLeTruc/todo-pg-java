@@ -1,8 +1,20 @@
 package com.todoapp.presentation.rest;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
 import com.todoapp.application.dto.TimeEntryDTO;
 import com.todoapp.application.service.TimeTrackingService;
 import com.todoapp.infrastructure.security.UserPrincipal;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,17 +23,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for time tracking operations.
@@ -215,8 +218,7 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     List<TimeEntryDTO> entries =
-        timeTrackingService.getTimeEntriesForUserInRange(
-            userPrincipal.getId(), startDate, endDate);
+        timeTrackingService.getTimeEntriesForUserInRange(userPrincipal.getId(), startDate, endDate);
 
     int totalTime =
         timeTrackingService.getTotalTimeForUserInRange(userPrincipal.getId(), startDate, endDate);
@@ -277,11 +279,7 @@ public class TimeTrackingController {
 
   @Data
   public static class ManualTimeLogRequest {
-    @Schema(
-        description = "Duration in minutes",
-        example = "45",
-        required = true,
-        minimum = "1")
+    @Schema(description = "Duration in minutes", example = "45", required = true, minimum = "1")
     private Integer durationMinutes;
 
     @Schema(description = "Notes about the work", example = "Fixed authentication bug")

@@ -794,9 +794,12 @@ class TaskServiceTest {
   void shouldBatchCompleteTasksSuccessfully() {
     List<Long> taskIds = Arrays.asList(1L, 2L, 3L);
 
-    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).isCompleted(false).build();
-    Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).isCompleted(false).build();
-    Task task3 = Task.builder().id(3L).description("Task 3").user(testUser).isCompleted(false).build();
+    Task task1 =
+        Task.builder().id(1L).description("Task 1").user(testUser).isCompleted(false).build();
+    Task task2 =
+        Task.builder().id(2L).description("Task 2").user(testUser).isCompleted(false).build();
+    Task task3 =
+        Task.builder().id(3L).description("Task 3").user(testUser).isCompleted(false).build();
 
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
     when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
@@ -816,8 +819,10 @@ class TaskServiceTest {
     User otherUser = User.builder().id(2L).email("other@test.com").build();
     List<Long> taskIds = Arrays.asList(1L, 2L);
 
-    Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).isCompleted(false).build();
-    Task task2 = Task.builder().id(2L).description("Task 2").user(otherUser).isCompleted(false).build();
+    Task task1 =
+        Task.builder().id(1L).description("Task 1").user(testUser).isCompleted(false).build();
+    Task task2 =
+        Task.builder().id(2L).description("Task 2").user(otherUser).isCompleted(false).build();
 
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
     when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));

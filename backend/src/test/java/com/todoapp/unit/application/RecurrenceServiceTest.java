@@ -4,17 +4,10 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import com.todoapp.application.service.RecurrenceService;
-import com.todoapp.domain.model.Frequency;
-import com.todoapp.domain.model.RecurrencePattern;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.RecurrencePatternRepository;
-import com.todoapp.domain.repository.TaskRepository;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +17,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.todoapp.application.service.RecurrenceService;
+import com.todoapp.domain.model.Frequency;
+import com.todoapp.domain.model.RecurrencePattern;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.RecurrencePatternRepository;
+import com.todoapp.domain.repository.TaskRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RecurrenceService Tests")
@@ -71,7 +72,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -115,7 +117,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -142,7 +145,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -172,7 +176,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -199,7 +204,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -227,7 +233,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -255,7 +262,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -283,7 +291,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       LocalDate nextDate = recurrenceService.generateNextInstance(pattern);
@@ -396,7 +405,8 @@ class RecurrenceServiceTest {
               .build();
 
       when(recurrencePatternRepository.save(any(RecurrencePattern.class))).thenReturn(pattern);
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       recurrenceService.generateNextInstance(pattern);
@@ -454,7 +464,8 @@ class RecurrenceServiceTest {
           .thenReturn(java.util.List.of(pattern1, pattern2));
       when(recurrencePatternRepository.save(any(RecurrencePattern.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(taskRepository.save(any(Task.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // When
       int processed = recurrenceService.processPendingRecurrences();

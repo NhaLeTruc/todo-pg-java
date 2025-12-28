@@ -1,24 +1,8 @@
 package com.todoapp.presentation.rest;
 
-import com.todoapp.application.dto.RecurrencePatternDTO;
-import com.todoapp.application.dto.TaskCreateDTO;
-import com.todoapp.application.dto.TaskResponseDTO;
-import com.todoapp.application.dto.TaskUpdateDTO;
-import com.todoapp.application.mapper.TaskMapper;
-import com.todoapp.application.service.RecurrenceService;
-import com.todoapp.application.service.TaskService;
-import com.todoapp.domain.model.RecurrencePattern;
-import com.todoapp.domain.model.Task;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -28,6 +12,25 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.todoapp.application.dto.RecurrencePatternDTO;
+import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.application.dto.TaskResponseDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
+import com.todoapp.application.mapper.TaskMapper;
+import com.todoapp.application.service.RecurrenceService;
+import com.todoapp.application.service.TaskService;
+import com.todoapp.domain.model.RecurrencePattern;
+import com.todoapp.domain.model.Task;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -40,7 +43,8 @@ public class TaskController {
   private final RecurrenceService recurrenceService;
   private final TaskMapper taskMapper;
 
-  public TaskController(TaskService taskService, RecurrenceService recurrenceService, TaskMapper taskMapper) {
+  public TaskController(
+      TaskService taskService, RecurrenceService recurrenceService, TaskMapper taskMapper) {
     this.taskService = taskService;
     this.recurrenceService = recurrenceService;
     this.taskMapper = taskMapper;
@@ -484,7 +488,8 @@ public class TaskController {
   @PostMapping("/batch")
   @Operation(
       summary = "Perform batch operation on multiple tasks",
-      description = "Execute a batch operation (complete, delete, assign category/tags) on selected tasks")
+      description =
+          "Execute a batch operation (complete, delete, assign category/tags) on selected tasks")
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "Batch operation completed successfully"),
@@ -511,9 +516,7 @@ public class TaskController {
         break;
       case ASSIGN_TAGS:
         taskService.batchUpdateTags(
-            batchOperationDTO.getTaskIds(),
-            batchOperationDTO.getTagIds(),
-            userPrincipal.getId());
+            batchOperationDTO.getTaskIds(), batchOperationDTO.getTagIds(), userPrincipal.getId());
         break;
       default:
         throw new IllegalArgumentException("Unknown operation type");

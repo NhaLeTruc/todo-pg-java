@@ -1,20 +1,22 @@
 package com.todoapp.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 /** Entity representing a recurrence pattern for recurring tasks. */
 @Entity
@@ -87,8 +89,7 @@ public class RecurrencePattern {
     if (daysOfWeekString == null || daysOfWeekString.isEmpty()) {
       return new HashSet<>();
     }
-    return Set.of(daysOfWeekString.split(","))
-        .stream()
+    return Set.of(daysOfWeekString.split(",")).stream()
         .map(String::trim)
         .map(DayOfWeek::valueOf)
         .collect(Collectors.toSet());
@@ -168,9 +169,7 @@ public class RecurrencePattern {
     }
   }
 
-  /**
-   * Custom builder to handle validation and proper initialization.
-   */
+  /** Custom builder to handle validation and proper initialization. */
   public static class RecurrencePatternBuilder {
     public RecurrencePattern build() {
       RecurrencePattern pattern = new RecurrencePattern();

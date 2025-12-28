@@ -2,14 +2,16 @@ package com.todoapp.unit.domain;
 
 import static org.assertj.core.api.Assertions.*;
 
-import com.todoapp.domain.model.Frequency;
-import com.todoapp.domain.model.RecurrencePattern;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import com.todoapp.domain.model.Frequency;
+import com.todoapp.domain.model.RecurrencePattern;
 
 @DisplayName("RecurrencePattern Domain Model Tests")
 class RecurrencePatternTest {
@@ -59,7 +61,8 @@ class RecurrencePatternTest {
 
       // Then
       assertThat(pattern.getFrequency()).isEqualTo(Frequency.WEEKLY);
-      assertThat(pattern.getDaysOfWeek()).containsExactlyInAnyOrder(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY);
+      assertThat(pattern.getDaysOfWeek())
+          .containsExactlyInAnyOrder(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY);
     }
 
     @Test

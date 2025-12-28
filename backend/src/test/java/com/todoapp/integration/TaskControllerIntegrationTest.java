@@ -1379,9 +1379,13 @@ public class TaskControllerIntegrationTest {
     Task updatedTask2 = taskRepository.findById(task2.getId()).orElseThrow();
 
     assertThat(updatedTask1.getTags()).hasSize(2);
-    assertThat(updatedTask1.getTags()).extracting("id").containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
+    assertThat(updatedTask1.getTags())
+        .extracting("id")
+        .containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
     assertThat(updatedTask2.getTags()).hasSize(2);
-    assertThat(updatedTask2.getTags()).extracting("id").containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
+    assertThat(updatedTask2.getTags())
+        .extracting("id")
+        .containsExactlyInAnyOrder(tag1.getId(), tag2.getId());
   }
 
   @Test

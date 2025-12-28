@@ -1,14 +1,16 @@
 package com.todoapp.domain.model;
 
-import jakarta.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreatedDate;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreatedDate;
 
 /**
  * Entity representing a time entry for tracking work on tasks.
@@ -158,9 +160,7 @@ public class TimeEntry {
     }
   }
 
-  /**
-   * Set the creation timestamp before persisting.
-   */
+  /** Set the creation timestamp before persisting. */
   @PrePersist
   protected void onCreate() {
     if (createdAt == null) {

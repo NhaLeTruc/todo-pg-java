@@ -2,15 +2,17 @@ package com.todoapp.unit.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.todoapp.domain.model.EntryType;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.TimeEntry;
-import com.todoapp.domain.model.User;
 import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import com.todoapp.domain.model.EntryType;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.TimeEntry;
+import com.todoapp.domain.model.User;
 
 @DisplayName("TimeEntry Entity Tests")
 class TimeEntryTest {
@@ -212,7 +214,9 @@ class TimeEntryTest {
               .build();
 
       assertThrows(
-          IllegalStateException.class, () -> entry.stop(), "Should not allow stopping stopped timer");
+          IllegalStateException.class,
+          () -> entry.stop(),
+          "Should not allow stopping stopped timer");
     }
   }
 

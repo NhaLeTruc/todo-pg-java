@@ -1,5 +1,12 @@
 package com.todoapp.application.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.todoapp.application.dto.TimeEntryDTO;
 import com.todoapp.application.mapper.TimeEntryMapper;
 import com.todoapp.domain.model.EntryType;
@@ -8,14 +15,10 @@ import com.todoapp.domain.model.TimeEntry;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TimeEntryRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
+
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 /**
  * Service for managing time tracking entries.
@@ -86,7 +89,8 @@ public class TimeTrackingService {
         timeEntryRepository
             .findById(timeEntryId)
             .orElseThrow(
-                () -> new ResourceNotFoundException("Time entry not found with ID: " + timeEntryId));
+                () ->
+                    new ResourceNotFoundException("Time entry not found with ID: " + timeEntryId));
 
     if (!timeEntry.getUser().getId().equals(userId)) {
       throw new IllegalArgumentException("User does not own this time entry");
@@ -231,8 +235,7 @@ public class TimeTrackingService {
    */
   public int getTotalTimeForUserInRange(
       Long userId, LocalDateTime startDate, LocalDateTime endDate) {
-    log.debug(
-        "Calculating total time for user ID: {} from {} to {}", userId, startDate, endDate);
+    log.debug("Calculating total time for user ID: {} from {} to {}", userId, startDate, endDate);
 
     int totalTime = timeEntryRepository.getTotalTimeForUserInRange(userId, startDate, endDate);
 
@@ -274,7 +277,8 @@ public class TimeTrackingService {
         timeEntryRepository
             .findById(timeEntryId)
             .orElseThrow(
-                () -> new ResourceNotFoundException("Time entry not found with ID: " + timeEntryId));
+                () ->
+                    new ResourceNotFoundException("Time entry not found with ID: " + timeEntryId));
 
     if (!timeEntry.getUser().getId().equals(userId)) {
       throw new IllegalArgumentException("User does not own this time entry");
@@ -301,7 +305,8 @@ public class TimeTrackingService {
         timeEntryRepository
             .findById(timeEntryId)
             .orElseThrow(
-                () -> new ResourceNotFoundException("Time entry not found with ID: " + timeEntryId));
+                () ->
+                    new ResourceNotFoundException("Time entry not found with ID: " + timeEntryId));
 
     if (!timeEntry.getUser().getId().equals(userId)) {
       throw new IllegalArgumentException("User does not own this time entry");

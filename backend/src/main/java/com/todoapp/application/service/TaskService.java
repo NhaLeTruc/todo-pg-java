@@ -1,6 +1,14 @@
 package com.todoapp.application.service;
 
-import com.todoapp.application.dto.RecurrencePatternDTO;
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
@@ -19,14 +27,8 @@ import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
+
 import jakarta.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -543,8 +545,7 @@ public class TaskService {
    */
   @org.springframework.transaction.annotation.Transactional
   public void batchUpdateTags(List<Long> taskIds, List<Long> tagIds, Long userId) {
-    logger.debug(
-        "Batch updating tags for {} tasks by user ID: {}", taskIds.size(), userId);
+    logger.debug("Batch updating tags for {} tasks by user ID: {}", taskIds.size(), userId);
 
     List<Tag> tags = Collections.emptyList();
     if (tagIds != null && !tagIds.isEmpty()) {

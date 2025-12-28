@@ -1,18 +1,9 @@
 package com.todoapp.presentation.rest;
 
-import com.todoapp.application.dto.FileAttachmentDTO;
-import com.todoapp.application.service.FileAttachmentService;
-import com.todoapp.domain.model.FileAttachment;
-import com.todoapp.infrastructure.security.CurrentUser;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -24,6 +15,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.todoapp.application.dto.FileAttachmentDTO;
+import com.todoapp.application.service.FileAttachmentService;
+import com.todoapp.infrastructure.security.CurrentUser;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -46,7 +48,9 @@ public class FileAttachmentController {
    * @param currentUser The authenticated user
    * @return The created file attachment
    */
-  @PostMapping(value = "/tasks/{taskId}/attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(
+      value = "/tasks/{taskId}/attachments",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(
       summary = "Upload file attachment",
       description = "Upload a file attachment for a specific task")
@@ -135,7 +139,9 @@ public class FileAttachmentController {
 
     // Set headers for file download
     HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"");
+    headers.add(
+        HttpHeaders.CONTENT_DISPOSITION,
+        "attachment; filename=\"" + attachment.getFileName() + "\"");
     headers.add(HttpHeaders.CONTENT_TYPE, attachment.getMimeType());
     headers.add(HttpHeaders.CONTENT_LENGTH, attachment.getFileSize().toString());
 
@@ -150,9 +156,7 @@ public class FileAttachmentController {
    * @return No content response
    */
   @DeleteMapping("/attachments/{id}")
-  @Operation(
-      summary = "Delete file attachment",
-      description = "Delete a file attachment by its ID")
+  @Operation(summary = "Delete file attachment", description = "Delete a file attachment by its ID")
   @ApiResponse(responseCode = "204", description = "File attachment deleted successfully")
   @ApiResponse(responseCode = "403", description = "User does not have access to this attachment")
   @ApiResponse(responseCode = "404", description = "Attachment not found")

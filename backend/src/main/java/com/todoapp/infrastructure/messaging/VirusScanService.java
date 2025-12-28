@@ -1,17 +1,19 @@
 package com.todoapp.infrastructure.messaging;
 
-import com.todoapp.domain.model.FileAttachment;
-import com.todoapp.domain.model.VirusScanStatus;
-import com.todoapp.domain.repository.FileAttachmentRepository;
-import com.todoapp.infrastructure.storage.FileStorageService;
 import java.io.InputStream;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.todoapp.domain.model.FileAttachment;
+import com.todoapp.domain.model.VirusScanStatus;
+import com.todoapp.domain.repository.FileAttachmentRepository;
+import com.todoapp.infrastructure.storage.FileStorageService;
 
 @Service
 public class VirusScanService {
@@ -66,7 +68,8 @@ public class VirusScanService {
       FileAttachment attachment =
           fileAttachmentRepository
               .findById(attachmentId)
-              .orElseThrow(() -> new RuntimeException("File attachment not found: " + attachmentId));
+              .orElseThrow(
+                  () -> new RuntimeException("File attachment not found: " + attachmentId));
 
       // Update status to SCANNING
       attachment.setScanStatus(VirusScanStatus.SCANNING);

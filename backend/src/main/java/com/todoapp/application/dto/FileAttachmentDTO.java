@@ -1,8 +1,9 @@
 package com.todoapp.application.dto;
 
-import com.todoapp.domain.model.VirusScanStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.todoapp.domain.model.VirusScanStatus;
 
 public class FileAttachmentDTO {
 

@@ -3,8 +3,6 @@ package com.todoapp.unit.infrastructure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -77,8 +75,10 @@ public class FileStorageServiceTest {
     String contentType = "application/pdf";
     long fileSize = fileContent.length;
 
-    String storageKey1 = fileStorageService.uploadFile(fileName, inputStream1, contentType, fileSize);
-    String storageKey2 = fileStorageService.uploadFile(fileName, inputStream2, contentType, fileSize);
+    String storageKey1 =
+        fileStorageService.uploadFile(fileName, inputStream1, contentType, fileSize);
+    String storageKey2 =
+        fileStorageService.uploadFile(fileName, inputStream2, contentType, fileSize);
 
     assertThat(storageKey1).isNotEqualTo(storageKey2);
     assertThat(storageKey1).contains(fileName);
@@ -96,7 +96,8 @@ public class FileStorageServiceTest {
     String contentType = "text/plain";
     long fileSize = fileContent.length;
 
-    String storageKey = fileStorageService.uploadFile(unsafeFileName, inputStream, contentType, fileSize);
+    String storageKey =
+        fileStorageService.uploadFile(unsafeFileName, inputStream, contentType, fileSize);
 
     assertThat(storageKey).doesNotContain("..");
     assertThat(storageKey).doesNotContain("/etc/");
@@ -124,7 +125,8 @@ public class FileStorageServiceTest {
     String contentType = "application/pdf";
     long fileSize = fileContent.length;
 
-    assertThatThrownBy(() -> fileStorageService.uploadFile(null, inputStream, contentType, fileSize))
+    assertThatThrownBy(
+            () -> fileStorageService.uploadFile(null, inputStream, contentType, fileSize))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("File name cannot be null or empty");
 
@@ -175,7 +177,8 @@ public class FileStorageServiceTest {
         .when(minioClient)
         .putObject(any(PutObjectArgs.class));
 
-    assertThatThrownBy(() -> fileStorageService.uploadFile(fileName, inputStream, contentType, fileSize))
+    assertThatThrownBy(
+            () -> fileStorageService.uploadFile(fileName, inputStream, contentType, fileSize))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("Failed to upload file");
   }
@@ -232,7 +235,8 @@ public class FileStorageServiceTest {
     String contentType = "text/plain";
     long fileSize = 0L;
 
-    assertThatThrownBy(() -> fileStorageService.uploadFile(fileName, inputStream, contentType, fileSize))
+    assertThatThrownBy(
+            () -> fileStorageService.uploadFile(fileName, inputStream, contentType, fileSize))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("File size must be greater than 0");
   }
@@ -247,7 +251,8 @@ public class FileStorageServiceTest {
     long maxSize = 25 * 1024 * 1024; // 25MB
     long oversizedFile = maxSize + 1;
 
-    assertThatThrownBy(() -> fileStorageService.uploadFile(fileName, inputStream, contentType, oversizedFile))
+    assertThatThrownBy(
+            () -> fileStorageService.uploadFile(fileName, inputStream, contentType, oversizedFile))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("File size exceeds maximum allowed size");
   }

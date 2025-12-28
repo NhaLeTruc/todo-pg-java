@@ -4,21 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.todoapp.application.dto.TaskCreateDTO;
-import com.todoapp.application.dto.TimeEntryDTO;
-import com.todoapp.domain.model.EntryType;
-import com.todoapp.domain.model.Priority;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.TimeEntry;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.TaskRepository;
-import com.todoapp.domain.repository.TimeEntryRepository;
-import com.todoapp.domain.repository.UserRepository;
-import com.todoapp.infrastructure.security.JwtTokenProvider;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +20,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.todoapp.application.dto.TimeEntryDTO;
+import com.todoapp.domain.model.EntryType;
+import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.TimeEntry;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.TimeEntryRepository;
+import com.todoapp.domain.repository.UserRepository;
+import com.todoapp.infrastructure.security.JwtTokenProvider;
 
 @SpringBootTest
 @AutoConfigureMockMvc

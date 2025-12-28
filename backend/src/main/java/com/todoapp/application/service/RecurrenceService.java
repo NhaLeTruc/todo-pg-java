@@ -1,18 +1,21 @@
 package com.todoapp.application.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.todoapp.domain.model.Frequency;
 import com.todoapp.domain.model.RecurrencePattern;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.repository.RecurrencePatternRepository;
 import com.todoapp.domain.repository.TaskRepository;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /** Service for managing recurring task patterns and generating task instances. */
 @Service
@@ -98,8 +101,7 @@ public class RecurrenceService {
         return calculateNextWeekly(baseDate, pattern.getIntervalValue(), pattern.getDaysOfWeek());
 
       case MONTHLY:
-        return calculateNextMonthly(
-            baseDate, pattern.getIntervalValue(), pattern.getDayOfMonth());
+        return calculateNextMonthly(baseDate, pattern.getIntervalValue(), pattern.getDayOfMonth());
 
       default:
         throw new IllegalStateException("Unsupported frequency: " + pattern.getFrequency());
@@ -276,8 +278,7 @@ public class RecurrenceService {
         recurrencePatternRepository
             .findById(patternId)
             .orElseThrow(
-                () ->
-                    new IllegalArgumentException("Recurrence pattern not found: " + patternId));
+                () -> new IllegalArgumentException("Recurrence pattern not found: " + patternId));
 
     pattern.setFrequency(frequency);
     pattern.setIntervalValue(intervalValue);

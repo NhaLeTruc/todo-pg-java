@@ -1,9 +1,11 @@
 package com.todoapp.domain.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "file_attachments")
@@ -222,8 +224,7 @@ public class FileAttachment {
       extension = this.fileName.substring(dotIndex);
     }
 
-    return String.format(
-        "attachments/%s/%s%s", this.task.getId(), UUID.randomUUID(), extension);
+    return String.format("attachments/%s/%s%s", this.task.getId(), UUID.randomUUID(), extension);
   }
 
   /**

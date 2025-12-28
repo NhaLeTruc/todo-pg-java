@@ -4,19 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import com.todoapp.application.dto.TimeEntryDTO;
-import com.todoapp.application.service.TimeTrackingService;
-import com.todoapp.domain.model.EntryType;
-import com.todoapp.domain.model.Task;
-import com.todoapp.domain.model.TimeEntry;
-import com.todoapp.domain.model.User;
-import com.todoapp.domain.repository.TaskRepository;
-import com.todoapp.domain.repository.TimeEntryRepository;
-import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +18,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.todoapp.application.dto.TimeEntryDTO;
+import com.todoapp.application.service.TimeTrackingService;
+import com.todoapp.domain.model.EntryType;
+import com.todoapp.domain.model.Task;
+import com.todoapp.domain.model.TimeEntry;
+import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.TaskRepository;
+import com.todoapp.domain.repository.TimeEntryRepository;
+import com.todoapp.presentation.exception.GlobalExceptionHandler.ResourceNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TimeTrackingService Tests")
@@ -151,8 +153,7 @@ class TimeTrackingServiceTest {
               .build();
 
       when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
-      when(timeEntryRepository.findActiveTimerForTask(1L, 1L))
-          .thenReturn(Optional.of(activeTimer));
+      when(timeEntryRepository.findActiveTimerForTask(1L, 1L)).thenReturn(Optional.of(activeTimer));
 
       assertThrows(
           IllegalStateException.class,
@@ -489,8 +490,7 @@ class TimeTrackingServiceTest {
               .build();
 
       when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
-      when(timeEntryRepository.findActiveTimerForTask(1L, 1L))
-          .thenReturn(Optional.of(activeTimer));
+      when(timeEntryRepository.findActiveTimerForTask(1L, 1L)).thenReturn(Optional.of(activeTimer));
 
       Optional<TimeEntryDTO> result = timeTrackingService.getActiveTimer(1L, 1L);
 

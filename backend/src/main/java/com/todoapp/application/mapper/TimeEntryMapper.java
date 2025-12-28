@@ -1,12 +1,11 @@
 package com.todoapp.application.mapper;
 
-import com.todoapp.application.dto.TimeEntryDTO;
-import com.todoapp.domain.model.TimeEntry;
 import org.springframework.stereotype.Component;
 
-/**
- * Mapper for converting between TimeEntry entities and DTOs.
- */
+import com.todoapp.application.dto.TimeEntryDTO;
+import com.todoapp.domain.model.TimeEntry;
+
+/** Mapper for converting between TimeEntry entities and DTOs. */
 @Component
 public class TimeEntryMapper {
 

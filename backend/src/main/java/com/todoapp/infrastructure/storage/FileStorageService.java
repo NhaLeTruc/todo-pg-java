@@ -1,16 +1,18 @@
 package com.todoapp.infrastructure.storage;
 
-import io.minio.*;
-import io.minio.errors.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import io.minio.*;
+import io.minio.errors.*;
 
 @Service
 public class FileStorageService {
@@ -52,10 +54,8 @@ public class FileStorageService {
 
       // Upload file to MinIO
       minioClient.putObject(
-          PutObjectArgs.builder()
-              .bucket(bucketName)
-              .object(storageKey)
-              .stream(inputStream, fileSize, -1)
+          PutObjectArgs.builder().bucket(bucketName).object(storageKey).stream(
+                  inputStream, fileSize, -1)
               .contentType(contentType)
               .build());
 
@@ -149,9 +149,7 @@ public class FileStorageService {
     }
   }
 
-  /**
-   * Ensure the bucket exists, creating it if necessary.
-   */
+  /** Ensure the bucket exists, creating it if necessary. */
   private void ensureBucketExists() {
     try {
       boolean found =

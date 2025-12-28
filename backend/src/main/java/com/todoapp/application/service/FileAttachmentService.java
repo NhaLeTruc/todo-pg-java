@@ -1,5 +1,17 @@
 package com.todoapp.application.service;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.todoapp.application.dto.FileAttachmentDTO;
 import com.todoapp.domain.model.FileAttachment;
 import com.todoapp.domain.model.Task;
@@ -10,16 +22,6 @@ import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.UserRepository;
 import com.todoapp.infrastructure.messaging.VirusScanService;
 import com.todoapp.infrastructure.storage.FileStorageService;
-import java.io.InputStream;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileAttachmentService {
@@ -109,10 +111,7 @@ public class FileAttachmentService {
     virusScanService.queueForScanning(attachment.getId());
 
     logger.info(
-        "File attachment created: {} for task: {} by user: {}",
-        attachment.getId(),
-        taskId,
-        userId);
+        "File attachment created: {} for task: {} by user: {}", attachment.getId(), taskId, userId);
 
     return toDTO(attachment);
   }
