@@ -11,11 +11,14 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { TaskEditModal } from '@/components/tasks/TaskEditModal';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
+import { useAuth } from '@/context/AuthContext';
+import { useTaskWebSocket } from '@/hooks/useTaskWebSocket';
 import { taskService } from '@/services/taskService';
 import { Task, TaskCreateRequest, TaskUpdateRequest } from '@/types/task';
 
 export function TasksPage() {
   const queryClient = useQueryClient();
+  const { user, token } = useAuth();
   const [page, setPage] = useState(0);
   const [size] = useState(20);
   const [search, setSearch] = useState<string>('');
@@ -29,6 +32,14 @@ export function TasksPage() {
   const [taskToDeleteHasSubtasks, setTaskToDeleteHasSubtasks] = useState(false);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
+  const [view, setView] = useState<'my-tasks' | 'shared-with-me'>('my-tasks');
+
+  // Enable real-time task updates via WebSocket
+  useTaskWebSocket({
+    userId: user?.id ?? null,
+    token: token ?? null,
+    enabled: !!user && !!token,
+  });
 
   const {
     data: tasksData,
@@ -36,7 +47,7 @@ export function TasksPage() {
     error,
   } = useQuery({
     queryKey: [
-      'tasks',
+      view === 'my-tasks' ? 'tasks' : 'shared-tasks',
       page,
       size,
       search,
@@ -46,8 +57,8 @@ export function TasksPage() {
       sortBy,
       sortDirection,
     ],
-    queryFn: () =>
-      taskService.getTasks({
+    queryFn: () => {
+      const params = {
         page,
         size,
         search: search || undefined,
@@ -56,7 +67,12 @@ export function TasksPage() {
         tagIds: tagFilter.length > 0 ? tagFilter : undefined,
         sortBy,
         sortDirection,
-      }),
+      };
+
+      return view === 'my-tasks'
+        ? taskService.getTasks(params)
+        : taskService.getSharedWithMeTasks(params);
+    },
   });
 
   const { data: categoriesData } = useQuery({
@@ -249,13 +265,49 @@ export function TasksPage() {
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">My Tasks</h1>
-        <p className="text-gray-600">Manage your tasks efficiently</p>
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">
+          {view === 'my-tasks' ? 'My Tasks' : 'Shared with Me'}
+        </h1>
+        <p className="text-gray-600">
+          {view === 'my-tasks' ? 'Manage your tasks efficiently' : 'Tasks shared by others'}
+        </p>
       </div>
 
-      <div className="mb-6">
-        <TaskForm onSubmit={handleCreateTask} isLoading={createMutation.isPending} />
+      {/* View Toggle */}
+      <div className="mb-6 flex gap-2">
+        <button
+          onClick={() => {
+            setView('my-tasks');
+            setPage(0);
+          }}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            view === 'my-tasks'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          My Tasks
+        </button>
+        <button
+          onClick={() => {
+            setView('shared-with-me');
+            setPage(0);
+          }}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            view === 'shared-with-me'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Shared with Me
+        </button>
       </div>
+
+      {view === 'my-tasks' && (
+        <div className="mb-6">
+          <TaskForm onSubmit={handleCreateTask} isLoading={createMutation.isPending} />
+        </div>
+      )}
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
@@ -361,7 +413,7 @@ export function TasksPage() {
           task={viewingTask}
           isOpen={!!viewingTask}
           onClose={() => setViewingTask(null)}
-          currentUserId={1}
+          currentUserId={user?.id ?? 0}
         />
       )}
 

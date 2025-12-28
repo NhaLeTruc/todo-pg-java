@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { MessageSquare, X, ListTree, Clock, PlusCircle } from 'lucide-react';
+import { MessageSquare, X, ListTree, Clock, PlusCircle, Share2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import { CommentForm } from '@/components/comments/CommentForm';
@@ -13,6 +13,7 @@ import { Task } from '@/types/task';
 
 import { AddSubtaskButton } from './AddSubtaskButton';
 import ManualTimeLogDialog from './ManualTimeLogDialog';
+import { ShareTaskDialog } from './ShareTaskDialog';
 import { SubtaskList } from './SubtaskList';
 import { SubtaskProgressBar } from './SubtaskProgressBar';
 import TimeTracker from './TimeTracker';
@@ -33,6 +34,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const queryClient = useQueryClient();
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [showManualTimeLog, setShowManualTimeLog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const { data: comments = [], isLoading: isLoadingComments } = useQuery({
     queryKey: ['comments', task.id],
@@ -167,12 +169,21 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   ))}
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="ml-4 flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-gray-500"
-            >
-              <X className="h-6 w-6" />
-            </button>
+            <div className="ml-4 flex flex-shrink-0 gap-2">
+              <button
+                onClick={() => setShowShareDialog(true)}
+                className="p-1 text-gray-400 transition-colors hover:text-blue-500"
+                title="Share task"
+              >
+                <Share2 className="h-5 w-5" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-1 text-gray-400 transition-colors hover:text-gray-500"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
           </div>
 
           {/* Time Tracking Section */}
@@ -272,6 +283,18 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           toast.success('Time logged successfully!');
         }}
       />
+
+      {/* Share Task Dialog */}
+      {showShareDialog && (
+        <ShareTaskDialog
+          taskId={task.id}
+          onClose={() => setShowShareDialog(false)}
+          onShare={async (email, permission) => {
+            // TODO: Implement share API call when backend endpoint is ready
+            toast.success(`Task shared with ${email} (${permission} permission)`);
+          }}
+        />
+      )}
     </div>
   );
 };

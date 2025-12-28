@@ -129,4 +129,31 @@ export const taskService = {
     });
     return response.data;
   },
+
+  async getSharedWithMeTasks(params: GetTasksParams = {}): Promise<PaginatedResponse<Task>> {
+    const {
+      page = 0,
+      size = 20,
+      sortBy = 'createdAt',
+      sortDirection = 'desc',
+      search,
+      completed,
+    } = params;
+
+    const response = await api.get<PaginatedResponse<Task>>('/tasks/shared-with-me', {
+      params: {
+        page,
+        size,
+        sortBy,
+        sortDirection,
+        search,
+        completed,
+      },
+      headers: {
+        [USER_ID_HEADER]: DEFAULT_USER_ID,
+      },
+    });
+
+    return response.data;
+  },
 };

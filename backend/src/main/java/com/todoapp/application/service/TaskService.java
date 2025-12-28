@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.todoapp.application.dto.TaskCreateDTO;
 import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
+import com.todoapp.application.dto.TaskUpdateMessage;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.PermissionLevel;
@@ -43,6 +44,7 @@ public class TaskService {
   private final TaskShareRepository taskShareRepository;
   private final RecurrencePatternRepository recurrencePatternRepository;
   private final TaskMapper taskMapper;
+  private final com.todoapp.presentation.websocket.TaskWebSocketHandler webSocketHandler;
   private RecurrenceService recurrenceService; // Lazy injection to avoid circular dependency
 
   public TaskService(
@@ -52,7 +54,8 @@ public class TaskService {
       TagRepository tagRepository,
       TaskShareRepository taskShareRepository,
       RecurrencePatternRepository recurrencePatternRepository,
-      TaskMapper taskMapper) {
+      TaskMapper taskMapper,
+      com.todoapp.presentation.websocket.TaskWebSocketHandler webSocketHandler) {
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
@@ -60,6 +63,7 @@ public class TaskService {
     this.taskShareRepository = taskShareRepository;
     this.recurrencePatternRepository = recurrencePatternRepository;
     this.taskMapper = taskMapper;
+    this.webSocketHandler = webSocketHandler;
   }
 
   /**
@@ -109,6 +113,12 @@ public class TaskService {
     Task savedTask = taskRepository.save(task);
 
     logger.info("Task created with ID: {} for user ID: {}", savedTask.getId(), userId);
+
+    // Broadcast WebSocket update to task owner
+    TaskUpdateMessage message =
+        TaskUpdateMessage.created(savedTask.getId(), userId, savedTask.getDescription());
+    webSocketHandler.sendTaskUpdateToUser(userId, message);
+
     return taskMapper.toResponseDTO(savedTask);
   }
 
@@ -233,6 +243,12 @@ public class TaskService {
     }
 
     Task savedTask = taskRepository.save(task);
+
+    // Broadcast WebSocket update to owner and collaborators
+    TaskUpdateMessage message =
+        TaskUpdateMessage.completed(savedTask.getId(), userId, savedTask.getIsCompleted());
+    broadcastToTaskCollaborators(savedTask, message);
+
     return taskMapper.toResponseDTO(savedTask);
   }
 
@@ -289,6 +305,18 @@ public class TaskService {
 
     Task savedTask = taskRepository.save(task);
     logger.info("Task ID: {} updated successfully", taskId);
+
+    // Broadcast WebSocket update to owner and collaborators
+    TaskUpdateMessage message =
+        TaskUpdateMessage.updated(
+            savedTask.getId(),
+            userId,
+            savedTask.getDescription(),
+            savedTask.getIsCompleted(),
+            savedTask.getPriority(),
+            savedTask.getDueDate());
+    broadcastToTaskCollaborators(savedTask, message);
+
     return taskMapper.toResponseDTO(savedTask);
   }
 
@@ -309,6 +337,10 @@ public class TaskService {
       logger.info(
           "Task ID: {} has {} subtasks that will be deleted due to cascade", taskId, subtaskCount);
     }
+
+    // Broadcast WebSocket update before deletion
+    TaskUpdateMessage message = TaskUpdateMessage.deleted(taskId, userId);
+    broadcastToTaskCollaborators(task, message);
 
     taskRepository.delete(task);
     logger.info("Task ID: {} deleted successfully", taskId);
@@ -570,5 +602,36 @@ public class TaskService {
     }
 
     logger.info("Batch updated tags for {} tasks by user ID: {}", updated, userId);
+  }
+
+  /**
+   * Broadcast WebSocket message to task owner and all collaborators
+   *
+   * @param task the task
+   * @param message the WebSocket message to broadcast
+   */
+  private void broadcastToTaskCollaborators(Task task, TaskUpdateMessage message) {
+    try {
+      // Send to task owner
+      webSocketHandler.sendTaskUpdateToUser(task.getUser().getId(), message);
+
+      // Send to all collaborators (users with shared access)
+      List<TaskShare> shares = taskShareRepository.findByTaskId(task.getId());
+      List<Long> collaboratorIds =
+          shares.stream().map(share -> share.getSharedWith().getId()).toList();
+
+      if (!collaboratorIds.isEmpty()) {
+        webSocketHandler.sendTaskUpdateToUsers(collaboratorIds, message);
+        logger.debug(
+            "Broadcasted task update to {} collaborators for task ID: {}",
+            collaboratorIds.size(),
+            task.getId());
+      }
+    } catch (Exception e) {
+      logger.error(
+          "Failed to broadcast WebSocket message for task ID: {} - {}",
+          task.getId(),
+          e.getMessage());
+    }
   }
 }
