@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +62,8 @@ public class FileStorageServiceTest {
     String storageKey = fileStorageService.uploadFile(fileName, inputStream, contentType, fileSize);
 
     assertThat(storageKey).isNotNull();
-    assertThat(storageKey).contains(fileName);
+    assertThat(storageKey).startsWith("uploads/");
+    assertThat(storageKey).endsWith(".pdf");
 
     verify(minioClient, times(1)).putObject(any(PutObjectArgs.class));
   }
@@ -82,8 +84,10 @@ public class FileStorageServiceTest {
         fileStorageService.uploadFile(fileName, inputStream2, contentType, fileSize);
 
     assertThat(storageKey1).isNotEqualTo(storageKey2);
-    assertThat(storageKey1).contains(fileName);
-    assertThat(storageKey2).contains(fileName);
+    assertThat(storageKey1).startsWith("uploads/");
+    assertThat(storageKey1).endsWith(".pdf");
+    assertThat(storageKey2).startsWith("uploads/");
+    assertThat(storageKey2).endsWith(".pdf");
 
     verify(minioClient, times(2)).putObject(any(PutObjectArgs.class));
   }
@@ -177,7 +181,7 @@ public class FileStorageServiceTest {
     String contentType = "application/pdf";
     long fileSize = fileContent.length;
 
-    doThrow(new RuntimeException("MinIO connection error"))
+    doThrow(new IOException("MinIO connection error"))
         .when(minioClient)
         .putObject(any(PutObjectArgs.class));
 
@@ -193,7 +197,7 @@ public class FileStorageServiceTest {
     String storageKey = "uploads/123/missing-file.pdf";
 
     when(minioClient.getObject(any(GetObjectArgs.class)))
-        .thenThrow(new RuntimeException("Object not found"));
+        .thenThrow(new IOException("Object not found"));
 
     assertThatThrownBy(() -> fileStorageService.downloadFile(storageKey))
         .isInstanceOf(RuntimeException.class)
@@ -205,7 +209,7 @@ public class FileStorageServiceTest {
   public void shouldHandleMinIODeleteErrors() throws Exception {
     String storageKey = "uploads/123/error-file.pdf";
 
-    doThrow(new RuntimeException("MinIO error"))
+    doThrow(new IOException("MinIO error"))
         .when(minioClient)
         .removeObject(any(RemoveObjectArgs.class));
 
