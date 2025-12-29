@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.todoapp.application.dto.TaskShareDTO;
+import com.todoapp.application.service.NotificationService;
 import com.todoapp.application.service.TaskShareService;
 import com.todoapp.domain.model.PermissionLevel;
 import com.todoapp.domain.model.Task;
@@ -35,6 +36,8 @@ public class TaskShareServiceTest {
   @Mock private TaskRepository taskRepository;
 
   @Mock private UserRepository userRepository;
+
+  @Mock private NotificationService notificationService;
 
   @InjectMocks private TaskShareService taskShareService;
 

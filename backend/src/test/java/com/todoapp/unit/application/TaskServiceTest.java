@@ -30,9 +30,13 @@ import com.todoapp.domain.model.Priority;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
+import com.todoapp.domain.repository.CategoryRepository;
+import com.todoapp.domain.repository.RecurrencePatternRepository;
+import com.todoapp.domain.repository.TagRepository;
 import com.todoapp.domain.repository.TaskRepository;
 import com.todoapp.domain.repository.TaskShareRepository;
 import com.todoapp.domain.repository.UserRepository;
+import com.todoapp.presentation.websocket.TaskWebSocketHandler;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TaskService Unit Tests")
@@ -43,6 +47,14 @@ class TaskServiceTest {
   @Mock private UserRepository userRepository;
 
   @Mock private TaskShareRepository taskShareRepository;
+
+  @Mock private CategoryRepository categoryRepository;
+
+  @Mock private TagRepository tagRepository;
+
+  @Mock private RecurrencePatternRepository recurrencePatternRepository;
+
+  @Mock private TaskWebSocketHandler webSocketHandler;
 
   @Mock private TaskMapper taskMapper;
 

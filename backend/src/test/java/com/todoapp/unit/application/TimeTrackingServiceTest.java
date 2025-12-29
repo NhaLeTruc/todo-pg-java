@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.todoapp.application.dto.TimeEntryDTO;
+import com.todoapp.application.mapper.TimeEntryMapper;
 import com.todoapp.application.service.TimeTrackingService;
 import com.todoapp.domain.model.EntryType;
 import com.todoapp.domain.model.Task;
@@ -37,6 +38,8 @@ class TimeTrackingServiceTest {
 
   @Mock private TaskRepository taskRepository;
 
+  @Mock private TimeEntryMapper timeEntryMapper;
+
   @InjectMocks private TimeTrackingService timeTrackingService;
 
   private User testUser;
@@ -47,6 +50,24 @@ class TimeTrackingServiceTest {
     testUser = User.builder().id(1L).email("user@test.com").build();
 
     testTask = Task.builder().id(1L).description("Test Task").user(testUser).build();
+
+    // Mock the timeEntryMapper to return a DTO with the same properties as the entity
+    lenient()
+        .when(timeEntryMapper.toDTO(any(TimeEntry.class)))
+        .thenAnswer(
+            invocation -> {
+              TimeEntry entry = invocation.getArgument(0);
+              TimeEntryDTO dto = new TimeEntryDTO();
+              dto.setId(entry.getId());
+              dto.setTaskId(entry.getTask() != null ? entry.getTask().getId() : null);
+              dto.setUserId(entry.getUser() != null ? entry.getUser().getId() : null);
+              dto.setEntryType(entry.getEntryType());
+              dto.setStartTime(entry.getStartTime());
+              dto.setEndTime(entry.getEndTime());
+              dto.setDurationMinutes(entry.getDurationMinutes());
+              dto.setNotes(entry.getNotes());
+              return dto;
+            });
   }
 
   @Nested
