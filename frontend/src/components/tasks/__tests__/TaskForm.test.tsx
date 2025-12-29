@@ -1,7 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Priority } from '@/types/task';
+import { fireEvent, render, screen, waitFor } from '@/test-utils';
+import type { Priority } from '@/types/task';
 
 import { TaskForm } from '../TaskForm';
 
@@ -16,15 +16,18 @@ describe('TaskForm', () => {
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
     expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument();
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /high/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /medium/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /low/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add task/i })).toBeInTheDocument();
   });
 
   it('should have MEDIUM as default priority', () => {
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
-    expect(select.value).toBe('MEDIUM');
+    const mediumButton = screen.getByRole('button', { name: /medium/i });
+    // Check that Medium button has the highlighted styling (yellow background)
+    expect(mediumButton).toHaveClass('bg-yellow-100');
   });
 
   it('should allow user to type task description', async () => {
@@ -41,10 +44,11 @@ describe('TaskForm', () => {
     const user = userEvent.setup();
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
-    await user.selectOptions(select, 'HIGH');
+    const highButton = screen.getByRole('button', { name: /high/i });
+    await user.click(highButton);
 
-    expect(select.value).toBe('HIGH');
+    // Check that High button now has the highlighted styling (red background)
+    expect(highButton).toHaveClass('bg-red-100');
   });
 
   it('should disable submit button when description is empty', () => {
@@ -104,18 +108,20 @@ describe('TaskForm', () => {
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
     const input = screen.getByPlaceholderText('What needs to be done?');
-    const select = screen.getByRole('combobox');
+    const highButton = screen.getByRole('button', { name: /high/i });
     const submitButton = screen.getByRole('button', { name: /add task/i });
 
     await user.type(input, 'Buy groceries');
-    await user.selectOptions(select, 'HIGH');
+    await user.click(highButton);
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
-        description: 'Buy groceries',
-        priority: 'HIGH' as Priority,
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Buy groceries',
+          priority: 'HIGH' as Priority,
+        })
+      );
     });
   });
 
@@ -130,10 +136,12 @@ describe('TaskForm', () => {
     await user.click(screen.getByRole('button', { name: /add task/i }));
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
-        description: 'Buy groceries',
-        priority: 'MEDIUM',
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Buy groceries',
+          priority: 'MEDIUM',
+        })
+      );
     });
   });
 
@@ -144,15 +152,16 @@ describe('TaskForm', () => {
     render(<TaskForm onSubmit={mockOnSubmit} />);
 
     const input = screen.getByPlaceholderText('What needs to be done?') as HTMLInputElement;
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
+    const highButton = screen.getByRole('button', { name: /high/i });
+    const mediumButton = screen.getByRole('button', { name: /medium/i });
 
     await user.type(input, 'Buy groceries');
-    await user.selectOptions(select, 'HIGH');
+    await user.click(highButton);
     await user.click(screen.getByRole('button', { name: /add task/i }));
 
     await waitFor(() => {
       expect(input.value).toBe('');
-      expect(select.value).toBe('MEDIUM');
+      expect(mediumButton).toHaveClass('bg-yellow-100'); // Back to MEDIUM default
     });
   });
 
@@ -160,11 +169,11 @@ describe('TaskForm', () => {
     render(<TaskForm onSubmit={mockOnSubmit} isLoading={true} />);
 
     const input = screen.getByPlaceholderText('What needs to be done?');
-    const select = screen.getByRole('combobox');
+    const highButton = screen.getByRole('button', { name: /high/i });
     const submitButton = screen.getByRole('button', { name: /add task/i });
 
     expect(input).toBeDisabled();
-    expect(select).toBeDisabled();
+    expect(highButton).toBeDisabled();
     expect(submitButton).toBeDisabled();
   });
 
@@ -187,10 +196,12 @@ describe('TaskForm', () => {
     await user.type(input, 'Buy groceries{Enter}');
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
-        description: 'Buy groceries',
-        priority: 'MEDIUM',
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Buy groceries',
+          priority: 'MEDIUM',
+        })
+      );
     });
   });
 });

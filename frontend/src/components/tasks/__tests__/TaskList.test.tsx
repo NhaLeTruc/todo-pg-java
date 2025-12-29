@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Task } from '@/types/task';
+import { createMockTask, createCompletedTask, createOverdueTask } from '@/__mocks__/factories';
+import { render, screen } from '@/test-utils';
+import type { Task } from '@/types/task';
 
 import { TaskList } from '../TaskList';
 
@@ -11,60 +12,35 @@ describe('TaskList', () => {
   const mockOnEdit = jest.fn();
 
   const mockTasks: Task[] = [
-    {
+    createMockTask({
       id: 1,
       description: 'Buy groceries',
-      isCompleted: false,
       priority: 'HIGH',
       dueDate: '2025-12-31T10:00:00',
-      completedAt: null,
-      position: 0,
-      categoryId: null,
-      categoryName: null,
-      estimatedDurationMinutes: null,
-      actualDurationMinutes: null,
-      isOverdue: false,
-      parentTaskId: null,
-      depth: 0,
       createdAt: '2025-12-26T10:00:00',
       updatedAt: '2025-12-26T10:00:00',
-    },
-    {
+    }),
+    createCompletedTask({
       id: 2,
       description: 'Call dentist',
-      isCompleted: true,
       priority: 'MEDIUM',
-      dueDate: null,
       completedAt: '2025-12-25T14:30:00',
-      position: 1,
       categoryId: 1,
       categoryName: 'Health',
       estimatedDurationMinutes: 15,
       actualDurationMinutes: 10,
-      isOverdue: false,
-      parentTaskId: null,
-      depth: 0,
       createdAt: '2025-12-20T10:00:00',
       updatedAt: '2025-12-25T14:30:00',
-    },
-    {
+    }),
+    createOverdueTask({
       id: 3,
       description: 'Submit report',
-      isCompleted: false,
       priority: 'LOW',
       dueDate: '2025-12-20T17:00:00',
-      completedAt: null,
-      position: 2,
-      categoryId: null,
-      categoryName: null,
       estimatedDurationMinutes: 120,
-      actualDurationMinutes: null,
-      isOverdue: true,
-      parentTaskId: null,
-      depth: 0,
       createdAt: '2025-12-15T10:00:00',
       updatedAt: '2025-12-15T10:00:00',
-    },
+    }),
   ];
 
   beforeEach(() => {
