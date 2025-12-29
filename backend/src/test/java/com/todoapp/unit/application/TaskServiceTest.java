@@ -25,8 +25,10 @@ import com.todoapp.application.dto.TaskResponseDTO;
 import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.mapper.TaskMapper;
 import com.todoapp.application.service.TaskService;
+import com.todoapp.domain.model.Category;
 import com.todoapp.domain.model.PermissionLevel;
 import com.todoapp.domain.model.Priority;
+import com.todoapp.domain.model.Tag;
 import com.todoapp.domain.model.Task;
 import com.todoapp.domain.model.TaskShare;
 import com.todoapp.domain.model.User;
@@ -912,12 +914,16 @@ class TaskServiceTest {
     Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).build();
     Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).build();
 
+    Category category = Category.builder().id(5L).name("Work").user(testUser).build();
+
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
     when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+    when(categoryRepository.findByIdAndUserId(5L, 1L)).thenReturn(Optional.of(category));
 
     taskService.batchUpdateCategory(taskIds, 5L, 1L);
 
     verify(taskRepository, times(2)).save(any(Task.class));
+    verify(categoryRepository).findByIdAndUserId(5L, 1L);
   }
 
   @Test
@@ -929,11 +935,17 @@ class TaskServiceTest {
     Task task1 = Task.builder().id(1L).description("Task 1").user(testUser).build();
     Task task2 = Task.builder().id(2L).description("Task 2").user(testUser).build();
 
+    Tag tag1 = Tag.builder().id(10L).name("Tag 1").user(testUser).build();
+    Tag tag2 = Tag.builder().id(20L).name("Tag 2").user(testUser).build();
+    List<Tag> tags = Arrays.asList(tag1, tag2);
+
     when(taskRepository.findById(1L)).thenReturn(Optional.of(task1));
     when(taskRepository.findById(2L)).thenReturn(Optional.of(task2));
+    when(tagRepository.findByIdInAndUserId(tagIds, 1L)).thenReturn(tags);
 
     taskService.batchUpdateTags(taskIds, tagIds, 1L);
 
     verify(taskRepository, times(2)).save(any(Task.class));
+    verify(tagRepository).findByIdInAndUserId(tagIds, 1L);
   }
 }

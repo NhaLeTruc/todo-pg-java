@@ -66,6 +66,9 @@ class TimeTrackingServiceTest {
               dto.setEndTime(entry.getEndTime());
               dto.setDurationMinutes(entry.getDurationMinutes());
               dto.setNotes(entry.getNotes());
+              dto.setLoggedAt(entry.getLoggedAt());
+              // Set running flag: true if TIMER with no endTime
+              dto.setRunning(entry.getEntryType() == EntryType.TIMER && entry.getEndTime() == null);
               return dto;
             });
   }

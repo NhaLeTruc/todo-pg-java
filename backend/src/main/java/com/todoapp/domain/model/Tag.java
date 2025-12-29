@@ -9,11 +9,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
     name = "tags",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "user_id"})})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tag {
 
   @Id
@@ -41,54 +49,4 @@ public class Tag {
   @UpdateTimestamp
   @Column(nullable = false)
   private LocalDateTime updatedAt;
-
-  public Tag() {}
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getColor() {
-    return color;
-  }
-
-  public void setColor(String color) {
-    this.color = color;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
 }
