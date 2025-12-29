@@ -3,7 +3,13 @@
   "compilerOptions": {
     "types": ["jest", "@testing-library/jest-dom"],
     "moduleResolution": "node",
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "module": "commonjs"
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   },
   "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/__tests__/**/*", "src/setupTests.ts"]
 }

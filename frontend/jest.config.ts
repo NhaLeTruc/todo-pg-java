@@ -5,6 +5,18 @@ const config: Config.InitialOptions = {
   testEnvironment: 'jsdom',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/*.{spec,test}.{ts,tsx}'],
+
+  // Add globals to handle import.meta
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        jsx: 'react',
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+      },
+    },
+  },
+
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
@@ -29,9 +41,15 @@ const config: Config.InitialOptions = {
       'ts-jest',
       {
         tsconfig: 'tsconfig.test.json',
+        diagnostics: {
+          ignoreCodes: [1343], // Ignore 'import.meta' errors
+        },
       },
     ],
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@testing-library)/)',
+  ],
 };
 
 export default config;

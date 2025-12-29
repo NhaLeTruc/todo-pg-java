@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Priority, Task } from '@/types/task';
+import { createMockTask } from '@/__mocks__/factories';
+import { render, screen } from '@/test-utils';
+import type { Priority, Task } from '@/types/task';
 
 import { TaskItem } from '../TaskItem';
 
@@ -10,15 +11,11 @@ describe('TaskItem', () => {
   const mockOnDelete = jest.fn();
   const mockOnEdit = jest.fn();
 
-  const baseTask: Task = {
+  const baseTask = createMockTask({
     id: 1,
     description: 'Test task',
-    priority: Priority.MEDIUM,
-    isCompleted: false,
-    isOverdue: false,
-    createdAt: '2024-01-01T10:00:00Z',
-    updatedAt: '2024-01-01T10:00:00Z',
-  };
+    priority: 'MEDIUM' as Priority,
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -257,7 +254,7 @@ describe('TaskItem', () => {
   it('should apply different badge styles for priority levels', () => {
     const { rerender } = render(
       <TaskItem
-        task={{ ...baseTask, priority: Priority.HIGH }}
+        task={{ ...baseTask, priority: 'HIGH' as Priority }}
         onToggleComplete={mockOnToggleComplete}
         onDelete={mockOnDelete}
         onEdit={mockOnEdit}
@@ -268,7 +265,7 @@ describe('TaskItem', () => {
 
     rerender(
       <TaskItem
-        task={{ ...baseTask, priority: Priority.MEDIUM }}
+        task={{ ...baseTask, priority: 'MEDIUM' as Priority }}
         onToggleComplete={mockOnToggleComplete}
         onDelete={mockOnDelete}
         onEdit={mockOnEdit}
@@ -279,7 +276,7 @@ describe('TaskItem', () => {
 
     rerender(
       <TaskItem
-        task={{ ...baseTask, priority: Priority.LOW }}
+        task={{ ...baseTask, priority: 'LOW' as Priority }}
         onToggleComplete={mockOnToggleComplete}
         onDelete={mockOnDelete}
         onEdit={mockOnEdit}

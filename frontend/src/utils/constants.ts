@@ -1,6 +1,23 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+// Handle import.meta.env for both Vite and Jest environments
+// In production: uses import.meta.env from Vite
+// In tests: uses defaults (import.meta not available in Jest)
+let API_BASE_URL_VALUE = 'http://localhost:8080/api/v1';
+let WS_URL_VALUE = 'http://localhost:8080/ws';
 
-export const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws';
+// Use try-catch to safely access import.meta which doesn't exist in Jest
+try {
+  // Use eval to prevent Jest from parsing import.meta at parse time
+  const meta = eval('import.meta');
+  if (meta && meta.env) {
+    API_BASE_URL_VALUE = meta.env.VITE_API_BASE_URL || API_BASE_URL_VALUE;
+    WS_URL_VALUE = meta.env.VITE_WS_URL || WS_URL_VALUE;
+  }
+} catch {
+  // In Jest environment, this will fail but we already have defaults
+}
+
+export const API_BASE_URL = API_BASE_URL_VALUE;
+export const WS_URL = WS_URL_VALUE;
 
 export const API_ENDPOINTS = {
   AUTH: {

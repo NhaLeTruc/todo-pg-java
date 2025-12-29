@@ -76,7 +76,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.4.4",
     "vite": "^5.2.8",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "whatwg-fetch": "^3.6.20"
   },
   "engines": {
     "node": ">=20.0.0",
