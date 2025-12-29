@@ -98,16 +98,9 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
    */
   @Query(
       """
-      SELECT COALESCE(SUM(
-        CASE
-          WHEN te.entryType = 'MANUAL' THEN te.durationMinutes
-          WHEN te.entryType = 'TIMER' AND te.endTime IS NOT NULL
-            THEN CAST(EXTRACT(EPOCH FROM (te.endTime - te.startTime)) / 60 AS INTEGER)
-          ELSE 0
-        END
-      ), 0)
+      SELECT COALESCE(SUM(te.durationMinutes), 0)
       FROM TimeEntry te
-      WHERE te.task.id = :taskId
+      WHERE te.task.id = :taskId AND te.durationMinutes IS NOT NULL
       """)
   int getTotalTimeForTask(@Param("taskId") Long taskId);
 
@@ -121,16 +114,10 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
    */
   @Query(
       """
-      SELECT COALESCE(SUM(
-        CASE
-          WHEN te.entryType = 'MANUAL' THEN te.durationMinutes
-          WHEN te.entryType = 'TIMER' AND te.endTime IS NOT NULL
-            THEN CAST(EXTRACT(EPOCH FROM (te.endTime - te.startTime)) / 60 AS INTEGER)
-          ELSE 0
-        END
-      ), 0)
+      SELECT COALESCE(SUM(te.durationMinutes), 0)
       FROM TimeEntry te
       WHERE te.user.id = :userId
+        AND te.durationMinutes IS NOT NULL
         AND (
           (te.entryType = 'TIMER' AND te.startTime >= :startDate AND te.startTime < :endDate)
           OR (te.entryType = 'MANUAL' AND te.loggedAt >= :startDate AND te.loggedAt < :endDate)
@@ -151,29 +138,16 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Long> {
    */
   @Query(
       """
-      SELECT te.task.id, COALESCE(SUM(
-        CASE
-          WHEN te.entryType = 'MANUAL' THEN te.durationMinutes
-          WHEN te.entryType = 'TIMER' AND te.endTime IS NOT NULL
-            THEN CAST(EXTRACT(EPOCH FROM (te.endTime - te.startTime)) / 60 AS INTEGER)
-          ELSE 0
-        END
-      ), 0)
+      SELECT te.task.id, COALESCE(SUM(te.durationMinutes), 0)
       FROM TimeEntry te
       WHERE te.user.id = :userId
+        AND te.durationMinutes IS NOT NULL
         AND (
           (te.entryType = 'TIMER' AND te.startTime >= :startDate AND te.startTime < :endDate)
           OR (te.entryType = 'MANUAL' AND te.loggedAt >= :startDate AND te.loggedAt < :endDate)
         )
       GROUP BY te.task.id
-      ORDER BY SUM(
-        CASE
-          WHEN te.entryType = 'MANUAL' THEN te.durationMinutes
-          WHEN te.entryType = 'TIMER' AND te.endTime IS NOT NULL
-            THEN CAST(EXTRACT(EPOCH FROM (te.endTime - te.startTime)) / 60 AS INTEGER)
-          ELSE 0
-        END
-      ) DESC
+      ORDER BY SUM(te.durationMinutes) DESC
       """)
   List<Object[]> getTimeStatsByTaskForUser(
       @Param("userId") Long userId,
