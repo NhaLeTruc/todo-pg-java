@@ -146,27 +146,9 @@ class AuthServiceTest {
     verify(jwtTokenProvider).generateToken("test@example.com", 1L);
   }
 
-  @Test
-  @DisplayName("Should validate token")
-  void shouldValidateToken() {
-    String token = "valid.jwt.token";
-    when(jwtTokenProvider.validateToken(token)).thenReturn(true);
-
-    boolean result = authService.validateToken(token);
-
-    assertTrue(result);
-    verify(jwtTokenProvider).validateToken(token);
-  }
-
-  @Test
-  @DisplayName("Should extract email from token")
-  void shouldExtractEmailFromToken() {
-    String token = "valid.jwt.token";
-    when(jwtTokenProvider.getEmailFromToken(token)).thenReturn("test@example.com");
-
-    String email = authService.getEmailFromToken(token);
-
-    assertEquals("test@example.com", email);
-    verify(jwtTokenProvider).getEmailFromToken(token);
-  }
+  // Deleted tautological tests:
+  // - shouldValidateToken() - Just tested that mock returns what we told it to
+  // - shouldExtractEmailFromToken() - Just tested that mock returns what we told it to
+  // These tests provided no value - they only verified method delegation which
+  // the compiler already guarantees. No business logic was being tested.
 }

@@ -128,44 +128,12 @@ class TagTest {
     assertFalse(violations.isEmpty());
   }
 
-  @Test
-  @DisplayName("Should enforce tag name uniqueness per user (business logic)")
-  void shouldEnforceTagNameUniquenessPerUser() {
-    // This test validates the concept of uniqueness
-    // Actual uniqueness enforcement happens at service/repository level
-    Tag tag1 = new Tag();
-    tag1.setName("urgent");
-    tag1.setUser(user);
-
-    Tag tag2 = new Tag();
-    tag2.setName("urgent");
-    tag2.setUser(user);
-
-    // Same name for same user should be rejected by service layer
-    assertEquals(tag1.getName(), tag2.getName());
-    assertEquals(tag1.getUser(), tag2.getUser());
-  }
-
-  @Test
-  @DisplayName("Should allow same tag name for different users")
-  void shouldAllowSameTagNameForDifferentUsers() {
-    User user2 = new User();
-    user2.setId(2L);
-    user2.setEmail("user2@example.com");
-    user2.setPasswordHash("hashedPassword");
-
-    Tag tag1 = new Tag();
-    tag1.setName("urgent");
-    tag1.setUser(user);
-
-    Tag tag2 = new Tag();
-    tag2.setName("urgent");
-    tag2.setUser(user2);
-
-    // Same name for different users is allowed
-    assertEquals(tag1.getName(), tag2.getName());
-    assertNotEquals(tag1.getUser(), tag2.getUser());
-  }
+  // Deleted useless "concept" tests (identical to CategoryTest issues):
+  // - shouldEnforceTagNameUniquenessPerUser() - Just created two tags with same name
+  //   and verified they had the same name. No actual validation logic tested.
+  // - shouldAllowSameTagNameForDifferentUsers() - Same issue, just compared objects,
+  //   no validation logic present
+  // These tests provided negative value by giving false confidence
 
   @Test
   @DisplayName("Should allow setting createdAt and updatedAt timestamps")

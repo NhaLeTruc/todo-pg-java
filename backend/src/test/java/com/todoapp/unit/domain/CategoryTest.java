@@ -129,44 +129,13 @@ class CategoryTest {
     assertFalse(violations.isEmpty());
   }
 
-  @Test
-  @DisplayName("Should enforce category name uniqueness per user (business logic)")
-  void shouldEnforceCategoryNameUniquenessPerUser() {
-    // This test validates the concept of uniqueness
-    // Actual uniqueness enforcement happens at service/repository level
-    Category category1 = new Category();
-    category1.setName("Work");
-    category1.setUser(user);
-
-    Category category2 = new Category();
-    category2.setName("Work");
-    category2.setUser(user);
-
-    // Same name for same user should be rejected by service layer
-    assertEquals(category1.getName(), category2.getName());
-    assertEquals(category1.getUser(), category2.getUser());
-  }
-
-  @Test
-  @DisplayName("Should allow same category name for different users")
-  void shouldAllowSameCategoryNameForDifferentUsers() {
-    User user2 = new User();
-    user2.setId(2L);
-    user2.setEmail("user2@example.com");
-    user2.setPasswordHash("hashedPassword");
-
-    Category category1 = new Category();
-    category1.setName("Work");
-    category1.setUser(user);
-
-    Category category2 = new Category();
-    category2.setName("Work");
-    category2.setUser(user2);
-
-    // Same name for different users is allowed
-    assertEquals(category1.getName(), category2.getName());
-    assertNotEquals(category1.getUser(), category2.getUser());
-  }
+  // Deleted useless "concept" tests:
+  // - shouldEnforceCategoryNameUniquenessPerUser() - Just created two categories with same name
+  //   and verified they had the same name. No actual validation logic tested.
+  //   Comment even admitted "Actual uniqueness enforcement happens at service/repository level"
+  // - shouldAllowSameCategoryNameForDifferentUsers() - Same issue, just compared objects,
+  //   no validation logic present
+  // These tests provided negative value by giving false confidence that validation exists
 
   @Test
   @DisplayName("Should allow setting createdAt and updatedAt timestamps")

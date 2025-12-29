@@ -154,18 +154,11 @@ public class TaskShareTest {
     assertEquals(owner, taskShare.getSharedByUser());
   }
 
-  @Test
-  @DisplayName("Should prevent sharing task with self")
-  public void shouldPreventSharingWithSelf() {
-    TaskShare taskShare = new TaskShare();
-    taskShare.setTask(task);
-    taskShare.setSharedWithUser(owner);
-    taskShare.setSharedByUser(owner);
-    taskShare.setPermissionLevel(PermissionLevel.VIEW);
-
-    assertEquals(owner, taskShare.getSharedWithUser());
-    assertEquals(owner, taskShare.getSharedByUser());
-  }
+  // Deleted contradictory test:
+  // - shouldPreventSharingWithSelf() - Test name says "should PREVENT" but it didn't
+  //   prevent anything! Just set both users to same person and verified they're equal.
+  //   No exception thrown, no validation logic tested. This test provided negative value
+  //   by implying validation exists when it doesn't.
 
   @Test
   @DisplayName("Should allow upgrading permission from VIEW to EDIT")

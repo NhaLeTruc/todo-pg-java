@@ -56,29 +56,12 @@ public class NotificationServiceTest {
     testTask.setUser(testUser);
   }
 
-  @Test
-  @DisplayName("Should create notification successfully")
-  public void shouldCreateNotificationSuccessfully() {
-    Notification notification = new Notification();
-    notification.setUser(testUser);
-    notification.setType(NotificationType.TASK_DUE_SOON);
-    notification.setMessage("Task is due soon");
-    notification.setRelatedTask(testTask);
-
-    when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
-
-    Notification result =
-        notificationService.createNotification(
-            testUser, NotificationType.TASK_DUE_SOON, "Task is due soon", testTask);
-
-    assertThat(result).isNotNull();
-    assertThat(result.getUser()).isEqualTo(testUser);
-    assertThat(result.getType()).isEqualTo(NotificationType.TASK_DUE_SOON);
-    assertThat(result.getMessage()).isEqualTo("Task is due soon");
-    assertThat(result.getRelatedTask()).isEqualTo(testTask);
-
-    verify(notificationRepository, times(1)).save(any(Notification.class));
-  }
+  // Deleted over-mocked test:
+  // - shouldCreateNotificationSuccessfully() - Created a notification object,
+  //   mocked repository to return that exact object, then verified the returned
+  //   object had the same fields. This is just testing that mocks work.
+  //   The only real assertion of value was verify(repository.save), but that alone
+  //   doesn't justify this entire test. Better tested via integration tests.
 
   @Test
   @DisplayName("Should reject notification with null user")

@@ -139,20 +139,9 @@ public class DueDateNotifierTest {
         .createNotification(any(), any(), anyString(), any(Task.class));
   }
 
-  @Test
-  @DisplayName("Should not send duplicate notifications for same task")
-  public void shouldNotSendDuplicateNotifications() {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    testTask.setDueDate(tomorrow.atStartOfDay());
-
-    when(taskRepository.findTasksDueSoon()).thenReturn(Collections.singletonList(testTask));
-
-    // Run twice
-    dueDateNotifier.checkDueDates();
-    dueDateNotifier.checkDueDates();
-
-    // Should only send 2 notifications total (one per run)
-    verify(notificationService, times(2))
-        .createNotification(any(), any(), anyString(), any(Task.class));
-  }
+  // Deleted contradictory test:
+  // - shouldNotSendDuplicateNotifications() - Test name says "should NOT send duplicate"
+  //   but it verified times(2), meaning it EXPECTED and ACCEPTED duplicates!
+  //   The comment even contradicted the test name: "Should only send 2 notifications"
+  //   This test didn't test duplicate prevention at all - it verified duplicates ARE sent.
 }

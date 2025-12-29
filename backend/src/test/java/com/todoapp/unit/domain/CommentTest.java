@@ -74,18 +74,12 @@ public class CommentTest {
     assertFalse(violations.isEmpty());
   }
 
-  @Test
-  @DisplayName("Should reject whitespace-only content")
-  public void shouldRejectWhitespaceOnlyContent() {
-    Comment comment = new Comment();
-    comment.setTask(testTask);
-    comment.setAuthor(testUser);
-    comment.setContent("   ");
-
-    // This will be validated by business logic, not JPA
-    String trimmed = comment.getContent().trim();
-    assertTrue(trimmed.isEmpty(), "Content should be empty after trimming");
-  }
+  // Deleted fake validation test:
+  // - shouldRejectWhitespaceOnlyContent() - Test name says "should REJECT" but
+  //   it doesn't reject anything. Just trims a string and checks if it's empty.
+  //   Comment even admits "This will be validated by business logic" meaning
+  //   no actual validation is present. This test gave false confidence that
+  //   whitespace validation exists when it doesn't.
 
   @Test
   @DisplayName("Should reject content exceeding 5000 characters")
