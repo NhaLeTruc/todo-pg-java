@@ -42,8 +42,8 @@ export function useCreateComment(taskId: number) {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           authorId: 1, // Default user ID
-          authorName: 'You', // Placeholder
-          mentions: newComment.mentions || [],
+          authorEmail: 'you@example.com', // Placeholder
+          isEdited: false,
         };
         return [...old, optimisticComment];
       });

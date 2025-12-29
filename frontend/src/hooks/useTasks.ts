@@ -47,11 +47,25 @@ export function useCreateTask() {
         if (!old) return old;
         const optimisticTask: Task = {
           id: Date.now(), // Temporary ID
-          ...newTask,
-          completed: false,
+          description: newTask.description,
+          priority: newTask.priority || 'MEDIUM',
+          dueDate: newTask.dueDate || null,
+          categoryId: newTask.categoryId || null,
+          estimatedDurationMinutes: newTask.estimatedDurationMinutes || null,
+          isCompleted: false,
+          completedAt: null,
+          position: 0,
+          categoryName: null,
+          categoryColor: null,
+          tags: [],
+          actualDurationMinutes: null,
+          isOverdue: false,
+          parentTaskId: null,
+          depth: 0,
+          subtaskProgress: 0,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-        } as Task;
+        };
         return {
           ...old,
           content: [optimisticTask, ...old.content],
@@ -267,12 +281,25 @@ export function useCreateSubtask(parentTaskId: number) {
           if (!old) return old;
           const optimisticSubtask: Task = {
             id: Date.now(), // Temporary ID
-            ...newSubtask,
+            description: newSubtask.description,
+            priority: newSubtask.priority || 'MEDIUM',
+            dueDate: newSubtask.dueDate || null,
+            categoryId: newSubtask.categoryId || null,
+            estimatedDurationMinutes: newSubtask.estimatedDurationMinutes || null,
             parentTaskId,
-            completed: false,
+            isCompleted: false,
+            completedAt: null,
+            position: 0,
+            categoryName: null,
+            categoryColor: null,
+            tags: [],
+            actualDurationMinutes: null,
+            isOverdue: false,
+            depth: 1,
+            subtaskProgress: 0,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          } as Task;
+          };
           return [optimisticSubtask, ...old];
         }
       );

@@ -185,10 +185,10 @@ describe('TagSelector', () => {
 
     await waitFor(() => {
       const buttons = screen.getAllByRole('button');
-      expect(buttons[0]).toHaveTextContent(mockTags[0].name);
-      expect(buttons[1]).toHaveTextContent(mockTags[1].name);
-      expect(buttons[2]).toHaveTextContent(mockTags[2].name);
-      expect(buttons[3]).toHaveTextContent(mockTags[3].name);
+      expect(buttons[0]!).toHaveTextContent(mockTags[0].name);
+      expect(buttons[1]!).toHaveTextContent(mockTags[1].name);
+      expect(buttons[2]!).toHaveTextContent(mockTags[2].name);
+      expect(buttons[3]!).toHaveTextContent(mockTags[3].name);
     });
   });
 

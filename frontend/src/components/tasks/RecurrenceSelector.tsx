@@ -31,8 +31,8 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({ value, onChange
   const [enabled, setEnabled] = useState(!!value);
   const [frequency, setFrequency] = useState<Frequency>(value?.frequency || 'DAILY');
   const [intervalValue, setIntervalValue] = useState(value?.intervalValue || 1);
-  const [startDate, setStartDate] = useState(
-    value?.startDate || new Date().toISOString().split('T')[0]
+  const [startDate, setStartDate] = useState<string>(
+    (value?.startDate ?? new Date().toISOString().split('T')[0]) as string
   );
   const [endDate, setEndDate] = useState(value?.endDate || '');
   const [daysOfWeek, setDaysOfWeek] = useState<string[]>(value?.daysOfWeek || []);

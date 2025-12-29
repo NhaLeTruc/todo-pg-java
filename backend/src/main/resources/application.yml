@@ -31,10 +31,8 @@ spring:
           order_inserts: true
           order_updates: true
         cache:
-          use_second_level_cache: true
-          use_query_cache: true
-          region:
-            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+          use_second_level_cache: false
+          use_query_cache: false
     show-sql: false
     open-in-view: false
 

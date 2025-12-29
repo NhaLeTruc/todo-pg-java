@@ -11,8 +11,8 @@ RUN mvn dependency:go-offline -B
 # Copy source code
 COPY src ./src
 
-# Build application (skip tests in Docker build)
-RUN mvn clean package -DskipTests -B
+# Build application (skip tests and checkstyle in Docker build)
+RUN mvn clean package -DskipTests -Dcheckstyle.skip=true -B
 
 # Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine

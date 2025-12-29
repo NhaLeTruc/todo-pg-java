@@ -113,7 +113,6 @@ public class MetricsConfig {
    *
    * @param registry Meter registry
    */
-  @Bean
   public void configureCacheMetrics(MeterRegistry registry) {
     // Cache hit rate
     registry.gauge(

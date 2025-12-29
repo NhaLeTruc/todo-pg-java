@@ -76,7 +76,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       if (disabled) return;
 
       const files = Array.from(e.dataTransfer.files);
-      if (files.length > 0) {
+      if (files.length > 0 && files[0]) {
         handleFile(files[0]);
       }
     },
@@ -96,7 +96,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
-      if (files && files.length > 0) {
+      if (files && files.length > 0 && files[0]) {
         handleFile(files[0]);
       }
     },
