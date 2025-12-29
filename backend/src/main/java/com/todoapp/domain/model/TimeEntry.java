@@ -121,13 +121,44 @@ public class TimeEntry {
   }
 
   /**
-   * Validate this time entry before persisting.
+   * Validate this time entry and set timestamps before persisting.
    *
    * @throws IllegalArgumentException if validation fails
    */
   @PrePersist
+  protected void onPrePersist() {
+    // Set timestamps
+    if (createdAt == null) {
+      createdAt = LocalDateTime.now();
+    }
+    if (entryType == EntryType.MANUAL && loggedAt == null) {
+      loggedAt = LocalDateTime.now();
+    }
+
+    // Validate
+    validateFields();
+  }
+
+  /**
+   * Validate this time entry before updating.
+   *
+   * @throws IllegalArgumentException if validation fails
+   */
   @PreUpdate
+  protected void onPreUpdate() {
+    validateFields();
+  }
+
+  /**
+   * Public method to validate the time entry.
+   *
+   * @throws IllegalArgumentException if validation fails
+   */
   public void validate() {
+    validateFields();
+  }
+
+  private void validateFields() {
     if (task == null) {
       throw new IllegalArgumentException("Task is required");
     }
@@ -157,17 +188,6 @@ public class TimeEntry {
   private void validateManualEntry() {
     if (durationMinutes == null || durationMinutes <= 0) {
       throw new IllegalArgumentException("Duration must be positive for MANUAL entries");
-    }
-  }
-
-  /** Set the creation timestamp before persisting. */
-  @PrePersist
-  protected void onCreate() {
-    if (createdAt == null) {
-      createdAt = LocalDateTime.now();
-    }
-    if (entryType == EntryType.MANUAL && loggedAt == null) {
-      loggedAt = LocalDateTime.now();
     }
   }
 }
