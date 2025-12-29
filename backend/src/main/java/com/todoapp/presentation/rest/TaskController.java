@@ -1,6 +1,7 @@
 package com.todoapp.presentation.rest;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.todoapp.application.dto.RecurrencePatternDTO;
@@ -22,6 +24,7 @@ import com.todoapp.application.service.RecurrenceService;
 import com.todoapp.application.service.TaskService;
 import com.todoapp.domain.model.RecurrencePattern;
 import com.todoapp.domain.model.Task;
+import com.todoapp.infrastructure.security.UserPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -369,9 +372,8 @@ public class TaskController {
           Long userId) {
     logger.info("Setting recurrence pattern for task ID: {} by user ID: {}", id, userId);
 
-    // Get the task
-    TaskResponseDTO taskDTO = taskService.getTaskById(id, userId);
-    Task task = taskMapper.toEntity(taskDTO);
+    // Get the task entity directly for recurrence pattern creation
+    Task task = taskService.getTaskEntityById(id, userId);
 
     // Check if pattern already exists
     RecurrencePattern existingPattern = taskService.getRecurrencePattern(id, userId);
@@ -503,20 +505,22 @@ public class TaskController {
 
     switch (batchOperationDTO.getOperationType()) {
       case COMPLETE:
-        taskService.batchComplete(batchOperationDTO.getTaskIds(), userPrincipal.getId());
+        taskService.batchComplete(batchOperationDTO.getTaskIds(), userPrincipal.getUserId());
         break;
       case DELETE:
-        taskService.batchDelete(batchOperationDTO.getTaskIds(), userPrincipal.getId());
+        taskService.batchDelete(batchOperationDTO.getTaskIds(), userPrincipal.getUserId());
         break;
       case ASSIGN_CATEGORY:
         taskService.batchUpdateCategory(
             batchOperationDTO.getTaskIds(),
             batchOperationDTO.getCategoryId(),
-            userPrincipal.getId());
+            userPrincipal.getUserId());
         break;
       case ASSIGN_TAGS:
         taskService.batchUpdateTags(
-            batchOperationDTO.getTaskIds(), batchOperationDTO.getTagIds(), userPrincipal.getId());
+            batchOperationDTO.getTaskIds(),
+            batchOperationDTO.getTagIds(),
+            userPrincipal.getUserId());
         break;
       default:
         throw new IllegalArgumentException("Unknown operation type");

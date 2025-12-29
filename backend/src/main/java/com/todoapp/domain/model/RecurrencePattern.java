@@ -171,6 +171,89 @@ public class RecurrencePattern {
 
   /** Custom builder to handle validation and proper initialization. */
   public static class RecurrencePatternBuilder {
+    // Builder fields
+    private Long id;
+    private Task task;
+    private Frequency frequency;
+    private Integer intervalValue;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private Integer dayOfMonth;
+    private Integer maxOccurrences;
+    private Integer generatedCount;
+    private LocalDate lastGeneratedDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Set<DayOfWeek> daysOfWeek$value;
+    private boolean daysOfWeek$set;
+
+    // Builder setter methods
+    public RecurrencePatternBuilder id(Long id) {
+      this.id = id;
+      return this;
+    }
+
+    public RecurrencePatternBuilder task(Task task) {
+      this.task = task;
+      return this;
+    }
+
+    public RecurrencePatternBuilder frequency(Frequency frequency) {
+      this.frequency = frequency;
+      return this;
+    }
+
+    public RecurrencePatternBuilder intervalValue(Integer intervalValue) {
+      this.intervalValue = intervalValue;
+      return this;
+    }
+
+    public RecurrencePatternBuilder startDate(LocalDate startDate) {
+      this.startDate = startDate;
+      return this;
+    }
+
+    public RecurrencePatternBuilder endDate(LocalDate endDate) {
+      this.endDate = endDate;
+      return this;
+    }
+
+    public RecurrencePatternBuilder dayOfMonth(Integer dayOfMonth) {
+      this.dayOfMonth = dayOfMonth;
+      return this;
+    }
+
+    public RecurrencePatternBuilder maxOccurrences(Integer maxOccurrences) {
+      this.maxOccurrences = maxOccurrences;
+      return this;
+    }
+
+    public RecurrencePatternBuilder generatedCount(Integer generatedCount) {
+      this.generatedCount = generatedCount;
+      return this;
+    }
+
+    public RecurrencePatternBuilder lastGeneratedDate(LocalDate lastGeneratedDate) {
+      this.lastGeneratedDate = lastGeneratedDate;
+      return this;
+    }
+
+    public RecurrencePatternBuilder createdAt(LocalDateTime createdAt) {
+      this.createdAt = createdAt;
+      return this;
+    }
+
+    public RecurrencePatternBuilder updatedAt(LocalDateTime updatedAt) {
+      this.updatedAt = updatedAt;
+      return this;
+    }
+
+    public RecurrencePatternBuilder daysOfWeek(Set<DayOfWeek> daysOfWeek) {
+      this.daysOfWeek$value = daysOfWeek;
+      this.daysOfWeek$set = true;
+      return this;
+    }
+
     public RecurrencePattern build() {
       RecurrencePattern pattern = new RecurrencePattern();
       pattern.id = this.id;
@@ -195,15 +278,6 @@ public class RecurrencePattern {
       pattern.validate();
 
       return pattern;
-    }
-
-    private Set<DayOfWeek> daysOfWeek$value;
-    private boolean daysOfWeek$set;
-
-    public RecurrencePatternBuilder daysOfWeek(Set<DayOfWeek> daysOfWeek) {
-      this.daysOfWeek$value = daysOfWeek;
-      this.daysOfWeek$set = true;
-      return this;
     }
   }
 }

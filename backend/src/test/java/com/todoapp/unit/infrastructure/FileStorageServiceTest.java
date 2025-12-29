@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.todoapp.infrastructure.storage.FileStorageService;
 
 import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
@@ -141,9 +142,12 @@ public class FileStorageServiceTest {
   public void shouldDownloadFileSuccessfully() throws Exception {
     String storageKey = "uploads/123/test-document.pdf";
     byte[] fileContent = "Downloaded content".getBytes();
-    InputStream mockInputStream = new ByteArrayInputStream(fileContent);
+    ByteArrayInputStream mockInputStream = new ByteArrayInputStream(fileContent);
 
-    when(minioClient.getObject(any(GetObjectArgs.class))).thenReturn(mockInputStream);
+    // GetObjectResponse extends InputStream, so we can create it with the mock stream
+    GetObjectResponse mockResponse = new GetObjectResponse(null, null, null, null, mockInputStream);
+
+    when(minioClient.getObject(any(GetObjectArgs.class))).thenReturn(mockResponse);
 
     InputStream result = fileStorageService.downloadFile(storageKey);
 

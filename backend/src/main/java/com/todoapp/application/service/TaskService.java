@@ -1,5 +1,6 @@
 package com.todoapp.application.service;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -144,6 +145,30 @@ public class TaskService {
     }
 
     return taskMapper.toResponseDTO(task);
+  }
+
+  /**
+   * Get Task entity by ID for internal service operations.
+   *
+   * @param taskId The task ID
+   * @param userId The user ID for authorization
+   * @return Task entity
+   * @throws ResourceNotFoundException if task not found
+   * @throws IllegalArgumentException if user does not have access
+   */
+  public Task getTaskEntityById(Long taskId, Long userId) {
+    logger.debug("Fetching task entity ID: {} for user ID: {}", taskId, userId);
+
+    Task task =
+        taskRepository
+            .findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskId));
+
+    if (!hasTaskAccess(task, userId)) {
+      throw new IllegalArgumentException("User does not have access to this task");
+    }
+
+    return task;
   }
 
   private boolean hasTaskAccess(Task task, Long userId) {
@@ -314,7 +339,9 @@ public class TaskService {
             savedTask.getDescription(),
             savedTask.getIsCompleted(),
             savedTask.getPriority(),
-            savedTask.getDueDate());
+            savedTask.getDueDate() != null
+                ? savedTask.getDueDate().atZone(ZoneId.systemDefault()).toInstant()
+                : null);
     broadcastToTaskCollaborators(savedTask, message);
 
     return taskMapper.toResponseDTO(savedTask);
@@ -618,7 +645,7 @@ public class TaskService {
       // Send to all collaborators (users with shared access)
       List<TaskShare> shares = taskShareRepository.findByTaskId(task.getId());
       List<Long> collaboratorIds =
-          shares.stream().map(share -> share.getSharedWith().getId()).toList();
+          shares.stream().map(share -> share.getSharedWithUser().getId()).toList();
 
       if (!collaboratorIds.isEmpty()) {
         webSocketHandler.sendTaskUpdateToUsers(collaboratorIds, message);

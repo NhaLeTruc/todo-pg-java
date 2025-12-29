@@ -58,7 +58,8 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     String notes = request != null ? request.getNotes() : null;
-    TimeEntryDTO timeEntry = timeTrackingService.startTimer(taskId, userPrincipal.getId(), notes);
+    TimeEntryDTO timeEntry =
+        timeTrackingService.startTimer(taskId, userPrincipal.getUserId(), notes);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(timeEntry);
   }
@@ -78,7 +79,7 @@ public class TimeTrackingController {
       @Parameter(description = "Time entry ID") @PathVariable Long id,
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-    TimeEntryDTO timeEntry = timeTrackingService.stopTimer(id, userPrincipal.getId());
+    TimeEntryDTO timeEntry = timeTrackingService.stopTimer(id, userPrincipal.getUserId());
 
     return ResponseEntity.ok(timeEntry);
   }
@@ -104,7 +105,7 @@ public class TimeTrackingController {
     TimeEntryDTO timeEntry =
         timeTrackingService.logManualTime(
             taskId,
-            userPrincipal.getId(),
+            userPrincipal.getUserId(),
             request.getDurationMinutes(),
             request.getNotes(),
             request.getLoggedAt());
@@ -129,7 +130,7 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     List<TimeEntryDTO> entries =
-        timeTrackingService.getTimeEntriesForTask(taskId, userPrincipal.getId());
+        timeTrackingService.getTimeEntriesForTask(taskId, userPrincipal.getUserId());
 
     return ResponseEntity.ok(entries);
   }
@@ -151,7 +152,7 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     Optional<TimeEntryDTO> activeTimer =
-        timeTrackingService.getActiveTimer(taskId, userPrincipal.getId());
+        timeTrackingService.getActiveTimer(taskId, userPrincipal.getUserId());
 
     return activeTimer.map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
   }
@@ -171,7 +172,7 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     Optional<TimeEntryDTO> activeTimer =
-        timeTrackingService.getActiveTimerForUser(userPrincipal.getId());
+        timeTrackingService.getActiveTimerForUser(userPrincipal.getUserId());
 
     return activeTimer.map(ResponseEntity::ok).orElse(ResponseEntity.noContent().build());
   }
@@ -218,10 +219,12 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     List<TimeEntryDTO> entries =
-        timeTrackingService.getTimeEntriesForUserInRange(userPrincipal.getId(), startDate, endDate);
+        timeTrackingService.getTimeEntriesForUserInRange(
+            userPrincipal.getUserId(), startDate, endDate);
 
     int totalTime =
-        timeTrackingService.getTotalTimeForUserInRange(userPrincipal.getId(), startDate, endDate);
+        timeTrackingService.getTotalTimeForUserInRange(
+            userPrincipal.getUserId(), startDate, endDate);
 
     TimeReportResponse response = new TimeReportResponse();
     response.setEntries(entries);
@@ -243,7 +246,7 @@ public class TimeTrackingController {
       @Parameter(description = "Time entry ID") @PathVariable Long id,
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-    timeTrackingService.deleteTimeEntry(id, userPrincipal.getId());
+    timeTrackingService.deleteTimeEntry(id, userPrincipal.getUserId());
 
     return ResponseEntity.noContent().build();
   }
@@ -266,7 +269,7 @@ public class TimeTrackingController {
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     TimeEntryDTO timeEntry =
-        timeTrackingService.updateNotes(id, userPrincipal.getId(), request.getNotes());
+        timeTrackingService.updateNotes(id, userPrincipal.getUserId(), request.getNotes());
 
     return ResponseEntity.ok(timeEntry);
   }

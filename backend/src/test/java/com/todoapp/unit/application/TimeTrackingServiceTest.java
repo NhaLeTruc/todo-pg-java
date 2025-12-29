@@ -44,7 +44,7 @@ class TimeTrackingServiceTest {
 
   @BeforeEach
   void setUp() {
-    testUser = User.builder().id(1L).email("user@test.com").username("testuser").build();
+    testUser = User.builder().id(1L).email("user@test.com").build();
 
     testTask = Task.builder().id(1L).description("Test Task").user(testUser).build();
   }

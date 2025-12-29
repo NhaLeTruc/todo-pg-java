@@ -137,17 +137,6 @@ public class NotificationService {
   }
 
   /**
-   * Mark all notifications as read for a user.
-   *
-   * @param userId The user ID
-   */
-  @Transactional
-  public void markAllAsRead(UUID userId) {
-    notificationRepository.markAllAsReadForUser(userId, java.time.LocalDateTime.now());
-    logger.info("All notifications marked as read for user: {}", userId);
-  }
-
-  /**
    * Get notification preferences for a user.
    *
    * @param userId The user ID
@@ -155,7 +144,7 @@ public class NotificationService {
    * @return Notification preference
    */
   @Transactional(readOnly = true)
-  public NotificationPreference getPreference(UUID userId, NotificationType type) {
+  public NotificationPreference getPreference(Long userId, NotificationType type) {
     return preferenceRepository.findByUserIdAndNotificationType(userId, type).orElse(null);
   }
 
@@ -170,7 +159,7 @@ public class NotificationService {
    */
   @Transactional
   public NotificationPreference updatePreference(
-      UUID userId, NotificationType type, boolean inAppEnabled, boolean emailEnabled) {
+      Long userId, NotificationType type, boolean inAppEnabled, boolean emailEnabled) {
     Optional<NotificationPreference> existing =
         preferenceRepository.findByUserIdAndNotificationType(userId, type);
 

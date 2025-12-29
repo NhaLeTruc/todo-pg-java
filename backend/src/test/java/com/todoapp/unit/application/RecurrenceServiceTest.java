@@ -41,7 +41,7 @@ class RecurrenceServiceTest {
 
   @BeforeEach
   void setUp() {
-    testUser = User.builder().id(1L).email("test@example.com").username("testuser").build();
+    testUser = User.builder().id(1L).email("test@example.com").build();
 
     templateTask =
         Task.builder()

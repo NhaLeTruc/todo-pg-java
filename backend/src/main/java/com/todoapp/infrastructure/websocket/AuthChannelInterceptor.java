@@ -45,7 +45,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         }
 
         if (jwtTokenProvider.validateToken(token)) {
-          String username = jwtTokenProvider.getUsernameFromToken(token);
+          String username = jwtTokenProvider.getEmailFromToken(token);
           UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
           UsernamePasswordAuthenticationToken authentication =

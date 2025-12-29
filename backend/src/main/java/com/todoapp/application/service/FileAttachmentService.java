@@ -59,7 +59,7 @@ public class FileAttachmentService {
    * @return The created file attachment DTO
    */
   @Transactional
-  public FileAttachmentDTO uploadFile(UUID taskId, UUID userId, MultipartFile file) {
+  public FileAttachmentDTO uploadFile(Long taskId, Long userId, MultipartFile file) {
     // Validate inputs
     if (file == null || file.isEmpty()) {
       throw new IllegalArgumentException("File cannot be empty");
@@ -124,7 +124,7 @@ public class FileAttachmentService {
    * @return List of file attachment DTOs
    */
   @Transactional(readOnly = true)
-  public List<FileAttachmentDTO> getAttachmentsForTask(UUID taskId, UUID userId) {
+  public List<FileAttachmentDTO> getAttachmentsForTask(Long taskId, Long userId) {
     Task task =
         taskRepository
             .findById(taskId)
@@ -151,7 +151,7 @@ public class FileAttachmentService {
    * @return InputStream of the file content
    */
   @Transactional(readOnly = true)
-  public InputStream downloadFile(UUID attachmentId, UUID userId) {
+  public InputStream downloadFile(UUID attachmentId, Long userId) {
     FileAttachment attachment =
         fileAttachmentRepository
             .findById(attachmentId)
@@ -182,7 +182,7 @@ public class FileAttachmentService {
    * @param userId The ID of the requesting user
    */
   @Transactional
-  public void deleteFile(UUID attachmentId, UUID userId) {
+  public void deleteFile(UUID attachmentId, Long userId) {
     FileAttachment attachment =
         fileAttachmentRepository
             .findById(attachmentId)
@@ -218,7 +218,7 @@ public class FileAttachmentService {
    * @return The file attachment DTO
    */
   @Transactional(readOnly = true)
-  public FileAttachmentDTO getAttachment(UUID attachmentId, UUID userId) {
+  public FileAttachmentDTO getAttachment(UUID attachmentId, Long userId) {
     FileAttachment attachment =
         fileAttachmentRepository
             .findById(attachmentId)
@@ -260,7 +260,7 @@ public class FileAttachmentService {
    * @param additionalSize The size of the file being uploaded
    * @throws RuntimeException if quota exceeded
    */
-  private void checkUserStorageQuota(UUID userId, long additionalSize) {
+  private void checkUserStorageQuota(Long userId, long additionalSize) {
     long currentUsage = fileAttachmentRepository.calculateTotalFileSizeByUserId(userId);
     long newUsage = currentUsage + additionalSize;
 

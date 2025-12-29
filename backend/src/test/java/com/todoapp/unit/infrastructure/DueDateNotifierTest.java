@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,22 +39,22 @@ public class DueDateNotifierTest {
   @BeforeEach
   public void setUp() {
     testUser = new User();
-    testUser.setId(UUID.randomUUID());
+    testUser.setId(1L);
     testUser.setEmail("test@example.com");
     testUser.setPasswordHash("hashedPassword");
 
     testTask = new Task();
-    testTask.setId(UUID.randomUUID());
+    testTask.setId(1L);
     testTask.setDescription("Test task");
     testTask.setUser(testUser);
-    testTask.setCompleted(false);
+    testTask.setIsCompleted(false);
   }
 
   @Test
   @DisplayName("Should send notification for tasks due tomorrow")
   public void shouldSendNotificationForTasksDueTomorrow() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
-    testTask.setDueDate(tomorrow);
+    testTask.setDueDate(tomorrow.atStartOfDay());
 
     when(taskRepository.findTasksDueSoon()).thenReturn(Collections.singletonList(testTask));
 
@@ -70,7 +69,7 @@ public class DueDateNotifierTest {
   @DisplayName("Should send notification for overdue tasks")
   public void shouldSendNotificationForOverdueTasks() {
     LocalDate yesterday = LocalDate.now().minusDays(1);
-    testTask.setDueDate(yesterday);
+    testTask.setDueDate(yesterday.atStartOfDay());
 
     when(taskRepository.findOverdueTasks()).thenReturn(Collections.singletonList(testTask));
 
@@ -85,8 +84,8 @@ public class DueDateNotifierTest {
   @DisplayName("Should not send notification for completed tasks")
   public void shouldNotSendNotificationForCompletedTasks() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
-    testTask.setDueDate(tomorrow);
-    testTask.setCompleted(true);
+    testTask.setDueDate(tomorrow.atStartOfDay());
+    testTask.setIsCompleted(true);
 
     when(taskRepository.findTasksDueSoon()).thenReturn(Collections.emptyList());
 
@@ -101,18 +100,18 @@ public class DueDateNotifierTest {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
 
     Task task1 = new Task();
-    task1.setId(UUID.randomUUID());
+    task1.setId(1L);
     task1.setDescription("Task 1");
     task1.setUser(testUser);
-    task1.setDueDate(tomorrow);
-    task1.setCompleted(false);
+    task1.setDueDate(tomorrow.atStartOfDay());
+    task1.setIsCompleted(false);
 
     Task task2 = new Task();
-    task2.setId(UUID.randomUUID());
+    task2.setId(2L);
     task2.setDescription("Task 2");
     task2.setUser(testUser);
-    task2.setDueDate(tomorrow);
-    task2.setCompleted(false);
+    task2.setDueDate(tomorrow.atStartOfDay());
+    task2.setIsCompleted(false);
 
     when(taskRepository.findTasksDueSoon()).thenReturn(Arrays.asList(task1, task2));
 
@@ -126,7 +125,7 @@ public class DueDateNotifierTest {
   @DisplayName("Should handle errors gracefully when sending notifications")
   public void shouldHandleErrorsGracefully() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
-    testTask.setDueDate(tomorrow);
+    testTask.setDueDate(tomorrow.atStartOfDay());
 
     when(taskRepository.findTasksDueSoon()).thenReturn(Collections.singletonList(testTask));
     doThrow(new RuntimeException("Notification failed"))
@@ -144,7 +143,7 @@ public class DueDateNotifierTest {
   @DisplayName("Should not send duplicate notifications for same task")
   public void shouldNotSendDuplicateNotifications() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
-    testTask.setDueDate(tomorrow);
+    testTask.setDueDate(tomorrow.atStartOfDay());
 
     when(taskRepository.findTasksDueSoon()).thenReturn(Collections.singletonList(testTask));
 

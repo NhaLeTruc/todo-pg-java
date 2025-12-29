@@ -3,7 +3,7 @@ package com.todoapp.domain.model;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -72,7 +72,7 @@ public class TimeEntry {
   @Column(name = "notes", columnDefinition = "TEXT")
   private String notes;
 
-  @CreatedDate
+  @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 

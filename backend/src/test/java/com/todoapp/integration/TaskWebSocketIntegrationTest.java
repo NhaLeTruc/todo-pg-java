@@ -3,7 +3,7 @@ package com.todoapp.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,6 +21,8 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
+import com.todoapp.application.dto.TaskCreateDTO;
+import com.todoapp.application.dto.TaskUpdateDTO;
 import com.todoapp.application.dto.TaskUpdateMessage;
 import com.todoapp.application.service.TaskService;
 import com.todoapp.domain.model.*;
@@ -86,12 +88,10 @@ public class TaskWebSocketIntegrationTest {
         });
 
     // Create a task
-    Task task = new Task();
-    task.setDescription("WebSocket test task");
-    task.setUser(testUser);
-    task.setIsCompleted(false);
-    task.setDueDate(Instant.now().plusSeconds(3600));
-    taskService.createTask(task, testUser.getId());
+    TaskCreateDTO taskDTO = new TaskCreateDTO();
+    taskDTO.setDescription("WebSocket test task");
+    taskDTO.setDueDate(LocalDateTime.now().plusHours(1));
+    taskService.createTask(taskDTO, testUser.getId());
 
     // Wait for message to be received
     await()
@@ -145,9 +145,10 @@ public class TaskWebSocketIntegrationTest {
         });
 
     // Update the task
-    task.setDescription("Updated description");
-    task.setPriority(Priority.HIGH);
-    taskService.updateTask(task.getId(), task, testUser.getId());
+    TaskUpdateDTO updateDTO = new TaskUpdateDTO();
+    updateDTO.setDescription("Updated description");
+    updateDTO.setPriority(Priority.HIGH);
+    taskService.updateTask(task.getId(), updateDTO, testUser.getId());
 
     // Wait for message to be received
     await()
@@ -298,23 +299,17 @@ public class TaskWebSocketIntegrationTest {
         });
 
     // Create multiple tasks
-    Task task1 = new Task();
-    task1.setDescription("Task 1");
-    task1.setUser(testUser);
-    task1.setIsCompleted(false);
-    taskService.createTask(task1, testUser.getId());
+    TaskCreateDTO task1DTO = new TaskCreateDTO();
+    task1DTO.setDescription("Task 1");
+    taskService.createTask(task1DTO, testUser.getId());
 
-    Task task2 = new Task();
-    task2.setDescription("Task 2");
-    task2.setUser(testUser);
-    task2.setIsCompleted(false);
-    taskService.createTask(task2, testUser.getId());
+    TaskCreateDTO task2DTO = new TaskCreateDTO();
+    task2DTO.setDescription("Task 2");
+    taskService.createTask(task2DTO, testUser.getId());
 
-    Task task3 = new Task();
-    task3.setDescription("Task 3");
-    task3.setUser(testUser);
-    task3.setIsCompleted(false);
-    taskService.createTask(task3, testUser.getId());
+    TaskCreateDTO task3DTO = new TaskCreateDTO();
+    task3DTO.setDescription("Task 3");
+    taskService.createTask(task3DTO, testUser.getId());
 
     // Wait for all messages
     await()

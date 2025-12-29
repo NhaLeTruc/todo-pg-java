@@ -31,7 +31,7 @@ public interface FileAttachmentRepository extends JpaRepository<FileAttachment, 
    * @return List of file attachments
    */
   @Query("SELECT fa FROM FileAttachment fa WHERE fa.task.id = :taskId ORDER BY fa.createdAt DESC")
-  List<FileAttachment> findByTaskId(@Param("taskId") UUID taskId);
+  List<FileAttachment> findByTaskId(@Param("taskId") Long taskId);
 
   /**
    * Find a file attachment by its storage key.
@@ -56,7 +56,7 @@ public interface FileAttachmentRepository extends JpaRepository<FileAttachment, 
    * @return List of file attachments
    */
   @Query("SELECT fa FROM FileAttachment fa WHERE fa.user.id = :userId ORDER BY fa.createdAt DESC")
-  List<FileAttachment> findByUserId(@Param("userId") UUID userId);
+  List<FileAttachment> findByUserId(@Param("userId") Long userId);
 
   /**
    * Count file attachments for a specific task.
@@ -65,7 +65,7 @@ public interface FileAttachmentRepository extends JpaRepository<FileAttachment, 
    * @return Number of attachments
    */
   @Query("SELECT COUNT(fa) FROM FileAttachment fa WHERE fa.task.id = :taskId")
-  long countByTaskId(@Param("taskId") UUID taskId);
+  long countByTaskId(@Param("taskId") Long taskId);
 
   /**
    * Calculate total file size for a specific user.
@@ -74,7 +74,7 @@ public interface FileAttachmentRepository extends JpaRepository<FileAttachment, 
    * @return Total file size in bytes
    */
   @Query("SELECT COALESCE(SUM(fa.fileSize), 0) FROM FileAttachment fa WHERE fa.user.id = :userId")
-  long calculateTotalFileSizeByUserId(@Param("userId") UUID userId);
+  long calculateTotalFileSizeByUserId(@Param("userId") Long userId);
 
   /**
    * Find file attachment by ID and user ID (for authorization).
@@ -84,7 +84,7 @@ public interface FileAttachmentRepository extends JpaRepository<FileAttachment, 
    * @return Optional file attachment
    */
   @Query("SELECT fa FROM FileAttachment fa WHERE fa.id = :id AND fa.user.id = :userId")
-  Optional<FileAttachment> findByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
+  Optional<FileAttachment> findByIdAndUserId(@Param("id") UUID id, @Param("userId") Long userId);
 
   /**
    * Delete all file attachments for a specific task.
@@ -92,5 +92,5 @@ public interface FileAttachmentRepository extends JpaRepository<FileAttachment, 
    * @param taskId The task ID
    */
   @Query("DELETE FROM FileAttachment fa WHERE fa.task.id = :taskId")
-  void deleteByTaskId(@Param("taskId") UUID taskId);
+  void deleteByTaskId(@Param("taskId") Long taskId);
 }

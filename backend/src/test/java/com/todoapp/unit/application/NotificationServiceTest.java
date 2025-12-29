@@ -46,12 +46,12 @@ public class NotificationServiceTest {
   @BeforeEach
   public void setUp() {
     testUser = new User();
-    testUser.setId(UUID.randomUUID());
+    testUser.setId(1L);
     testUser.setEmail("test@example.com");
     testUser.setPasswordHash("hashedPassword");
 
     testTask = new Task();
-    testTask.setId(UUID.randomUUID());
+    testTask.setId(1L);
     testTask.setDescription("Test task");
     testTask.setUser(testUser);
   }

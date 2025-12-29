@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.todoapp.application.dto.FileAttachmentDTO;
 import com.todoapp.application.service.FileAttachmentService;
-import com.todoapp.infrastructure.security.CurrentUser;
+import com.todoapp.infrastructure.security.UserPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,9 +62,9 @@ public class FileAttachmentController {
   @ApiResponse(responseCode = "403", description = "User does not have access to this task")
   @ApiResponse(responseCode = "404", description = "Task not found")
   public ResponseEntity<FileAttachmentDTO> uploadAttachment(
-      @Parameter(description = "ID of the task") @PathVariable UUID taskId,
+      @Parameter(description = "ID of the task") @PathVariable Long taskId,
       @Parameter(description = "File to upload") @RequestParam("file") MultipartFile file,
-      @AuthenticationPrincipal CurrentUser currentUser) {
+      @AuthenticationPrincipal UserPrincipal currentUser) {
 
     logger.info(
         "Uploading file attachment for task: {} by user: {}", taskId, currentUser.getUserId());
@@ -93,8 +93,8 @@ public class FileAttachmentController {
   @ApiResponse(responseCode = "403", description = "User does not have access to this task")
   @ApiResponse(responseCode = "404", description = "Task not found")
   public ResponseEntity<List<FileAttachmentDTO>> getTaskAttachments(
-      @Parameter(description = "ID of the task") @PathVariable UUID taskId,
-      @AuthenticationPrincipal CurrentUser currentUser) {
+      @Parameter(description = "ID of the task") @PathVariable Long taskId,
+      @AuthenticationPrincipal UserPrincipal currentUser) {
 
     logger.info("Getting attachments for task: {} by user: {}", taskId, currentUser.getUserId());
 
@@ -126,7 +126,7 @@ public class FileAttachmentController {
       description = "File is not safe to download (virus scan pending or infected)")
   public ResponseEntity<Resource> downloadAttachment(
       @Parameter(description = "ID of the attachment") @PathVariable UUID id,
-      @AuthenticationPrincipal CurrentUser currentUser) {
+      @AuthenticationPrincipal UserPrincipal currentUser) {
 
     logger.info("Downloading attachment: {} by user: {}", id, currentUser.getUserId());
 
@@ -162,7 +162,7 @@ public class FileAttachmentController {
   @ApiResponse(responseCode = "404", description = "Attachment not found")
   public ResponseEntity<Void> deleteAttachment(
       @Parameter(description = "ID of the attachment") @PathVariable UUID id,
-      @AuthenticationPrincipal CurrentUser currentUser) {
+      @AuthenticationPrincipal UserPrincipal currentUser) {
 
     logger.info("Deleting attachment: {} by user: {}", id, currentUser.getUserId());
 
@@ -190,7 +190,7 @@ public class FileAttachmentController {
   @ApiResponse(responseCode = "404", description = "Attachment not found")
   public ResponseEntity<FileAttachmentDTO> getAttachment(
       @Parameter(description = "ID of the attachment") @PathVariable UUID id,
-      @AuthenticationPrincipal CurrentUser currentUser) {
+      @AuthenticationPrincipal UserPrincipal currentUser) {
 
     logger.info("Getting attachment metadata: {} by user: {}", id, currentUser.getUserId());
 

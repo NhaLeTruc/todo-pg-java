@@ -3,7 +3,6 @@ package com.todoapp.infrastructure.config;
 import java.time.Duration;
 
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
-import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsContributor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -75,22 +74,9 @@ public class MetricsConfig {
     return new TimedAspect(registry);
   }
 
-  /**
-   * Custom WebMvc tags contributor for enhanced HTTP metrics.
-   *
-   * @return WebMvc tags contributor
-   */
-  @Bean
-  public WebMvcTagsContributor webMvcTagsContributor() {
-    return (request, response, handler, exception) -> {
-      // Add custom tags to HTTP metrics
-      return io.micrometer.core.instrument.Tags.of(
-          "custom.path.pattern",
-          request.getRequestURI(),
-          "custom.http.version",
-          request.getProtocol());
-    };
-  }
+  // WebMvcTagsContributor has been replaced with Observation API in Spring Boot 3.x
+  // Custom HTTP metrics can be added through ObservationRegistry and custom conventions
+  // if needed in the future
 
   /**
    * Get current environment from system properties or environment variables.

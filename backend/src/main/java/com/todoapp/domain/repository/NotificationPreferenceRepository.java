@@ -45,7 +45,7 @@ public interface NotificationPreferenceRepository
   @Query(
       "SELECT np FROM NotificationPreference np WHERE np.user.id = :userId AND np.notificationType = :type")
   Optional<NotificationPreference> findByUserIdAndNotificationType(
-      @Param("userId") UUID userId, @Param("type") NotificationType notificationType);
+      @Param("userId") Long userId, @Param("type") NotificationType notificationType);
 
   /**
    * Find all users who have a specific notification type enabled via email.

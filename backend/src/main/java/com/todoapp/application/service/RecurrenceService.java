@@ -61,7 +61,7 @@ public class RecurrenceService {
             .priority(templateTask.getPriority())
             .category(templateTask.getCategory())
             .isCompleted(false)
-            .dueDate(nextDate)
+            .dueDate(nextDate.atStartOfDay())
             .build();
 
     taskRepository.save(newInstance);

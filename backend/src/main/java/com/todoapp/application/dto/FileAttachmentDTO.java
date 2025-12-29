@@ -8,8 +8,8 @@ import com.todoapp.domain.model.VirusScanStatus;
 public class FileAttachmentDTO {
 
   private UUID id;
-  private UUID taskId;
-  private UUID userId;
+  private Long taskId;
+  private Long userId;
   private String fileName;
   private Long fileSize;
   private String mimeType;
@@ -25,8 +25,8 @@ public class FileAttachmentDTO {
 
   public FileAttachmentDTO(
       UUID id,
-      UUID taskId,
-      UUID userId,
+      Long taskId,
+      Long userId,
       String fileName,
       Long fileSize,
       String mimeType,
@@ -58,19 +58,19 @@ public class FileAttachmentDTO {
     this.id = id;
   }
 
-  public UUID getTaskId() {
+  public Long getTaskId() {
     return taskId;
   }
 
-  public void setTaskId(UUID taskId) {
+  public void setTaskId(Long taskId) {
     this.taskId = taskId;
   }
 
-  public UUID getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
-  public void setUserId(UUID userId) {
+  public void setUserId(Long userId) {
     this.userId = userId;
   }
 

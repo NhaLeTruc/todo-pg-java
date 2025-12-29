@@ -1,6 +1,6 @@
 package com.todoapp.infrastructure.messaging;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -106,7 +106,7 @@ public class DueDateNotifier {
    * @param date The date to format
    * @return Formatted date string
    */
-  private String formatDate(LocalDate date) {
+  private String formatDate(LocalDateTime date) {
     if (date == null) {
       return "";
     }

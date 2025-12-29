@@ -67,8 +67,7 @@ class TimeTrackingApiTest {
     testUser =
         User.builder()
             .email("timetrack@test.com")
-            .username("timetracker")
-            .password(passwordEncoder.encode("password"))
+            .passwordHash(passwordEncoder.encode("password"))
             .build();
     testUser = userRepository.save(testUser);
 
@@ -81,7 +80,7 @@ class TimeTrackingApiTest {
             .build();
     testTask = taskRepository.save(testTask);
 
-    authToken = jwtTokenProvider.generateToken(testUser.getEmail());
+    authToken = jwtTokenProvider.generateToken(testUser.getEmail(), testUser.getId());
   }
 
   @Test
@@ -433,8 +432,7 @@ class TimeTrackingApiTest {
     User otherUser =
         User.builder()
             .email("other@test.com")
-            .username("otheruser")
-            .password(passwordEncoder.encode("password"))
+            .passwordHash(passwordEncoder.encode("password"))
             .build();
     otherUser = userRepository.save(otherUser);
 
