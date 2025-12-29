@@ -88,10 +88,13 @@ public class RecurrenceService {
    * @return the next occurrence date
    */
   private LocalDate calculateNextOccurrence(RecurrencePattern pattern) {
-    LocalDate baseDate =
-        pattern.getLastGeneratedDate() != null
-            ? pattern.getLastGeneratedDate()
-            : pattern.getStartDate().minusDays(1);
+    // For first generation, return the start date
+    if (pattern.getLastGeneratedDate() == null) {
+      return pattern.getStartDate();
+    }
+
+    // For subsequent generations, calculate from last generated date
+    LocalDate baseDate = pattern.getLastGeneratedDate();
 
     switch (pattern.getFrequency()) {
       case DAILY:
@@ -130,33 +133,44 @@ public class RecurrenceService {
    */
   private LocalDate calculateNextWeekly(
       LocalDate baseDate, int interval, Set<DayOfWeek> daysOfWeek) {
-    // Start from next day
+    // For interval=1, check if there's a matching day in the current week after baseDate
     LocalDate nextDate = baseDate.plusDays(1);
 
-    // If interval > 1, we need to find the next occurrence in the target week
-    // For now, find the next matching day of week
-    while (true) {
-      if (daysOfWeek.contains(nextDate.getDayOfWeek())) {
-        // Check if this is the right week based on interval
-        long weeksBetween =
-            (nextDate.toEpochDay() - baseDate.toEpochDay()) / 7; // Simplified week calculation
-        if (weeksBetween >= interval || baseDate.equals(nextDate.minusDays(1))) {
+    // First, try to find a matching day in the current week (only for interval=1)
+    if (interval == 1) {
+      // Check remaining days in current week
+      while (nextDate.getDayOfWeek() != DayOfWeek.MONDAY || nextDate.equals(baseDate.plusDays(1))) {
+        if (daysOfWeek.contains(nextDate.getDayOfWeek())) {
           return nextDate;
         }
-      }
-      nextDate = nextDate.plusDays(1);
+        nextDate = nextDate.plusDays(1);
 
-      // Safety check to prevent infinite loop
-      if (nextDate.isAfter(baseDate.plusWeeks(interval * 4))) {
-        // If we've gone too far, reset and find first matching day in target week
-        LocalDate targetWeekStart = baseDate.plusWeeks(interval);
-        nextDate = targetWeekStart;
-        while (!daysOfWeek.contains(nextDate.getDayOfWeek())) {
-          nextDate = nextDate.plusDays(1);
+        // If we've reached next Monday, break to use interval logic
+        if (nextDate.getDayOfWeek() == DayOfWeek.MONDAY && !nextDate.equals(baseDate.plusDays(1))) {
+          break;
         }
-        return nextDate;
       }
     }
+
+    // For interval > 1, or if no matching day found in current week
+    // Jump to the target week and find first matching day
+    LocalDate targetWeekStart = baseDate.plusWeeks(interval);
+    // Adjust to start of week (Monday)
+    while (targetWeekStart.getDayOfWeek() != DayOfWeek.MONDAY) {
+      targetWeekStart = targetWeekStart.minusDays(1);
+    }
+
+    // Find first matching day in target week
+    nextDate = targetWeekStart;
+    for (int i = 0; i < 7; i++) {
+      if (daysOfWeek.contains(nextDate.getDayOfWeek())) {
+        return nextDate;
+      }
+      nextDate = nextDate.plusDays(1);
+    }
+
+    // Should not reach here if daysOfWeek is not empty
+    throw new IllegalStateException("No matching day of week found");
   }
 
   /**

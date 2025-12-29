@@ -94,7 +94,7 @@ class RecurrenceServiceTest {
       verify(taskRepository).save(taskCaptor.capture());
       Task savedTask = taskCaptor.getValue();
       assertThat(savedTask.getDescription()).isEqualTo("Recurring task");
-      assertThat(savedTask.getDueDate()).isEqualTo(startDate);
+      assertThat(savedTask.getDueDate()).isEqualTo(startDate.atStartOfDay());
       assertThat(savedTask.getUser()).isEqualTo(testUser);
       assertThat(savedTask.getIsCompleted()).isFalse();
     }
